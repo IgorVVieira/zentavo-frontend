@@ -7,6 +7,28 @@
   --foreground-rgb: 255, 255, 255;
   --background-start-rgb: 20, 20, 25;
   --background-end-rgb: 10, 10, 15;
+  
+  /* Variáveis para espaçamento consistente */
+  --container-padding: 1.5rem;
+  --card-padding: 1.25rem;
+  --section-margin: 2rem;
+  --item-spacing: 1rem;
+  
+  /* Variáveis para cores */
+  --color-bg-primary: #111827; /* gray-900 */
+  --color-bg-secondary: #1f2937; /* gray-800 */
+  --color-bg-tertiary: #374151; /* gray-700 */
+  --color-accent-primary: #7c3aed; /* purple-600 */
+  --color-accent-secondary: #8b5cf6; /* purple-500 */
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #d1d5db; /* gray-300 */
+  --color-text-muted: #9ca3af; /* gray-400 */
+  
+  /* Variáveis para sombras */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -25,12 +47,39 @@ body {
       rgb(var(--background-end-rgb))
     )
     rgb(var(--background-start-rgb));
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+    Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  line-height: 1.5;
+}
+
+/* Estilo base para todos os containers */
+.container {
+  width: 100%;
+  padding-left: var(--container-padding);
+  padding-right: var(--container-padding);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Estilo para cards */
+.card {
+  background-color: var(--color-bg-secondary);
+  border-radius: 0.5rem;
+  padding: var(--card-padding);
+  margin-bottom: var(--item-spacing);
+  box-shadow: var(--shadow-md);
 }
 
 /* Estilos para links */
 a {
   text-decoration: none;
   color: inherit;
+  transition: color 0.2s ease-in-out;
+}
+
+a:hover {
+  color: var(--color-accent-secondary);
 }
 
 /* Reset básico */
@@ -38,6 +87,36 @@ a {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+}
+
+/* Melhoria do tamanho das seções */
+main {
+  padding: 1.5rem;
+}
+
+section {
+  margin-bottom: var(--section-margin);
+}
+
+/* Melhoria no espaçamento dos elementos */
+h1, h2, h3, h4, h5, h6 {
+  margin-bottom: 0.75rem;
+  line-height: 1.2;
+}
+
+p {
+  margin-bottom: 1rem;
+}
+
+/* Tabelas mais bonitas */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 0.75rem 1rem;
+  text-align: left;
 }
 
 /* Scrollbar personalizado para tema escuro */
@@ -74,9 +153,11 @@ select {
   background-color: #374151; /* bg-gray-700 */
   border: 1px solid #4b5563; /* border-gray-600 */
   border-radius: 0.5rem; /* rounded-lg */
-  padding: 0.5rem 1rem; /* px-4 py-2 */
+  padding: 0.625rem 1rem; /* Ligeiramente maior que o padrão */
   color: white;
   width: 100%;
+  margin-bottom: 1rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 input[type="text"]:focus,
@@ -87,4 +168,70 @@ select:focus {
   outline: none;
   border-color: transparent;
   box-shadow: 0 0 0 2px #8b5cf6; /* focus:ring-2 */
+}
+
+/* Estilo para botões */
+button, 
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.625rem 1.25rem;
+  font-weight: 500;
+  border-radius: 0.5rem;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  border: none;
+}
+
+button:disabled,
+.btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Melhoria nas animações */
+.animate-fadeIn {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Utilitários adicionais */
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.flex-col {
+  flex-direction: column;
+}
+
+/* Layout responsivo */
+@media (min-width: 768px) {
+  .container {
+    max-width: 768px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    max-width: 1024px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .container {
+    max-width: 1280px;
+  }
 }

@@ -1,5 +1,4 @@
 // tailwind.config.js
-/** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
@@ -8,8 +7,10 @@ module.exports = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ["Inter", "system-ui", "sans-serif"],
+      },
       colors: {
-        // Personalizando a paleta roxa para o Zentavo
         purple: {
           50: "#f5f3ff",
           100: "#ede9fe",
@@ -23,32 +24,33 @@ module.exports = {
           900: "#4c1d95",
           950: "#2e1065",
         },
+        gray: {
+          50: "#f9fafb",
+          100: "#f3f4f6",
+          200: "#e5e7eb",
+          300: "#d1d5db",
+          400: "#9ca3af",
+          500: "#6b7280",
+          600: "#4b5563",
+          700: "#374151",
+          800: "#1f2937",
+          900: "#111827",
+          950: "#0d1117",
+        },
       },
-      padding: {
-        "3": "0.75rem", // Definição explícita de p-3 (12px)
+      boxShadow: {
+        card: "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
+        elevated:
+          "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
       },
-      spacing: {
-        "1": "0.25rem", // 4px
-        "2": "0.5rem", // 8px
-        "3": "0.75rem", // 12px
-        "4": "1rem", // 16px
-        "5": "1.25rem", // 20px
-        "6": "1.5rem", // 24px
-        "8": "2rem", // 32px
-        "10": "2.5rem", // 40px
-        "12": "3rem", // 48px
-        "16": "4rem", // 64px
+      animation: {
+        "pulse-slow": "pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+      },
+      borderRadius: {
+        xl: "0.75rem",
+        "2xl": "1rem",
       },
     },
   },
   plugins: [],
-  darkMode: "class",
-  // Habilitar JIT (Just-In-Time) mode para reconhecer todas as classes utilizadas
-  mode: "jit",
-  // Escanear o conteúdo de forma mais ampla
-  purge: [
-    "./src/pages/**/*.{js,ts,jsx,tsx}",
-    "./src/components/**/*.{js,ts,jsx,tsx}",
-    "./src/app/**/*.{js,ts,jsx,tsx}",
-  ],
 };
