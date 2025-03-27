@@ -1,8 +1,6 @@
-// src/app/expenses/page.tsx
 "use client";
 
 import { useState, useEffect, useMemo, useRef } from "react";
-import Link from "next/link";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { useAuth } from "@/contexts/AuthContext";
 import {
@@ -17,7 +15,6 @@ import {
   FiArrowUp,
   FiArrowDown,
   FiChevronsUp,
-  FiChevronsDown,
   FiCheck,
   FiX,
 } from "react-icons/fi";

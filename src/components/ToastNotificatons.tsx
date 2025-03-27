@@ -1,4 +1,3 @@
-// src/components/ToastNotifications.tsx
 "use client";
 
 import { ToastContainer, toast } from "react-toastify";

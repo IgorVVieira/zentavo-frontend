@@ -1,4 +1,3 @@
-// src/components/Sidebar.tsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -7,19 +6,13 @@ import { usePathname } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  FiPieChart,
   FiDollarSign,
   FiUploadCloud,
-  FiSettings,
   FiUser,
   FiLogOut,
   FiMenu,
   FiChevronLeft,
-  FiHome,
-  FiBarChart2,
-  FiCreditCard,
   FiTag,
-  FiTarget,
 } from "react-icons/fi";
 
 interface SidebarProps {
@@ -35,7 +28,7 @@ const Sidebar = ({ isMobile = false, className = "" }: SidebarProps) => {
   const menuItems = [
     // { name: "Dashboard", icon: <FiPieChart />, path: "/" },
     { name: "Gastos Mensais", icon: <FiDollarSign />, path: "/expenses" },
-    // { name: "Categorias", icon: <FiTag />, path: "/categories" },
+    { name: "Categorias", icon: <FiTag />, path: "/categories" },
     { name: "Importar CSV", icon: <FiUploadCloud />, path: "/import" },
   ];
 
@@ -55,10 +48,10 @@ const Sidebar = ({ isMobile = false, className = "" }: SidebarProps) => {
           document.body.style.overflow = "";
         };
       };
-      
+
       // Bloquear scroll quando sidebar estiver aberto em mobile
       document.body.style.overflow = "hidden";
-      
+
       return handleRouteChange();
     }
   }, [isMobile]);
@@ -66,14 +59,14 @@ const Sidebar = ({ isMobile = false, className = "" }: SidebarProps) => {
   return (
     <motion.aside
       initial={isMobile ? { x: "-100%" } : false}
-      animate={{ 
+      animate={{
         width: isCollapsed ? "5rem" : "16rem",
-        x: 0 
+        x: 0,
       }}
-      transition={{ 
-        type: "spring", 
-        stiffness: 300, 
-        damping: 30 
+      transition={{
+        type: "spring",
+        stiffness: 300,
+        damping: 30,
       }}
       className={`
         bg-gray-800
@@ -100,7 +93,7 @@ const Sidebar = ({ isMobile = false, className = "" }: SidebarProps) => {
           isCollapsed ? "justify-center px-4" : "px-6"
         } py-6`}
       >
-        <motion.div 
+        <motion.div
           whileHover={{ scale: 1.1 }}
           className="h-10 w-10 rounded-full bg-purple-600 flex items-center justify-center shadow-md"
         >
@@ -139,7 +132,7 @@ const Sidebar = ({ isMobile = false, className = "" }: SidebarProps) => {
             `}
             title={isCollapsed ? item.name : ""}
           >
-            <motion.span 
+            <motion.span
               whileHover={{ scale: 1.2 }}
               className={`${isCollapsed ? "text-xl" : "mr-3"}`}
             >
@@ -183,7 +176,7 @@ const Sidebar = ({ isMobile = false, className = "" }: SidebarProps) => {
             `}
             title={isCollapsed ? item.name : ""}
           >
-            <motion.span 
+            <motion.span
               whileHover={{ scale: 1.2 }}
               className={`${isCollapsed ? "text-xl" : "mr-3"}`}
             >
@@ -217,7 +210,7 @@ const Sidebar = ({ isMobile = false, className = "" }: SidebarProps) => {
           `}
           title={isCollapsed ? "Sair" : ""}
         >
-          <motion.span 
+          <motion.span
             whileHover={{ scale: 1.2 }}
             className={`${isCollapsed ? "text-xl" : "mr-3"}`}
           >

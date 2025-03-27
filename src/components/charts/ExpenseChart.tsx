@@ -1,7 +1,13 @@
-// src/components/ExpenseChart.tsx
 "use client";
 
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  ResponsiveContainer,
+  Legend,
+  Tooltip,
+} from "recharts";
 
 interface ExpenseChartProps {
   data: {
@@ -23,7 +29,9 @@ const ExpenseChart = ({ data }: ExpenseChartProps) => {
           outerRadius={80}
           fill="#8884d8"
           dataKey="value"
-          label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+          label={({ name, percent }) =>
+            `${name}: ${(percent * 100).toFixed(0)}%`
+          }
         >
           {data.map((entry, index) => (
             <Cell key={`cell-${index}`} fill={entry.color} />

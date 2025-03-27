@@ -1,4 +1,3 @@
-// src/components/AppLayout.tsx
 "use client";
 
 import { useState, useEffect } from "react";

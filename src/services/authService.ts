@@ -1,5 +1,3 @@
-// src/services/authService.ts
-
 export interface User {
   email: string;
   name?: string;
@@ -55,7 +53,7 @@ class AuthService {
   }
 
   // Salvar a lista de usuários
-  private saveUsers(users: any[]): void {
+  private saveUsers(users: User[]): void {
     if (typeof window !== "undefined") {
       localStorage.setItem(this.usersKey, JSON.stringify(users));
     }

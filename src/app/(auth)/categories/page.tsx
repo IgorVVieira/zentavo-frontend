@@ -1,4 +1,4 @@
-// src/app/(auth)/categories/page.tsx
+// src/app/(auth)/categories/page.tsx - usando o input color nativo
 "use client";
 
 import { useState, useEffect } from "react";
@@ -11,7 +11,6 @@ import {
   FiSearch,
   FiArrowUp,
   FiArrowDown,
-  FiChevronDown,
 } from "react-icons/fi";
 import ToastNotifications, { showToast } from "@/components/ToastNotificatons";
 
@@ -22,26 +21,26 @@ interface Category {
   color: string;
 }
 
-// Cores predefinidas para escolha
+// Cores predefinidas para o input color
 const predefinedColors = [
-  { value: "#EF4444", label: "Vermelho" },
-  { value: "#F97316", label: "Laranja" },
-  { value: "#F59E0B", label: "Âmbar" },
-  { value: "#EAB308", label: "Amarelo" },
-  { value: "#84CC16", label: "Lima" },
-  { value: "#22C55E", label: "Verde" },
-  { value: "#10B981", label: "Esmeralda" },
-  { value: "#14B8A6", label: "Turquesa" },
-  { value: "#06B6D4", label: "Ciano" },
-  { value: "#0EA5E9", label: "Azul Claro" },
-  { value: "#3B82F6", label: "Azul" },
-  { value: "#6366F1", label: "Índigo" },
-  { value: "#8B5CF6", label: "Violeta" },
-  { value: "#A855F7", label: "Roxo" },
-  { value: "#D946EF", label: "Fúcsia" },
-  { value: "#EC4899", label: "Rosa" },
-  { value: "#F43F5E", label: "Rosa Escuro" },
-  { value: "#6B7280", label: "Cinza" },
+  "#EF4444", // Vermelho
+  "#F97316", // Laranja
+  "#F59E0B", // Âmbar
+  "#EAB308", // Amarelo
+  "#84CC16", // Lima
+  "#22C55E", // Verde
+  "#10B981", // Esmeralda
+  "#14B8A6", // Turquesa
+  "#06B6D4", // Ciano
+  "#0EA5E9", // Azul Claro
+  "#3B82F6", // Azul
+  "#6366F1", // Índigo
+  "#8B5CF6", // Violeta
+  "#A855F7", // Roxo
+  "#D946EF", // Fúcsia
+  "#EC4899", // Rosa
+  "#F43F5E", // Rosa Escuro
+  "#6B7280", // Cinza
 ];
 
 export default function CategoriesPage() {
@@ -54,7 +53,7 @@ export default function CategoriesPage() {
 
   // Estados para o formulário
   const [newCategoryName, setNewCategoryName] = useState("");
-  const [selectedColor, setSelectedColor] = useState(predefinedColors[0].value);
+  const [selectedColor, setSelectedColor] = useState(predefinedColors[0]);
 
   // Mock API para buscar categorias
   const fetchCategories = async () => {
@@ -176,7 +175,7 @@ export default function CategoriesPage() {
     const success = await createCategory(newCategoryName, selectedColor);
     if (success) {
       setNewCategoryName("");
-      setSelectedColor(predefinedColors[0].value);
+      setSelectedColor(predefinedColors[0]);
     }
   };
 
@@ -194,10 +193,6 @@ export default function CategoriesPage() {
       setSortDirection("asc");
     }
   };
-
-  // Encontrar o label da cor selecionada
-  const selectedColorLabel =
-    predefinedColors.find((c) => c.value === selectedColor)?.label || "";
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
@@ -235,13 +230,13 @@ export default function CategoriesPage() {
           animate={{ opacity: 1, y: 0 }}
           className="bg-gray-800 rounded-lg p-5 mb-6 shadow-lg"
         >
-          <h3 className="text-lg font-bold mb-4 flex items-center">
+          <h3 className="text-lg p-3 font-bold mb-4 flex items-center">
             <FiPlus className="mr-2 text-purple-400" /> Nova Categoria
           </h3>
 
           <form
             onSubmit={handleSubmit}
-            className="grid grid-cols-1 sm:grid-cols-6 gap-4 items-end"
+            className="grid grid-cols-1 sm:grid-cols-6 gap-4 items-end p-3"
           >
             <div className="sm:col-span-3">
               <label className="block text-gray-300 mb-2 text-sm font-medium">
@@ -260,24 +255,27 @@ export default function CategoriesPage() {
               <label className="block text-gray-300 mb-2 text-sm font-medium">
                 Cor
               </label>
-              <div className="relative">
-                <select
+              <div className="flex items-center gap-3">
+                {/* Input color nativo do HTML5 */}
+                <input
+                  type="color"
                   value={selectedColor}
                   onChange={(e) => setSelectedColor(e.target.value)}
-                  className="w-full bg-gray-700 text-white px-4 py-2.5 rounded-lg border border-gray-600 focus:ring-2 focus:ring-purple-500 focus:border-transparent appearance-none pr-10"
-                >
-                  {predefinedColors.map((color) => (
-                    <option key={color.value} value={color.value}>
-                      {color.label}
-                    </option>
-                  ))}
-                </select>
-                <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                  <div
-                    className="w-6 h-6 rounded-full mr-2"
-                    style={{ backgroundColor: selectedColor }}
-                  ></div>
-                  <FiChevronDown className="text-gray-400" />
+                  className="w-12 h-10 rounded cursor-pointer border-0"
+                  style={{
+                    background: "transparent",
+                  }}
+                />
+                <div className="flex-1 bg-gray-700 rounded-lg border border-gray-600 px-4 py-2">
+                  <div className="flex items-center">
+                    <div
+                      className="w-6 h-6 rounded-full mr-3"
+                      style={{ backgroundColor: selectedColor }}
+                    ></div>
+                    <span className="font-mono text-sm">
+                      {selectedColor.toUpperCase()}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
