@@ -1,0 +1,90 @@
+/* src/app/globals.css */
+
+/* Importar estilos personalizados em vez de Tailwind */
+@import './custom-styles.css';
+
+:root {
+  --foreground-rgb: 255, 255, 255;
+  --background-start-rgb: 20, 20, 25;
+  --background-end-rgb: 10, 10, 15;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --foreground-rgb: 255, 255, 255;
+    --background-start-rgb: 20, 20, 25;
+    --background-end-rgb: 10, 10, 15;
+  }
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: linear-gradient(
+      to bottom,
+      transparent,
+      rgb(var(--background-end-rgb))
+    )
+    rgb(var(--background-start-rgb));
+}
+
+/* Estilos para links */
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Reset básico */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Scrollbar personalizado para tema escuro */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1f2937; /* gray-800 */
+}
+
+::-webkit-scrollbar-thumb {
+  background: #6b7280; /* gray-500 */
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #7c3aed; /* purple-600 */
+}
+
+/* Estilos para formulários */
+input, button, select, textarea {
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+textarea,
+select {
+  background-color: #374151; /* bg-gray-700 */
+  border: 1px solid #4b5563; /* border-gray-600 */
+  border-radius: 0.5rem; /* rounded-lg */
+  padding: 0.5rem 1rem; /* px-4 py-2 */
+  color: white;
+  width: 100%;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: transparent;
+  box-shadow: 0 0 0 2px #8b5cf6; /* focus:ring-2 */
+}
