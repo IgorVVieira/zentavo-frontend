@@ -1,7 +1,11 @@
+import { API_URL } from "@/constants/env";
+
 export interface User {
   email: string;
   name?: string;
   role?: string;
+  id?: string;
+  token?: string;
 }
 
 export interface AuthResponse {
@@ -9,176 +13,118 @@ export interface AuthResponse {
   token: string;
 }
 
+export interface LoginCredentials {
+  email: string;
+  password: string;
+}
+
+export interface RegisterData {
+  name: string;
+  email: string;
+  password: string;
+}
+
 class AuthService {
   private tokenKey = "zentavo_token";
   private userKey = "zentavo_user";
-  private usersKey = "zentavo_users";
 
-  // Dados mock para autenticação
-  private mockUsers = [
-    {
-      email: "usuario@teste.com",
-      password: "senha123",
-      name: "Usuário Teste",
-      role: "user",
-    },
-    {
-      email: "admin@zentavo.com",
-      password: "admin123",
-      name: "Administrador",
-      role: "admin",
-    },
-  ];
+  // Registrar um novo usuário usando a API
+  async register(name: string, email: string, password: string): Promise<User> {
+    try {
+      const response = await fetch(`${API_URL}/api/users`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, password }),
+      });
 
-  constructor() {
-    // Inicializar os usuários mock no localStorage se ainda não existirem
-    if (typeof window !== "undefined" && !localStorage.getItem(this.usersKey)) {
-      localStorage.setItem(this.usersKey, JSON.stringify(this.mockUsers));
-    }
-  }
-
-  // Obter todos os usuários registrados
-  private getUsers(): any[] {
-    if (typeof window !== "undefined") {
-      const usersStr = localStorage.getItem(this.usersKey);
-      if (usersStr) {
-        try {
-          return JSON.parse(usersStr);
-        } catch (e) {
-          return this.mockUsers;
-        }
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Falha no cadastro");
       }
-    }
-    return this.mockUsers;
-  }
 
-  // Salvar a lista de usuários
-  private saveUsers(users: User[]): void {
-    if (typeof window !== "undefined") {
-      localStorage.setItem(this.usersKey, JSON.stringify(users));
+      const data = await response.json();
+      return data.user;
+    } catch (error: any) {
+      console.error("Erro de registro:", error);
+      throw new Error(error.message || "Erro ao registrar usuário");
     }
   }
 
-  // Registrar um novo usuário
-  async register(
-    name: string,
-    email: string,
-    password: string
-  ): Promise<boolean> {
-    // Simular atraso de rede
-    await new Promise((resolve) => setTimeout(resolve, 800));
+  // Login com API real
+  async login(email: string, password: string): Promise<AuthResponse> {
+    try {
+      console.log("Tentando login com:", { email, password });
 
-    const users = this.getUsers();
+      // Testar diferentes formatos de payload
+      const payload = {
+        email,
+        password,
+        // Alguns backends esperam essas variantes
+        username: email,
+        senha: password,
+      };
 
-    // Verificar se o email já está registrado
-    const userExists = users.some((user) => user.email === email);
-    if (userExists) {
-      throw new Error("Este email já está cadastrado.");
-    }
+      console.log("Enviando payload:", payload);
 
-    // Criar novo usuário
-    const newUser = {
-      email,
-      password,
-      name,
-      role: "user",
-    };
+      const response = await fetch(`${API_URL}/api/users/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
 
-    // Adicionar à lista de usuários
-    users.push(newUser);
-    this.saveUsers(users);
+      console.log("Status da resposta:", response.status);
 
-    return true;
-  }
+      // Sempre capturar o corpo da resposta, mesmo em caso de erro
+      let responseData;
+      try {
+        responseData = await response.json();
+        console.log("Dados da resposta:", responseData);
+      } catch (e) {
+        console.error("Erro ao parsear resposta JSON:", e);
+        responseData = {};
+      }
 
-  // Login com dados mock
-  async login(email: string, password: string): Promise<AuthResponse | null> {
-    // Simular atraso de rede
-    await new Promise((resolve) => setTimeout(resolve, 800));
+      if (!response.ok) {
+        throw new Error(
+          responseData.message || responseData.error || "Falha na autenticação"
+        );
+      }
 
-    const users = this.getUsers();
-    const user = users.find(
-      (user) => user.email === email && user.password === password
-    );
+      // Verificar os possíveis locais onde o token pode estar na resposta
+      const token =
+        responseData.token ||
+        responseData.accessToken ||
+        (responseData.data && responseData.data.token) ||
+        "";
 
-    if (user) {
-      // Criar um token mock
-      const token = `mock_jwt_${btoa(user.email)}_${Date.now()}`;
+      if (!token) {
+        console.error("Token não encontrado na resposta:", responseData);
+        throw new Error("Token de autenticação não encontrado na resposta");
+      }
 
-      // Remover senha antes de armazenar
-      const { password: _, ...userWithoutPassword } = user;
+      // Lidar com diferentes formatos de resposta possíveis
+      const userData = responseData.user ||
+        responseData.userData ||
+        responseData.data || {
+          id: responseData.id || responseData.userId || "unknown",
+          email: email,
+          name: responseData.name || responseData.nome || email.split("@")[0],
+        };
 
-      // Salvar no localStorage
+      console.log("Dados do usuário extraídos:", userData);
+      console.log("Token extraído:", token);
+
+      // Salvar token e informações do usuário
       this.setToken(token);
-      this.setUser(userWithoutPassword);
+      this.setUser(userData);
 
       return {
-        user: userWithoutPassword,
-        token,
+        user: userData,
+        token: token,
       };
-    }
-
-    return null;
-  }
-
-  // Versão preparada para API real
-  async loginWithAPI(email: string, password: string): Promise<AuthResponse> {
-    try {
-      // Implementação futura
-      // const response = await fetch('/api/auth/login', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ email, password })
-      // });
-
-      // if (!response.ok) {
-      //   throw new Error('Falha na autenticação');
-      // }
-
-      // const data = await response.json();
-      // this.setToken(data.token);
-      // this.setUser(data.user);
-      // return data;
-
-      // Temporariamente usar login mock
-      const mockResponse = await this.login(email, password);
-      if (!mockResponse) throw new Error("Falha na autenticação");
-      return mockResponse;
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erro de autenticação:", error);
-      throw error;
-    }
-  }
-
-  // Versão preparada para API real de registro
-  async registerWithAPI(
-    name: string,
-    email: string,
-    password: string
-  ): Promise<User> {
-    try {
-      // Implementação futura
-      // const response = await fetch('/api/auth/register', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ name, email, password })
-      // });
-
-      // if (!response.ok) {
-      //   throw new Error('Falha no cadastro');
-      // }
-
-      // const data = await response.json();
-      // return data.user;
-
-      // Temporariamente usar registro mock
-      const success = await this.register(name, email, password);
-      if (!success) throw new Error("Falha no cadastro");
-
-      return { name, email, role: "user" };
-    } catch (error) {
-      console.error("Erro de registro:", error);
-      throw error;
+      throw new Error(error.message || "Erro ao fazer login");
     }
   }
 
@@ -186,9 +132,7 @@ class AuthService {
   logout(): void {
     localStorage.removeItem(this.tokenKey);
     localStorage.removeItem(this.userKey);
-
-    // Adicionar redirect aqui se necessário
-    // window.location.href = '/login';
+    // Não redirecionamos aqui, deixamos o componente fazer isso
   }
 
   // Pegar token armazenado
@@ -230,26 +174,46 @@ class AuthService {
   }
 
   // Verificar se o token é válido
-  // Em uma implementação real, isso poderia verificar a expiração do token JWT
   isTokenValid(): boolean {
     const token = this.getToken();
     if (!token) return false;
 
-    // Mock: verificar se o token começa com "mock_jwt_"
-    return token.startsWith("mock_jwt_");
+    // Sem verificação da expiração do token por enquanto
+    // Em uma implementação mais robusta, usaríamos jwt-decode para verificar a expiração
+    return true;
+  }
 
-    // Implementação futura
-    // try {
-    //   // Verificar JWT token
-    //   const decoded = jwtDecode(token);
-    //   const currentTime = Date.now() / 1000;
-    //   return decoded.exp > currentTime;
-    // } catch (e) {
-    //   return false;
-    // }
+  // Auxiliar para realizar requisições autenticadas
+  async fetchWithAuth(
+    url: string,
+    options: RequestInit = {}
+  ): Promise<Response> {
+    const token = this.getToken();
+    if (!token) {
+      throw new Error("Não autenticado");
+    }
+
+    const headers = {
+      ...options.headers,
+      Authorization: `Bearer ${token}`,
+    };
+
+    return fetch(url, {
+      ...options,
+      headers,
+    });
+  }
+
+  // Obter cabeçalhos de autenticação para requisições autenticadas
+  getAuthHeaders(): HeadersInit {
+    const token = this.getToken();
+    return {
+      "Content-Type": "application/json",
+      Authorization: token ? `Bearer ${token}` : "",
+    };
   }
 }
 
 // Exportar uma instância única
-export const authService = new AuthService();
+const authService = new AuthService();
 export default authService;

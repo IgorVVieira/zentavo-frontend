@@ -19,140 +19,7 @@ import {
   FiX,
 } from "react-icons/fi";
 import ToastNotifications, { showToast } from "@/components/ToastNotificatons";
-
-// Interface para as transações
-interface Expense {
-  id: string;
-  date: string;
-  amount: number;
-  description: string;
-  category: string;
-  type: "income" | "expense";
-}
-
-// Dados mock para os gastos mensais
-const mockExpenses: Expense[] = [
-  {
-    id: "1",
-    date: "2025-03-05",
-    amount: 1200.0,
-    description: "Aluguel",
-    category: "Moradia",
-    type: "expense",
-  },
-  {
-    id: "2",
-    date: "2025-03-24",
-    amount: 256.78,
-    description: "Supermercado Extra",
-    category: "Alimentação",
-    type: "expense",
-  },
-  {
-    id: "3",
-    date: "2025-03-19",
-    amount: 39.9,
-    description: "Netflix",
-    category: "Assinaturas",
-    type: "expense",
-  },
-  {
-    id: "4",
-    date: "2025-03-18",
-    amount: 87.5,
-    description: "Farmácia",
-    category: "Saúde",
-    type: "expense",
-  },
-  {
-    id: "5",
-    date: "2025-03-15",
-    amount: 45.6,
-    description: "Uber",
-    category: "Transporte",
-    type: "expense",
-  },
-  {
-    id: "6",
-    date: "2025-03-12",
-    amount: 120.3,
-    description: "Restaurante",
-    category: "Alimentação",
-    type: "expense",
-  },
-  {
-    id: "7",
-    date: "2025-03-08",
-    amount: 19.9,
-    description: "Spotify",
-    category: "Assinaturas",
-    type: "expense",
-  },
-  {
-    id: "8",
-    date: "2025-03-06",
-    amount: 60.0,
-    description: "Cinema",
-    category: "Entretenimento",
-    type: "expense",
-  },
-  {
-    id: "9",
-    date: "2025-03-05",
-    amount: 180.45,
-    description: "Conta de Luz",
-    category: "Utilidades",
-    type: "expense",
-  },
-  {
-    id: "10",
-    date: "2025-03-05",
-    amount: 90.2,
-    description: "Conta de Água",
-    category: "Utilidades",
-    type: "expense",
-  },
-  {
-    id: "11",
-    date: "2025-03-05",
-    amount: 120.0,
-    description: "Internet",
-    category: "Utilidades",
-    type: "expense",
-  },
-  {
-    id: "12",
-    date: "2025-03-03",
-    amount: 89.9,
-    description: "Academia",
-    category: "Saúde",
-    type: "expense",
-  },
-  {
-    id: "13",
-    date: "2025-03-02",
-    amount: 150.0,
-    description: "Presente Aniversário",
-    category: "Pessoal",
-    type: "expense",
-  },
-  {
-    id: "14",
-    date: "2025-03-02",
-    amount: 10000,
-    description: "Salario",
-    category: "Pessoal",
-    type: "income",
-  },
-];
-
-// Função para formatar números como moeda
-const formatCurrency = (value: number) => {
-  return new Intl.NumberFormat("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-  }).format(value);
-};
+import transactionService, { ExpenseItem } from "@/services/transactionService";
 
 // Mapeamento de categorias para cores
 const categoryColors: Record<string, string> = {
@@ -164,15 +31,24 @@ const categoryColors: Record<string, string> = {
   Assinaturas: "bg-purple-900 text-purple-300",
   Utilidades: "bg-gray-700 text-gray-300",
   Pessoal: "bg-pink-900 text-pink-300",
+  Receita: "bg-green-900 text-green-300",
+  Outros: "bg-gray-700 text-gray-300",
 };
 
-// Usaremos os tipos do componente ToastNotifications
+// Função para formatar números como moeda
+const formatCurrency = (value: number) => {
+  return new Intl.NumberFormat("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  }).format(value);
+};
 
 export default function ExpensesTable() {
   const { user, logout } = useAuth();
-  const [currentMonth, setCurrentMonth] = useState(3); // Março (indexado a partir de 0)
-  const [currentYear, setCurrentYear] = useState(2025);
-  const [expenses, setExpenses] = useState<Expense[]>([]);
+  const [currentMonth, setCurrentMonth] = useState(new Date().getMonth() + 1); // Mês atual (1-12)
+  const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
+  const [expenses, setExpenses] = useState<ExpenseItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [sorting, setSorting] = useState<SortingState>([
     { id: "date", desc: true },
   ]);
@@ -182,7 +58,6 @@ export default function ExpensesTable() {
   } | null>(null);
   const [editValue, setEditValue] = useState("");
   const editInputRef = useRef<HTMLInputElement>(null);
-  // Removemos o estado de notificações pois vamos usar o react-toastify
 
   // Lista de meses
   const months = [
@@ -200,20 +75,36 @@ export default function ExpensesTable() {
     "Dezembro",
   ];
 
-  // Gera lista de anos (2022 a 2025)
-  const years = [2022, 2023, 2024, 2025];
+  // Gera lista de anos (atual-3 até atual+1)
+  const currentYearJs = new Date().getFullYear();
+  const years = [
+    currentYearJs - 3,
+    currentYearJs - 2,
+    currentYearJs - 1,
+    currentYearJs,
+    currentYearJs + 1,
+  ];
 
-  // Filtrar gastos por mês e ano selecionados
+  // Buscar dados da API quando o mês ou ano mudar
   useEffect(() => {
-    const filteredExpenses = mockExpenses.filter((expense) => {
-      const expenseDate = new Date(expense.date);
-      return (
-        expenseDate.getMonth() === currentMonth &&
-        expenseDate.getFullYear() === currentYear
-      );
-    });
+    const fetchTransactions = async () => {
+      setIsLoading(true);
+      try {
+        // Buscar transações da API para o mês e ano selecionados
+        const data = await transactionService.getMonthlyTransactions(
+          currentMonth,
+          currentYear
+        );
+        setExpenses(data);
+      } catch (error) {
+        console.error("Erro ao buscar transações:", error);
+        showToast("Erro ao carregar as transações", "error");
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-    setExpenses(filteredExpenses);
+    fetchTransactions();
   }, [currentMonth, currentYear]);
 
   // Foca no input quando está editando
@@ -294,8 +185,6 @@ export default function ExpensesTable() {
     });
   };
 
-  // Vamos usar a função showToast do componente ToastNotifications
-
   // Salvar a edição
   const saveEdit = async () => {
     if (!editingCell) return;
@@ -332,7 +221,7 @@ export default function ExpensesTable() {
   };
 
   // Configuração das colunas da tabela
-  const columnHelper = createColumnHelper<Expense>();
+  const columnHelper = createColumnHelper<ExpenseItem>();
 
   const columns = useMemo(
     () => [
@@ -420,7 +309,9 @@ export default function ExpensesTable() {
                   <option value="Entretenimento">Entretenimento</option>
                   <option value="Assinaturas">Assinaturas</option>
                   <option value="Utilidades">Utilidades</option>
+                  <option value="Receita">Receita</option>
                   <option value="Pessoal">Pessoal</option>
+                  <option value="Outros">Outros</option>
                 </select>
                 <button
                   onClick={saveEdit}
@@ -502,6 +393,17 @@ export default function ExpensesTable() {
     getSortedRowModel: getSortedRowModel(),
   });
 
+  // Manipuladores para os seletores de mês e ano
+  const handleMonthChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newMonth = parseInt(e.target.value, 10);
+    setCurrentMonth(newMonth);
+  };
+
+  const handleYearChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newYear = parseInt(e.target.value, 10);
+    setCurrentYear(newYear);
+  };
+
   return (
     <ProtectedRoute>
       <div className="min-h-screen bg-gray-900 text-white flex">
@@ -517,18 +419,18 @@ export default function ExpensesTable() {
               <div className="flex space-x-4">
                 <select
                   value={currentMonth}
-                  onChange={(e) => setCurrentMonth(parseInt(e.target.value))}
+                  onChange={handleMonthChange}
                   className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2"
                 >
                   {months.map((month, index) => (
-                    <option key={month} value={index}>
+                    <option key={month} value={index + 1}>
                       {month}
                     </option>
                   ))}
                 </select>
                 <select
                   value={currentYear}
-                  onChange={(e) => setCurrentYear(parseInt(e.target.value))}
+                  onChange={handleYearChange}
                   className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2"
                 >
                   {years.map((year) => (
@@ -622,7 +524,21 @@ export default function ExpensesTable() {
                     ))}
                   </thead>
                   <tbody className="divide-y divide-gray-700">
-                    {table.getRowModel().rows.length > 0 ? (
+                    {isLoading ? (
+                      <tr>
+                        <td
+                          colSpan={columns.length}
+                          className="px-4 py-16 text-center"
+                        >
+                          <div className="flex justify-center">
+                            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
+                          </div>
+                          <p className="mt-4 text-gray-400">
+                            Carregando transações...
+                          </p>
+                        </td>
+                      </tr>
+                    ) : table.getRowModel().rows.length > 0 ? (
                       table.getRowModel().rows.map((row) => (
                         <tr key={row.id} className="hover:bg-gray-700">
                           {row.getVisibleCells().map((cell) => (
@@ -641,8 +557,8 @@ export default function ExpensesTable() {
                           colSpan={columns.length}
                           className="px-4 py-8 text-center text-gray-400"
                         >
-                          Nenhum gasto encontrado para {months[currentMonth]} de{" "}
-                          {currentYear}.
+                          Nenhuma transação encontrada para{" "}
+                          {months[currentMonth - 1]} de {currentYear}.
                         </td>
                       </tr>
                     )}

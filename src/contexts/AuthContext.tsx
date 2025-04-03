@@ -1,8 +1,15 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
 import { useRouter } from "next/navigation";
 import authService, { User } from "@/services/authService";
+import { showToast } from "@/components/ToastNotificatons";
 
 // Definição da interface do contexto
 interface AuthContextType {
@@ -37,7 +44,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       try {
         if (authService.isTokenValid()) {
           const userData = authService.getUser();
-          setUser(userData);
+          if (userData) {
+            setUser(userData);
+          }
         }
       } catch (error) {
         console.error("Erro ao verificar autenticação:", error);
@@ -55,14 +64,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       setIsLoading(true);
       const response = await authService.login(email, password);
-      
-      if (response) {
+
+      console.log("Resposta da API de login:", response);
+
+      if (response && response.token && response.user) {
         setUser(response.user);
+        console.log("Login bem-sucedido, usuário definido:", response.user);
         return true;
+      } else {
+        console.log("Login falhou, resposta inválida:", response);
+        return false;
       }
-      return false;
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erro ao fazer login:", error);
+      showToast(error.message || "Erro ao fazer login", "error");
       return false;
     } finally {
       setIsLoading(false);
@@ -82,13 +97,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isLoading,
     isAuthenticated: !!user,
     login,
-    logout
+    logout,
   };
 
   // Retorna o Provider com o valor
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

@@ -3,6 +3,8 @@
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
+import transactionService from "@/services/transactionService";
+import { showToast } from "@/components/ToastNotificatons";
 
 export default function ImportCSV() {
   const router = useRouter();
@@ -42,27 +44,16 @@ export default function ImportCSV() {
     setError("");
 
     try {
-      // Preparar o FormData para envio
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("bankType", selectedBank);
+      // Usar o serviço de transações para importar o arquivo
+      const result = await transactionService.importCSV(file, selectedBank);
+      console.log("Importação bem-sucedida:", result);
 
-      // Aqui você faria a chamada à API
-      // const response = await fetch('/api/import-csv', {
-      //   method: 'POST',
-      //   body: formData
-      // });
-
-      // if (!response.ok) {
-      //   throw new Error('Falha ao importar o arquivo.');
-      // }
-
-      // Simulação de chamada API bem-sucedida
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-
+      showToast("Arquivo importado com sucesso!", "success");
       setSuccess(true);
     } catch (error: any) {
+      console.error("Erro na importação:", error);
       setError(error.message || "Ocorreu um erro ao importar o arquivo.");
+      showToast(error.message || "Erro ao importar arquivo", "error");
     } finally {
       setIsLoading(false);
     }
@@ -124,7 +115,7 @@ export default function ImportCSV() {
               Importar outro arquivo
             </button>
             <button
-              onClick={() => router.push("/")}
+              onClick={() => router.push("/expenses")}
               style={{
                 backgroundColor: "#1f2937",
                 color: "white",
@@ -134,7 +125,7 @@ export default function ImportCSV() {
                 cursor: "pointer",
               }}
             >
-              Ir para o Dashboard
+              Ver meus gastos
             </button>
           </div>
         </div>
@@ -186,7 +177,13 @@ export default function ImportCSV() {
                 disabled={isLoading}
               >
                 <option value="nubank">Nubank</option>
-                {/* Outros bancos podem ser adicionados aqui */}
+                <option value="itau">Itaú</option>
+                <option value="bradesco">Bradesco</option>
+                <option value="santander">Santander</option>
+                <option value="bb">Banco do Brasil</option>
+                <option value="caixa">Caixa Econômica</option>
+                <option value="inter">Banco Inter</option>
+                <option value="outro">Outro Banco</option>
               </select>
               <p
                 style={{ fontSize: "14px", color: "#9ca3af", marginTop: "4px" }}

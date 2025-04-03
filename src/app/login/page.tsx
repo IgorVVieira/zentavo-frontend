@@ -4,6 +4,7 @@ import { useState, FormEvent, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
+import { showToast } from "@/components/ToastNotificatons";
 
 export default function Login() {
   const router = useRouter();
@@ -21,7 +22,7 @@ export default function Login() {
     if (isAuthenticated) {
       router.push("/expenses");
     }
-    
+
     // Verificar se o usuário acabou de se cadastrar
     const cadastroStatus = searchParams.get("cadastro");
     if (cadastroStatus === "sucesso") {
@@ -36,17 +37,24 @@ export default function Login() {
     setSuccess("");
 
     try {
+      console.log("Iniciando login com:", email);
       const success = await login(email, password);
-      
+      console.log("Resultado do login:", success);
+
       if (success) {
+        showToast("Login realizado com sucesso!", "success");
+        console.log("Redirecionando após login bem-sucedido");
         // Redirecionar para a página inicial
         router.push("/expenses");
       } else {
-        setError("Email ou senha incorretos");
+        console.log("Login falhou, exibindo erro");
+        setError(
+          "Email ou senha incorretos. Por favor, verifique suas credenciais."
+        );
       }
-    } catch (err) {
-      setError("Erro ao tentar fazer login. Tente novamente.");
-      console.error("Erro de login:", err);
+    } catch (err: any) {
+      console.error("Erro durante o login:", err);
+      setError(err.message || "Erro ao tentar fazer login. Tente novamente.");
     } finally {
       setIsLoading(false);
     }
@@ -76,7 +84,7 @@ export default function Login() {
                 {error}
               </div>
             )}
-            
+
             {success && (
               <div className="bg-green-900/30 border border-green-500 text-green-300 px-4 py-3 rounded-lg mb-4 text-sm">
                 {success}
@@ -84,7 +92,10 @@ export default function Login() {
             )}
 
             <div className="mb-6">
-              <label htmlFor="email" className="block text-gray-300 mb-2 text-sm font-medium">
+              <label
+                htmlFor="email"
+                className="block text-gray-300 mb-2 text-sm font-medium"
+              >
                 Email
               </label>
               <input
@@ -100,10 +111,16 @@ export default function Login() {
 
             <div className="mb-6">
               <div className="flex justify-between items-center mb-2">
-                <label htmlFor="password" className="block text-gray-300 text-sm font-medium">
+                <label
+                  htmlFor="password"
+                  className="block text-gray-300 text-sm font-medium"
+                >
                   Senha
                 </label>
-                <Link href="/recuperar-senha" className="text-sm text-purple-400 hover:text-purple-300">
+                <Link
+                  href="/recuperar-senha"
+                  className="text-sm text-purple-400 hover:text-purple-300"
+                >
                   Esqueceu a senha?
                 </Link>
               </div>
@@ -126,7 +143,10 @@ export default function Login() {
                 onChange={(e) => setRememberMe(e.target.checked)}
                 className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
               />
-              <label htmlFor="remember" className="ml-2 block text-sm text-gray-300">
+              <label
+                htmlFor="remember"
+                className="ml-2 block text-sm text-gray-300"
+              >
                 Lembrar de mim
               </label>
             </div>
@@ -138,9 +158,25 @@ export default function Login() {
             >
               {isLoading ? (
                 <>
-                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  <svg
+                    className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
                   </svg>
                   Entrando...
                 </>
@@ -153,7 +189,10 @@ export default function Login() {
           <div className="mt-8 text-center">
             <p className="text-gray-400 text-sm">
               Não tem uma conta?{" "}
-              <Link href="/register" className="text-purple-400 hover:text-purple-300">
+              <Link
+                href="/register"
+                className="text-purple-400 hover:text-purple-300"
+              >
                 Cadastre-se
               </Link>
             </p>
@@ -162,7 +201,10 @@ export default function Login() {
 
         {/* Rodapé */}
         <div className="mt-8 text-center text-gray-500 text-xs">
-          <p>&copy; {new Date().getFullYear()} Zentavo. Todos os direitos reservados.</p>
+          <p>
+            &copy; {new Date().getFullYear()} Zentavo. Todos os direitos
+            reservados.
+          </p>
         </div>
       </div>
     </div>
