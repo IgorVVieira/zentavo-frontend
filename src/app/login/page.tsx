@@ -5,14 +5,15 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
 import { showToast } from "@/components/ToastNotificatons";
+import { useLoading } from "@/contexts/LoadingContext";
 
 export default function Login() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { login, isAuthenticated, isLoading: authLoading } = useAuth();
+  const { startLoading, stopLoading } = useLoading();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
@@ -30,21 +31,17 @@ export default function Login() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
     setError("");
     setSuccess("");
+    startLoading();
 
     try {
-      console.log("Iniciando login com:", email);
       const success = await login(email, password);
-      console.log("Resultado do login:", success);
 
       if (success) {
         showToast("Login realizado com sucesso!", "success");
-        console.log("Redirecionando após login bem-sucedido");
         router.push("/expenses");
       } else {
-        console.log("Login falhou, exibindo erro");
         setError(
           "Email ou senha incorretos. Por favor, verifique suas credenciais."
         );
@@ -53,7 +50,7 @@ export default function Login() {
       console.error("Erro durante o login:", err);
       setError(err.message || "Erro ao tentar fazer login. Tente novamente.");
     } finally {
-      setIsLoading(false);
+      stopLoading();
     }
   };
 
@@ -148,10 +145,10 @@ export default function Login() {
 
             <button
               type="submit"
-              disabled={isLoading}
+              disabled={authLoading}
               className="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50 transition-colors duration-200 flex items-center justify-center"
             >
-              {isLoading ? (
+              {authLoading ? (
                 <>
                   <svg
                     className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"

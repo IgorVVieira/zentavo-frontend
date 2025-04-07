@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLoading } from "@/contexts/LoadingContext";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -10,13 +11,16 @@ interface ProtectedRouteProps {
 
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const { isAuthenticated, isLoading } = useAuth();
+  const { startLoading, stopLoading } = useLoading();
   const router = useRouter();
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
+      startLoading();
       router.push("/login");
+      stopLoading();
     }
-  }, [isAuthenticated, isLoading, router]);
+  }, [isAuthenticated, isLoading, router, startLoading, stopLoading]);
 
   if (isLoading) {
     return (

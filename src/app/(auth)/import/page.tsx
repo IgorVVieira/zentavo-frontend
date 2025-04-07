@@ -5,10 +5,12 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import transactionService from "@/services/transactionService";
 import { showToast } from "@/components/ToastNotificatons";
+import { useLoading } from "@/contexts/LoadingContext";
 
 export default function ImportCSV() {
   const router = useRouter();
   const { user } = useAuth();
+  const { startLoading, stopLoading } = useLoading();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [selectedBank, setSelectedBank] = useState("nubank");
@@ -39,6 +41,7 @@ export default function ImportCSV() {
 
     setIsLoading(true);
     setError("");
+    startLoading();
 
     try {
       const result = await transactionService.importCSV(file, selectedBank);
@@ -52,6 +55,7 @@ export default function ImportCSV() {
       showToast(error.message || "Erro ao importar arquivo", "error");
     } finally {
       setIsLoading(false);
+      stopLoading();
     }
   };
 

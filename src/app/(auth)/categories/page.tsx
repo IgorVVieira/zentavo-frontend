@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLoading } from "@/contexts/LoadingContext";
 import {
   FiPlus,
   FiTrash2,
@@ -42,6 +43,7 @@ const predefinedColors = [
 
 export default function CategoriesPage() {
   const { user } = useAuth();
+  const { startLoading, stopLoading } = useLoading();
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -53,6 +55,7 @@ export default function CategoriesPage() {
 
   const fetchCategories = async () => {
     setIsLoading(true);
+    startLoading();
     try {
       await new Promise((resolve) => setTimeout(resolve, 800));
 
@@ -67,13 +70,16 @@ export default function CategoriesPage() {
       showToast("Erro ao carregar categorias", "error");
     } finally {
       setIsLoading(false);
+      stopLoading();
     }
   };
 
   const createCategory = async (name: string, color: string) => {
+    startLoading();
     try {
       if (!name.trim()) {
         showToast("O nome da categoria é obrigatório", "error");
+        stopLoading();
         return false;
       }
 
@@ -81,6 +87,7 @@ export default function CategoriesPage() {
         categories.some((cat) => cat.name.toLowerCase() === name.toLowerCase())
       ) {
         showToast("Já existe uma categoria com este nome", "error");
+        stopLoading();
         return false;
       }
 
@@ -106,10 +113,13 @@ export default function CategoriesPage() {
       console.error("Erro ao criar categoria:", error);
       showToast("Erro ao criar categoria", "error");
       return false;
+    } finally {
+      stopLoading();
     }
   };
 
   const deleteCategory = async (id: string) => {
+    startLoading();
     try {
       await new Promise((resolve) => setTimeout(resolve, 600));
 
@@ -127,6 +137,8 @@ export default function CategoriesPage() {
       console.error("Erro ao excluir categoria:", error);
       showToast("Erro ao excluir categoria", "error");
       return false;
+    } finally {
+      stopLoading();
     }
   };
 

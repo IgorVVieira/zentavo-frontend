@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLoading } from "@/contexts/LoadingContext";
 import {
   createColumnHelper,
   flexRender,
@@ -15,9 +16,8 @@ import {
   FiArrowUp,
   FiArrowDown,
   FiChevronsUp,
-  FiEdit2,
-  FiX,
   FiEdit,
+  FiX,
 } from "react-icons/fi";
 import ToastNotifications, { showToast } from "@/components/ToastNotificatons";
 import transactionService, { ExpenseItem } from "@/services/transactionService";
@@ -201,10 +201,11 @@ const EditTransactionModal = ({
 
 export default function ExpensesTable() {
   const { user } = useAuth();
+  const { startLoading, stopLoading } = useLoading();
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth() + 1); // Mês atual (1-12)
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
   const [expenses, setExpenses] = useState<ExpenseItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isTableLoading, setIsTableLoading] = useState(true);
   const [sorting, setSorting] = useState<SortingState>([
     { id: "date", desc: true },
   ]);
@@ -240,7 +241,8 @@ export default function ExpensesTable() {
 
   useEffect(() => {
     const fetchTransactions = async () => {
-      setIsLoading(true);
+      setIsTableLoading(true);
+      startLoading();
       try {
         const data = await transactionService.getMonthlyTransactions(
           currentMonth,
@@ -251,12 +253,13 @@ export default function ExpensesTable() {
         console.error("Erro ao buscar transações:", error);
         showToast("Erro ao carregar as transações", "error");
       } finally {
-        setIsLoading(false);
+        setIsTableLoading(false);
+        stopLoading();
       }
     };
 
     fetchTransactions();
-  }, [currentMonth, currentYear]);
+  }, [currentMonth, currentYear, startLoading, stopLoading]);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -270,8 +273,6 @@ export default function ExpensesTable() {
   const totalExpenses = expenses
     .filter((expense) => expense.amount < 0)
     .reduce((sum, expense) => sum + expense.amount, 0);
-
-  console.log(totalExpenses);
 
   const balance = totalIncome + totalExpenses;
 
@@ -299,6 +300,7 @@ export default function ExpensesTable() {
       return;
     }
 
+    startLoading();
     try {
       await new Promise((resolve) => setTimeout(resolve, 500));
 
@@ -318,6 +320,7 @@ export default function ExpensesTable() {
       showToast("Erro ao conectar com o servidor.", "error");
     } finally {
       closeEditModal();
+      stopLoading();
     }
   };
 
@@ -541,7 +544,7 @@ export default function ExpensesTable() {
                     ))}
                   </thead>
                   <tbody className="divide-y divide-gray-700">
-                    {isLoading ? (
+                    {isTableLoading ? (
                       <tr>
                         <td
                           colSpan={columns.length}

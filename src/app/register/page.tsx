@@ -5,9 +5,11 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import authService from "@/services/authService";
 import { showToast } from "@/components/ToastNotificatons";
+import { useLoading } from "@/contexts/LoadingContext";
 
 export default function Register() {
   const router = useRouter();
+  const { startLoading, stopLoading } = useLoading();
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
@@ -19,16 +21,19 @@ export default function Register() {
     e.preventDefault();
     setIsLoading(true);
     setError("");
+    startLoading();
 
     if (senha !== confirmarSenha) {
       setError("As senhas não coincidem.");
       setIsLoading(false);
+      stopLoading();
       return;
     }
 
     if (senha.length < 6) {
       setError("A senha deve ter pelo menos 6 caracteres.");
       setIsLoading(false);
+      stopLoading();
       return;
     }
 
@@ -45,6 +50,7 @@ export default function Register() {
       console.error("Erro de cadastro:", err);
     } finally {
       setIsLoading(false);
+      stopLoading();
     }
   };
 

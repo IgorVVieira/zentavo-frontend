@@ -10,6 +10,7 @@ import React, {
 import { useRouter } from "next/navigation";
 import authService, { User } from "@/services/authService";
 import { showToast } from "@/components/ToastNotificatons";
+import { useLoading } from "./LoadingContext";
 
 interface AuthContextType {
   user: User | null;
@@ -33,9 +34,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
+  const { startLoading, stopLoading } = useLoading();
 
   useEffect(() => {
     const checkAuth = async () => {
+      startLoading();
       try {
         if (authService.isTokenValid()) {
           const userData = authService.getUser();
@@ -48,25 +51,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         authService.logout();
       } finally {
         setIsLoading(false);
+        stopLoading();
       }
     };
 
     checkAuth();
-  }, []);
+  }, [startLoading, stopLoading]);
 
   const login = async (email: string, password: string): Promise<boolean> => {
+    startLoading();
     try {
       setIsLoading(true);
       const response = await authService.login(email, password);
 
-      console.log("Resposta da API de login:", response);
-
       if (response && response.token && response.user) {
         setUser(response.user);
-        console.log("Login bem-sucedido, usuário definido:", response.user);
         return true;
       } else {
-        console.log("Login falhou, resposta inválida:", response);
         return false;
       }
     } catch (error: any) {
@@ -75,13 +76,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return false;
     } finally {
       setIsLoading(false);
+      stopLoading();
     }
   };
 
   const logout = () => {
-    authService.logout();
-    setUser(null);
-    router.push("/login");
+    startLoading();
+    try {
+      authService.logout();
+      setUser(null);
+      router.push("/login");
+    } finally {
+      stopLoading();
+    }
   };
 
   const value = {
