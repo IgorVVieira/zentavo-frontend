@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useMemo } from "react";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { useAuth } from "@/contexts/AuthContext";
 import {
@@ -15,11 +15,45 @@ import {
   FiArrowUp,
   FiArrowDown,
   FiChevronsUp,
-  FiCheck,
+  FiEdit2,
   FiX,
+  FiEdit,
 } from "react-icons/fi";
 import ToastNotifications, { showToast } from "@/components/ToastNotificatons";
 import transactionService, { ExpenseItem } from "@/services/transactionService";
+import Modal from "react-modal";
+
+if (typeof window !== "undefined") {
+  const nextRoot = document.getElementById("__next");
+  if (nextRoot) {
+    Modal.setAppElement("#__next");
+  } else {
+    // Fallback para o body (funciona com App Router)
+    Modal.setAppElement("body");
+  }
+}
+
+// Estilo personalizado para o modal
+const customModalStyles = {
+  content: {
+    top: "50%",
+    left: "50%",
+    right: "auto",
+    bottom: "auto",
+    marginRight: "-50%",
+    transform: "translate(-50%, -50%)",
+    backgroundColor: "#1f2937", // bg-gray-800
+    borderRadius: "0.5rem",
+    border: "1px solid #374151", // border-gray-700
+    padding: "1.5rem",
+    maxWidth: "500px",
+    width: "100%",
+  },
+  overlay: {
+    backgroundColor: "rgba(0, 0, 0, 0.75)",
+    zIndex: 1000,
+  },
+};
 
 // Mapeamento de categorias para cores
 const categoryColors: Record<string, string> = {
@@ -43,8 +77,136 @@ const formatCurrency = (value: number) => {
   }).format(value);
 };
 
+// Componente Modal para edição unificada de dados
+interface EditModalProps {
+  isOpen: boolean;
+  expense: ExpenseItem | null;
+  onClose: () => void;
+  onSave: (
+    id: string,
+    updates: { description: string; category: string }
+  ) => void;
+}
+
+const EditTransactionModal = ({
+  isOpen,
+  expense,
+  onClose,
+  onSave,
+}: EditModalProps) => {
+  const [description, setDescription] = useState("");
+  const [category, setCategory] = useState("");
+
+  // Inicializar valores ao abrir o modal
+  useEffect(() => {
+    if (expense) {
+      setDescription(expense.description);
+      setCategory(expense.category);
+    }
+  }, [expense]);
+
+  if (!expense) return null;
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSave(expense.id, { description, category });
+  };
+
+  return (
+    <Modal
+      isOpen={isOpen}
+      onRequestClose={onClose}
+      style={customModalStyles}
+      contentLabel="Editar Transação"
+    >
+      <div className="text-white">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-xl font-semibold">Editar Transação</h2>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-white transition-colors"
+          >
+            <FiX size={24} />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">
+              Descrição
+            </label>
+            <input
+              autoFocus
+              type="text"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              className="w-full bg-gray-700 text-white px-3 py-2 rounded-lg border border-gray-600 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              placeholder="Descrição da transação"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">
+              Categoria
+            </label>
+            <select
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              className="w-full bg-gray-700 text-white px-3 py-2 rounded-lg border border-gray-600 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            >
+              <option value="Alimentação">Alimentação</option>
+              <option value="Moradia">Moradia</option>
+              <option value="Transporte">Transporte</option>
+              <option value="Saúde">Saúde</option>
+              <option value="Entretenimento">Entretenimento</option>
+              <option value="Assinaturas">Assinaturas</option>
+              <option value="Utilidades">Utilidades</option>
+              <option value="Receita">Receita</option>
+              <option value="Pessoal">Pessoal</option>
+              <option value="Outros">Outros</option>
+            </select>
+          </div>
+
+          <div className="pt-2">
+            <div className="flex items-center mb-4">
+              <div
+                className={`w-4 h-4 rounded-full mr-2 ${
+                  categoryColors[category]?.split(" ")[0] || "bg-gray-700"
+                }`}
+              ></div>
+              <span
+                className={
+                  categoryColors[category]?.split(" ")[1] || "text-gray-300"
+                }
+              >
+                Pré-visualização da categoria
+              </span>
+            </div>
+          </div>
+
+          <div className="flex justify-end space-x-3 pt-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              className="px-4 py-2 ml-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
+            >
+              Salvar Alterações
+            </button>
+          </div>
+        </form>
+      </div>
+    </Modal>
+  );
+};
+
 export default function ExpensesTable() {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth() + 1); // Mês atual (1-12)
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
   const [expenses, setExpenses] = useState<ExpenseItem[]>([]);
@@ -52,12 +214,12 @@ export default function ExpensesTable() {
   const [sorting, setSorting] = useState<SortingState>([
     { id: "date", desc: true },
   ]);
-  const [editingCell, setEditingCell] = useState<{
-    id: string;
-    field: "description" | "category";
-  } | null>(null);
-  const [editValue, setEditValue] = useState("");
-  const editInputRef = useRef<HTMLInputElement>(null);
+
+  // Estados para o modal de edição
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingExpense, setEditingExpense] = useState<ExpenseItem | null>(
+    null
+  );
 
   // Lista de meses
   const months = [
@@ -107,34 +269,6 @@ export default function ExpensesTable() {
     fetchTransactions();
   }, [currentMonth, currentYear]);
 
-  // Foca no input quando está editando
-  useEffect(() => {
-    if (editingCell && editInputRef.current) {
-      editInputRef.current.focus();
-    }
-  }, [editingCell]);
-
-  // Adicionar event listener para detectar cliques fora do input
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        editInputRef.current &&
-        !editInputRef.current.contains(event.target as Node)
-      ) {
-        saveEdit();
-      }
-    };
-
-    // Apenas adiciona o event listener se estiver editando
-    if (editingCell) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [editingCell, editValue]);
-
   // Formatar data para exibição
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -153,71 +287,57 @@ export default function ExpensesTable() {
   // Calcular o saldo (entradas - saídas)
   const balance = totalIncome - totalExpenses;
 
-  // Iniciar edição de uma célula
-  const startEdit = (
+  // Abrir modal de edição
+  const openEditModal = (expense: ExpenseItem) => {
+    setEditingExpense(expense);
+    setIsModalOpen(true);
+  };
+
+  // Fechar modal de edição
+  const closeEditModal = () => {
+    setIsModalOpen(false);
+    setEditingExpense(null);
+  };
+
+  // Função para simular chamada à API e atualizar localmente
+  const handleSave = async (
     id: string,
-    field: "description" | "category",
-    value: string
+    updates: { description: string; category: string }
   ) => {
-    setEditingCell({ id, field });
-    setEditValue(value);
-  };
-
-  // Cancelar edição
-  const cancelEdit = () => {
-    setEditingCell(null);
-    setEditValue("");
-  };
-
-  // Simular chamada API para salvar a edição
-  const mockApiCall = (
-    id: string,
-    field: string,
-    value: string
-  ): Promise<boolean> => {
-    return new Promise((resolve) => {
-      console.log(`API Call: Updating ${field} to ${value} for expense ${id}`);
-      setTimeout(() => {
-        // Simula 95% de chances de sucesso
-        const success = Math.random() > 0.05;
-        resolve(success);
-      }, 500);
-    });
-  };
-
-  // Salvar a edição
-  const saveEdit = async () => {
-    if (!editingCell) return;
-
-    const { id, field } = editingCell;
-
-    // Se não houve alteração, apenas cancelamos a edição
+    // Verificar se o valor mudou
     const expense = expenses.find((e) => e.id === id);
-    if (!expense || expense[field] === editValue) {
-      cancelEdit();
+    if (
+      !expense ||
+      (expense.description === updates.description &&
+        expense.category === updates.category)
+    ) {
+      closeEditModal();
       return;
     }
 
     try {
-      const success = await mockApiCall(id, field, editValue);
+      // Simular atraso da API
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
+      // 95% de chance de sucesso
+      const success = Math.random() > 0.05;
 
       if (success) {
-        // Atualiza localmente se a API retornou sucesso
+        // Atualizar localmente
         setExpenses((prevExpenses) =>
           prevExpenses.map((expense) =>
-            expense.id === id ? { ...expense, [field]: editValue } : expense
+            expense.id === id ? { ...expense, ...updates } : expense
           )
         );
-        showToast("Atualizado com sucesso!", "success");
+        showToast("Transação atualizada com sucesso!", "success");
       } else {
-        showToast("Erro ao atualizar. Tente novamente.", "error");
+        showToast("Erro ao atualizar transação. Tente novamente.", "error");
       }
     } catch (error) {
       showToast("Erro ao conectar com o servidor.", "error");
+    } finally {
+      closeEditModal();
     }
-
-    // Limpa o estado de edição
-    cancelEdit();
   };
 
   // Configuração das colunas da tabela
@@ -232,119 +352,20 @@ export default function ExpensesTable() {
       }),
       columnHelper.accessor("description", {
         header: "Descrição",
-        cell: (info) => {
-          const value = info.getValue();
-          const rowId = info.row.original.id;
-          const isEditing =
-            editingCell?.id === rowId && editingCell?.field === "description";
-
-          if (isEditing) {
-            return (
-              <div className="flex items-center">
-                <input
-                  ref={editInputRef}
-                  type="text"
-                  value={editValue}
-                  onChange={(e) => setEditValue(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") saveEdit();
-                    if (e.key === "Escape") cancelEdit();
-                  }}
-                  className="bg-gray-700 text-white px-2 py-1 rounded border border-gray-600 w-full"
-                />
-                <button
-                  onClick={saveEdit}
-                  className="ml-2 text-green-400 hover:text-green-300"
-                  title="Salvar"
-                >
-                  <FiCheck />
-                </button>
-                <button
-                  onClick={cancelEdit}
-                  className="ml-1 text-red-400 hover:text-red-300"
-                  title="Cancelar"
-                >
-                  <FiX />
-                </button>
-              </div>
-            );
-          }
-
-          return (
-            <div
-              className="cursor-pointer hover:text-purple-300"
-              onClick={() => startEdit(rowId, "description", value)}
-              title="Clique para editar"
-            >
-              {value}
-            </div>
-          );
-        },
+        cell: (info) => info.getValue(),
       }),
       columnHelper.accessor("category", {
         header: "Categoria",
         cell: (info) => {
           const category = info.getValue();
-          const rowId = info.row.original.id;
-          const isEditing =
-            editingCell?.id === rowId && editingCell?.field === "category";
-
-          if (isEditing) {
-            return (
-              <div className="flex items-center">
-                <select
-                  ref={editInputRef as React.RefObject<HTMLSelectElement>}
-                  value={editValue}
-                  onChange={(e) => setEditValue(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") saveEdit();
-                    if (e.key === "Escape") cancelEdit();
-                  }}
-                  className="bg-gray-700 text-white px-2 py-1 rounded border border-gray-600"
-                >
-                  <option value="Alimentação">Alimentação</option>
-                  <option value="Moradia">Moradia</option>
-                  <option value="Transporte">Transporte</option>
-                  <option value="Saúde">Saúde</option>
-                  <option value="Entretenimento">Entretenimento</option>
-                  <option value="Assinaturas">Assinaturas</option>
-                  <option value="Utilidades">Utilidades</option>
-                  <option value="Receita">Receita</option>
-                  <option value="Pessoal">Pessoal</option>
-                  <option value="Outros">Outros</option>
-                </select>
-                <button
-                  onClick={saveEdit}
-                  className="ml-2 text-green-400 hover:text-green-300"
-                  title="Salvar"
-                >
-                  <FiCheck />
-                </button>
-                <button
-                  onClick={cancelEdit}
-                  className="ml-1 text-red-400 hover:text-red-300"
-                  title="Cancelar"
-                >
-                  <FiX />
-                </button>
-              </div>
-            );
-          }
-
           return (
-            <div
-              className="cursor-pointer"
-              onClick={() => startEdit(rowId, "category", category)}
-              title="Clique para editar"
+            <span
+              className={`px-2 py-1 text-xs rounded-full ${
+                categoryColors[category] || "bg-gray-700 text-gray-300"
+              }`}
             >
-              <span
-                className={`px-2 py-1 text-xs rounded-full ${
-                  categoryColors[category] || "bg-gray-700 text-gray-300"
-                }`}
-              >
-                {category}
-              </span>
-            </div>
+              {category}
+            </span>
           );
         },
       }),
@@ -377,8 +398,27 @@ export default function ExpensesTable() {
         },
         sortingFn: "basic",
       }),
+      // Nova coluna de ações
+      columnHelper.display({
+        id: "actions",
+        header: "Ações",
+        cell: (info) => {
+          const expense = info.row.original;
+          return (
+            <div className="flex justify-center">
+              <button
+                onClick={() => openEditModal(expense)}
+                className="p-2 bg-purple-600/20 text-purple-400 rounded-full hover:bg-purple-600/40 transition-colors"
+                title="Editar transação"
+              >
+                <FiEdit size={16} />
+              </button>
+            </div>
+          );
+        },
+      }),
     ],
-    [editingCell, editValue]
+    []
   );
 
   // Configuração da tabela com TanStack Table
@@ -411,6 +451,14 @@ export default function ExpensesTable() {
         <div className="flex-1">
           {/* Componente React-Toastify */}
           <ToastNotifications />
+
+          {/* Modal de Edição Unificado */}
+          <EditTransactionModal
+            isOpen={isModalOpen}
+            expense={editingExpense}
+            onClose={closeEditModal}
+            onSave={handleSave}
+          />
 
           {/* Expenses Table Content */}
           <main className="px-6 py-6">
@@ -576,7 +624,7 @@ export default function ExpensesTable() {
                     </span>
                   </div>
                   <div className="text-gray-400">
-                    <p>Clique na descrição ou categoria para editar</p>
+                    <p>Clique no botão de edição para modificar os dados</p>
                   </div>
                 </div>
               )}

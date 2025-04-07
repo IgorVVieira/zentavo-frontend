@@ -25,7 +25,6 @@ export interface Transaction {
   method: TransactionMethod;
 }
 
-// Tipo para mapeamento entre dados da API e o formato usado pelo frontend
 export interface ExpenseItem {
   id: string;
   date: string;
@@ -44,7 +43,6 @@ class TransactionService {
    */
   async importCSV(file: File, bankType: string): Promise<any> {
     try {
-      // Verificar se há token de autenticação
       const token = authService.getToken();
       if (!token) {
         throw new Error(
@@ -52,15 +50,12 @@ class TransactionService {
         );
       }
 
-      // Preparar o FormData para envio
       const formData = new FormData();
-      // Usando 'statement' como nome do campo - é o que o backend espera conforme a configuração do Multer
       formData.append("statement", file);
       formData.append("bankType", bankType);
 
       console.log("Enviando arquivo:", file.name, "tipo:", bankType);
 
-      // Fazer a chamada à API
       const response = await fetch(`${API_URL}/api/transactions/import`, {
         method: "POST",
         headers: {
@@ -69,7 +64,6 @@ class TransactionService {
         body: formData,
       });
 
-      // Verificar se a resposta foi bem-sucedida
       if (!response.ok) {
         let errorMsg = "Falha ao importar o arquivo.";
 
@@ -103,7 +97,6 @@ class TransactionService {
     try {
       console.log(`Buscando transações para ${month}/${year}`);
 
-      // Verificar se há token de autenticação
       const token = authService.getToken();
       if (!token) {
         throw new Error(
@@ -111,7 +104,6 @@ class TransactionService {
         );
       }
 
-      // Fazer a chamada à API
       const response = await fetch(
         `${API_URL}/api/transactions/${month}/${year}`,
         {
@@ -123,7 +115,6 @@ class TransactionService {
         }
       );
 
-      // Verificar se a resposta foi bem-sucedida
       if (!response.ok) {
         let errorMsg = "Falha ao buscar transações.";
 
@@ -137,12 +128,9 @@ class TransactionService {
         throw new Error(errorMsg);
       }
 
-      // Processar e mapear os dados recebidos
       const data = await response.json();
-      console.log(data);
       const transactions = data || [];
 
-      // Converter do formato da API para o formato usado pelo frontend
       return transactions.map((transaction: Transaction) => ({
         id: transaction.id,
         date: new Date(transaction.date).toISOString().split("T")[0],
@@ -157,7 +145,6 @@ class TransactionService {
     } catch (error: any) {
       console.error("Erro ao buscar transações:", error);
 
-      // Em caso de falha, retornar dados mock
       return this.getMockTransactions(month, year);
     }
   }

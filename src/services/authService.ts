@@ -28,7 +28,6 @@ class AuthService {
   private tokenKey = "zentavo_token";
   private userKey = "zentavo_user";
 
-  // Registrar um novo usuário usando a API
   async register(name: string, email: string, password: string): Promise<User> {
     try {
       const response = await fetch(`${API_URL}/api/users`, {
@@ -50,16 +49,13 @@ class AuthService {
     }
   }
 
-  // Login com API real
   async login(email: string, password: string): Promise<AuthResponse> {
     try {
       console.log("Tentando login com:", { email, password });
 
-      // Testar diferentes formatos de payload
       const payload = {
         email,
         password,
-        // Alguns backends esperam essas variantes
         username: email,
         senha: password,
       };
@@ -74,7 +70,6 @@ class AuthService {
 
       console.log("Status da resposta:", response.status);
 
-      // Sempre capturar o corpo da resposta, mesmo em caso de erro
       let responseData;
       try {
         responseData = await response.json();
@@ -90,7 +85,6 @@ class AuthService {
         );
       }
 
-      // Verificar os possíveis locais onde o token pode estar na resposta
       const token =
         responseData.token ||
         responseData.accessToken ||
@@ -102,7 +96,6 @@ class AuthService {
         throw new Error("Token de autenticação não encontrado na resposta");
       }
 
-      // Lidar com diferentes formatos de resposta possíveis
       const userData = responseData.user ||
         responseData.userData ||
         responseData.data || {
@@ -114,7 +107,6 @@ class AuthService {
       console.log("Dados do usuário extraídos:", userData);
       console.log("Token extraído:", token);
 
-      // Salvar token e informações do usuário
       this.setToken(token);
       this.setUser(userData);
 
@@ -128,14 +120,11 @@ class AuthService {
     }
   }
 
-  // Logout
   logout(): void {
     localStorage.removeItem(this.tokenKey);
     localStorage.removeItem(this.userKey);
-    // Não redirecionamos aqui, deixamos o componente fazer isso
   }
 
-  // Pegar token armazenado
   getToken(): string | null {
     if (typeof window !== "undefined") {
       return localStorage.getItem(this.tokenKey);
@@ -143,12 +132,10 @@ class AuthService {
     return null;
   }
 
-  // Salvar token
   private setToken(token: string): void {
     localStorage.setItem(this.tokenKey, token);
   }
 
-  // Pegar usuário armazenado
   getUser(): User | null {
     if (typeof window !== "undefined") {
       const userStr = localStorage.getItem(this.userKey);
@@ -163,27 +150,21 @@ class AuthService {
     return null;
   }
 
-  // Salvar usuário
   private setUser(user: User): void {
     localStorage.setItem(this.userKey, JSON.stringify(user));
   }
 
-  // Verificar se o usuário está autenticado
   isAuthenticated(): boolean {
     return !!this.getToken();
   }
 
-  // Verificar se o token é válido
   isTokenValid(): boolean {
     const token = this.getToken();
     if (!token) return false;
 
-    // Sem verificação da expiração do token por enquanto
-    // Em uma implementação mais robusta, usaríamos jwt-decode para verificar a expiração
     return true;
   }
 
-  // Auxiliar para realizar requisições autenticadas
   async fetchWithAuth(
     url: string,
     options: RequestInit = {}
@@ -204,7 +185,6 @@ class AuthService {
     });
   }
 
-  // Obter cabeçalhos de autenticação para requisições autenticadas
   getAuthHeaders(): HeadersInit {
     const token = this.getToken();
     return {
@@ -214,6 +194,5 @@ class AuthService {
   }
 }
 
-// Exportar uma instância única
 const authService = new AuthService();
 export default authService;
