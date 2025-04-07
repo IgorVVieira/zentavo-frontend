@@ -299,8 +299,8 @@ export default function ImportCSV() {
             </h2>
             <ol style={{ paddingLeft: "20px", lineHeight: "1.6" }}>
               <li>Acesse sua conta no aplicativo ou site do Nubank</li>
-              <li>Vá para a seção "Faturas" ou "Histórico"</li>
-              <li>Procure a opção "Exportar extrato" ou "Baixar CSV"</li>
+              <li>Vá para a seção Faturas ou Histórico</li>
+              <li>Procure a opção Exportar extrato ou Baixar CSV</li>
               <li>Selecione o período desejado e faça o download</li>
               <li>Importe o arquivo CSV baixado nesta página</li>
             </ol>
