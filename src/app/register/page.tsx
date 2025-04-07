@@ -1,4 +1,3 @@
-// src/app/register/page.tsx
 "use client";
 
 import { useState, FormEvent } from "react";
@@ -21,7 +20,6 @@ export default function Register() {
     setIsLoading(true);
     setError("");
 
-    // Validações básicas
     if (senha !== confirmarSenha) {
       setError("As senhas não coincidem.");
       setIsLoading(false);
@@ -35,13 +33,10 @@ export default function Register() {
     }
 
     try {
-      // Cadastrar o usuário usando a API real
       await authService.register(nome, email, senha);
 
-      // Mostrar mensagem de sucesso
       showToast("Cadastro realizado com sucesso!", "success");
 
-      // Redirecionar para a página de login com mensagem de sucesso
       router.push("/login?cadastro=sucesso");
     } catch (err: any) {
       setError(
@@ -70,7 +65,6 @@ export default function Register() {
             <p className="text-gray-300">Crie sua conta</p>
           </div>
 
-          {/* Formulário de cadastro */}
           <form onSubmit={handleSubmit}>
             {error && (
               <div className="bg-red-900/30 border border-red-500 text-red-300 px-4 py-3 rounded-lg mb-4 text-sm">

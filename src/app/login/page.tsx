@@ -17,13 +17,11 @@ export default function Login() {
   const [success, setSuccess] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
 
-  // Redirecionar se já estiver autenticado
   useEffect(() => {
     if (isAuthenticated) {
       router.push("/expenses");
     }
 
-    // Verificar se o usuário acabou de se cadastrar
     const cadastroStatus = searchParams.get("cadastro");
     if (cadastroStatus === "sucesso") {
       setSuccess("Cadastro realizado com sucesso! Faça login para continuar.");
@@ -44,7 +42,6 @@ export default function Login() {
       if (success) {
         showToast("Login realizado com sucesso!", "success");
         console.log("Redirecionando após login bem-sucedido");
-        // Redirecionar para a página inicial
         router.push("/expenses");
       } else {
         console.log("Login falhou, exibindo erro");
@@ -64,7 +61,6 @@ export default function Login() {
     <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="bg-gray-800 rounded-lg shadow-xl p-4 animate-fadeIn">
-          {/* Logo e título */}
           <div className="text-center mb-8">
             <div className="flex items-center justify-center mb-4">
               <div className="h-12 w-12 rounded-full bg-purple-600 flex items-center justify-center mr-3">
@@ -77,7 +73,6 @@ export default function Login() {
             <p className="text-gray-300">Gestão financeira inteligente</p>
           </div>
 
-          {/* Formulário de login */}
           <form onSubmit={handleSubmit}>
             {error && (
               <div className="bg-red-900/30 border border-red-500 text-red-300 px-4 py-3 rounded-lg mb-4 text-sm">
@@ -199,7 +194,6 @@ export default function Login() {
           </div>
         </div>
 
-        {/* Rodapé */}
         <div className="mt-8 text-center text-gray-500 text-xs">
           <p>
             &copy; {new Date().getFullYear()} Zentavo. Todos os direitos

@@ -26,7 +26,6 @@ const Sidebar = ({ isMobile = false, className = "" }: SidebarProps) => {
   const { user, logout } = useAuth();
 
   const menuItems = [
-    // { name: "Dashboard", icon: <FiPieChart />, path: "/" },
     { name: "Gastos Mensais", icon: <FiDollarSign />, path: "/expenses" },
     { name: "Categorias", icon: <FiTag />, path: "/categories" },
     { name: "Importar CSV", icon: <FiUploadCloud />, path: "/import" },
@@ -34,22 +33,18 @@ const Sidebar = ({ isMobile = false, className = "" }: SidebarProps) => {
 
   const bottomMenuItems = [
     { name: "Meu Perfil", icon: <FiUser />, path: "/profile" },
-    // { name: "Configurações", icon: <FiSettings />, path: "/settings" },
   ];
 
   const isActiveLink = (path: string) => pathname === path;
 
-  // Fechar sidebar ao navegar em dispositivos móveis
   useEffect(() => {
     if (isMobile) {
       const handleRouteChange = () => {
-        // Função para ser executada quando o componente for desmontado
         return () => {
           document.body.style.overflow = "";
         };
       };
 
-      // Bloquear scroll quando sidebar estiver aberto em mobile
       document.body.style.overflow = "hidden";
 
       return handleRouteChange();
@@ -77,7 +72,6 @@ const Sidebar = ({ isMobile = false, className = "" }: SidebarProps) => {
         ${className}
       `}
     >
-      {/* Toggle Button */}
       <motion.button
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.95 }}
@@ -87,7 +81,6 @@ const Sidebar = ({ isMobile = false, className = "" }: SidebarProps) => {
         {isCollapsed ? <FiMenu size={16} /> : <FiChevronLeft size={16} />}
       </motion.button>
 
-      {/* Logo */}
       <div
         className={`flex items-center ${
           isCollapsed ? "justify-center px-4" : "px-6"
@@ -114,7 +107,6 @@ const Sidebar = ({ isMobile = false, className = "" }: SidebarProps) => {
         </AnimatePresence>
       </div>
 
-      {/* Main Navigation - Adicionado flex-1 e overflow-y-auto para garantir a rolagem */}
       <nav className="flex-1 px-4 overflow-y-auto py-4">
         {menuItems.map((item) => (
           <Link
@@ -154,7 +146,6 @@ const Sidebar = ({ isMobile = false, className = "" }: SidebarProps) => {
         ))}
       </nav>
 
-      {/* Bottom Section - Fixado na parte inferior */}
       <div
         className={`border-t border-gray-700/50 pt-4 mt-auto mb-6 ${
           isCollapsed ? "px-4" : "px-6"
@@ -197,7 +188,6 @@ const Sidebar = ({ isMobile = false, className = "" }: SidebarProps) => {
           </Link>
         ))}
 
-        {/* Logout Button */}
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}

@@ -1,4 +1,3 @@
-// src/app/page.tsx
 "use client";
 
 import { useState } from "react";
@@ -13,7 +12,6 @@ export default function Home() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user, logout } = useAuth();
   
-  // Dados de exemplo para os gráficos
   const expenseData = [
     { name: "Alimentação", value: 1250.80, color: "#EF4444" },
     { name: "Moradia", value: 850.00, color: "#F59E0B" },

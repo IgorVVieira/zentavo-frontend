@@ -11,14 +11,12 @@ export default function ImportCSV() {
   const { user } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Estados para controlar o formulário
   const [selectedBank, setSelectedBank] = useState("nubank");
   const [file, setFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
 
-  // Função para lidar com a seleção de arquivos
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const selectedFile = e.target.files[0];
@@ -33,7 +31,6 @@ export default function ImportCSV() {
     }
   };
 
-  // Função para importar o arquivo
   const importFile = async () => {
     if (!file) {
       setError("Por favor, selecione um arquivo CSV.");
@@ -44,7 +41,6 @@ export default function ImportCSV() {
     setError("");
 
     try {
-      // Usar o serviço de transações para importar o arquivo
       const result = await transactionService.importCSV(file, selectedBank);
       console.log("Importação bem-sucedida:", result);
 
@@ -59,7 +55,6 @@ export default function ImportCSV() {
     }
   };
 
-  // Reset do formulário
   const resetForm = () => {
     setFile(null);
     setError("");

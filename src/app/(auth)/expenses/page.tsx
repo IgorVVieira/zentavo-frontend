@@ -28,12 +28,10 @@ if (typeof window !== "undefined") {
   if (nextRoot) {
     Modal.setAppElement("#__next");
   } else {
-    // Fallback para o body (funciona com App Router)
     Modal.setAppElement("body");
   }
 }
 
-// Estilo personalizado para o modal
 const customModalStyles = {
   content: {
     top: "50%",
@@ -55,7 +53,6 @@ const customModalStyles = {
   },
 };
 
-// Mapeamento de categorias para cores
 const categoryColors: Record<string, string> = {
   Alimentação: "bg-red-900 text-red-300",
   Moradia: "bg-blue-900 text-blue-300",
@@ -69,7 +66,6 @@ const categoryColors: Record<string, string> = {
   Outros: "bg-gray-700 text-gray-300",
 };
 
-// Função para formatar números como moeda
 const formatCurrency = (value: number) => {
   return new Intl.NumberFormat("pt-BR", {
     style: "currency",
@@ -77,7 +73,6 @@ const formatCurrency = (value: number) => {
   }).format(value);
 };
 
-// Componente Modal para edição unificada de dados
 interface EditModalProps {
   isOpen: boolean;
   expense: ExpenseItem | null;
@@ -97,7 +92,6 @@ const EditTransactionModal = ({
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
 
-  // Inicializar valores ao abrir o modal
   useEffect(() => {
     if (expense) {
       setDescription(expense.description);
@@ -215,13 +209,11 @@ export default function ExpensesTable() {
     { id: "date", desc: true },
   ]);
 
-  // Estados para o modal de edição
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingExpense, setEditingExpense] = useState<ExpenseItem | null>(
     null
   );
 
-  // Lista de meses
   const months = [
     "Janeiro",
     "Fevereiro",
@@ -237,7 +229,6 @@ export default function ExpensesTable() {
     "Dezembro",
   ];
 
-  // Gera lista de anos (atual-3 até atual+1)
   const currentYearJs = new Date().getFullYear();
   const years = [
     currentYearJs - 3,
@@ -247,12 +238,10 @@ export default function ExpensesTable() {
     currentYearJs + 1,
   ];
 
-  // Buscar dados da API quando o mês ou ano mudar
   useEffect(() => {
     const fetchTransactions = async () => {
       setIsLoading(true);
       try {
-        // Buscar transações da API para o mês e ano selecionados
         const data = await transactionService.getMonthlyTransactions(
           currentMonth,
           currentYear
@@ -269,42 +258,37 @@ export default function ExpensesTable() {
     fetchTransactions();
   }, [currentMonth, currentYear]);
 
-  // Formatar data para exibição
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("pt-BR");
   };
 
-  // Cálculo dos totais
   const totalIncome = expenses
-    .filter((expense) => expense.type === "income")
+    .filter((expense) => expense.amount > 0)
     .reduce((sum, expense) => sum + expense.amount, 0);
 
   const totalExpenses = expenses
-    .filter((expense) => expense.type === "expense")
+    .filter((expense) => expense.amount < 0)
     .reduce((sum, expense) => sum + expense.amount, 0);
 
-  // Calcular o saldo (entradas - saídas)
-  const balance = totalIncome - totalExpenses;
+  console.log(totalExpenses);
 
-  // Abrir modal de edição
+  const balance = totalIncome + totalExpenses;
+
   const openEditModal = (expense: ExpenseItem) => {
     setEditingExpense(expense);
     setIsModalOpen(true);
   };
 
-  // Fechar modal de edição
   const closeEditModal = () => {
     setIsModalOpen(false);
     setEditingExpense(null);
   };
 
-  // Função para simular chamada à API e atualizar localmente
   const handleSave = async (
     id: string,
     updates: { description: string; category: string }
   ) => {
-    // Verificar se o valor mudou
     const expense = expenses.find((e) => e.id === id);
     if (
       !expense ||
@@ -316,14 +300,11 @@ export default function ExpensesTable() {
     }
 
     try {
-      // Simular atraso da API
       await new Promise((resolve) => setTimeout(resolve, 500));
 
-      // 95% de chance de sucesso
       const success = Math.random() > 0.05;
 
       if (success) {
-        // Atualizar localmente
         setExpenses((prevExpenses) =>
           prevExpenses.map((expense) =>
             expense.id === id ? { ...expense, ...updates } : expense
@@ -340,7 +321,6 @@ export default function ExpensesTable() {
     }
   };
 
-  // Configuração das colunas da tabela
   const columnHelper = createColumnHelper<ExpenseItem>();
 
   const columns = useMemo(
@@ -398,7 +378,6 @@ export default function ExpensesTable() {
         },
         sortingFn: "basic",
       }),
-      // Nova coluna de ações
       columnHelper.display({
         id: "actions",
         header: "Ações",
@@ -421,7 +400,6 @@ export default function ExpensesTable() {
     []
   );
 
-  // Configuração da tabela com TanStack Table
   const table = useReactTable({
     data: expenses,
     columns,
@@ -433,7 +411,6 @@ export default function ExpensesTable() {
     getSortedRowModel: getSortedRowModel(),
   });
 
-  // Manipuladores para os seletores de mês e ano
   const handleMonthChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newMonth = parseInt(e.target.value, 10);
     setCurrentMonth(newMonth);
@@ -447,12 +424,9 @@ export default function ExpensesTable() {
   return (
     <ProtectedRoute>
       <div className="min-h-screen bg-gray-900 text-white flex">
-        {/* Main Content */}
         <div className="flex-1">
-          {/* Componente React-Toastify */}
           <ToastNotifications />
 
-          {/* Modal de Edição Unificado */}
           <EditTransactionModal
             isOpen={isModalOpen}
             expense={editingExpense}
@@ -460,7 +434,6 @@ export default function ExpensesTable() {
             onSave={handleSave}
           />
 
-          {/* Expenses Table Content */}
           <main className="px-6 py-6">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold">Gastos Mensais</h2>
@@ -491,7 +464,6 @@ export default function ExpensesTable() {
             </div>
 
             <div className="flex flex-wrap md:flex-nowrap gap-6 mb-6">
-              {/* Card de Entradas */}
               <div className="bg-gray-800 px-6 py-6 rounded-lg border-l-4 border-green-500 flex-1">
                 <p className="text-sm text-gray-400">Total de entradas</p>
                 <p className="text-2xl font-bold text-green-400">
@@ -500,7 +472,6 @@ export default function ExpensesTable() {
                 <p className="text-sm text-gray-400">Receitas do mês</p>
               </div>
 
-              {/* Card de Saídas */}
               <div className="bg-gray-800 px-6 py-6 rounded-lg border-l-4 border-red-500 flex-1">
                 <p className="text-sm text-gray-400">Total de saídas</p>
                 <p className="text-2xl font-bold text-red-400">
@@ -509,7 +480,6 @@ export default function ExpensesTable() {
                 <p className="text-sm text-gray-400">Despesas do mês</p>
               </div>
 
-              {/* Card de Saldo */}
               <div className="bg-gray-800 px-6 py-6 rounded-lg border-l-4 border-purple-500 flex-1">
                 <p className="text-sm text-gray-400">Saldo do período</p>
                 <p
@@ -525,7 +495,6 @@ export default function ExpensesTable() {
               </div>
             </div>
 
-            {/* TanStack Table */}
             <div className="bg-gray-800 rounded-lg overflow-hidden shadow-lg">
               <div className="overflow-x-auto">
                 <table className="w-full">
@@ -614,7 +583,6 @@ export default function ExpensesTable() {
                 </table>
               </div>
 
-              {/* Paginação e resumo */}
               {table.getRowModel().rows.length > 0 && (
                 <div className="px-4 py-3 bg-gray-700 border-t border-gray-600 flex justify-between items-center text-sm">
                   <div>

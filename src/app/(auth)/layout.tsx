@@ -14,13 +14,11 @@ export default function AuthLayout({
   const router = useRouter();
 
   useEffect(() => {
-    // Redirecionar para login se não estiver autenticado
     if (!isLoading && !isAuthenticated) {
       router.push("/login");
     }
   }, [isAuthenticated, isLoading, router]);
 
-  // Mostrar nada enquanto verifica autenticação
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-900 flex items-center justify-center">
@@ -29,6 +27,5 @@ export default function AuthLayout({
     );
   }
 
-  // Renderiza o layout apenas se autenticado
   return isAuthenticated ? <AppLayout>{children}</AppLayout> : null;
 }

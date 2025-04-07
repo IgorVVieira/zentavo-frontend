@@ -11,7 +11,6 @@ import { useRouter } from "next/navigation";
 import authService, { User } from "@/services/authService";
 import { showToast } from "@/components/ToastNotificatons";
 
-// Definição da interface do contexto
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
@@ -20,10 +19,8 @@ interface AuthContextType {
   logout: () => void;
 }
 
-// Criação do contexto com valor inicial
 export const AuthContext = createContext<AuthContextType | null>(null);
 
-// Hook personalizado para usar o contexto
 export function useAuth() {
   const context = useContext(AuthContext);
   if (!context) {
@@ -32,14 +29,12 @@ export function useAuth() {
   return context;
 }
 
-// Componente Provider
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
-    // Verificar autenticação quando o componente é montado
     const checkAuth = async () => {
       try {
         if (authService.isTokenValid()) {
@@ -59,7 +54,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     checkAuth();
   }, []);
 
-  // Função de login
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
       setIsLoading(true);
@@ -84,14 +78,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  // Função de logout
   const logout = () => {
     authService.logout();
     setUser(null);
     router.push("/login");
   };
 
-  // Valor do contexto
   const value = {
     user,
     isLoading,
@@ -100,6 +92,5 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     logout,
   };
 
-  // Retorna o Provider com o valor
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

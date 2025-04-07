@@ -1,4 +1,3 @@
-// src/app/(auth)/categories/page.tsx - usando o input color nativo
 "use client";
 
 import { useState, useEffect } from "react";
@@ -14,14 +13,12 @@ import {
 } from "react-icons/fi";
 import ToastNotifications, { showToast } from "@/components/ToastNotificatons";
 
-// Interface para as categorias
 interface Category {
   id: string;
   name: string;
   color: string;
 }
 
-// Cores predefinidas para o input color
 const predefinedColors = [
   "#EF4444", // Vermelho
   "#F97316", // Laranja
@@ -51,18 +48,14 @@ export default function CategoriesPage() {
   const [sortField, setSortField] = useState<"name" | "color">("name");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 
-  // Estados para o formulário
   const [newCategoryName, setNewCategoryName] = useState("");
   const [selectedColor, setSelectedColor] = useState(predefinedColors[0]);
 
-  // Mock API para buscar categorias
   const fetchCategories = async () => {
     setIsLoading(true);
     try {
-      // Simular atraso de API
       await new Promise((resolve) => setTimeout(resolve, 800));
 
-      // Recuperar do localStorage ou usar array vazio
       const storedCategories = localStorage.getItem("zentavo_categories");
       if (storedCategories) {
         setCategories(JSON.parse(storedCategories));
@@ -77,16 +70,13 @@ export default function CategoriesPage() {
     }
   };
 
-  // Mock API para criar categoria
   const createCategory = async (name: string, color: string) => {
     try {
-      // Validar entrada
       if (!name.trim()) {
         showToast("O nome da categoria é obrigatório", "error");
         return false;
       }
 
-      // Verificar duplicidade
       if (
         categories.some((cat) => cat.name.toLowerCase() === name.toLowerCase())
       ) {
@@ -94,10 +84,8 @@ export default function CategoriesPage() {
         return false;
       }
 
-      // Simular atraso de API
       await new Promise((resolve) => setTimeout(resolve, 600));
 
-      // Criar nova categoria
       const newCategory: Category = {
         id: Date.now().toString(),
         name: name.trim(),
@@ -107,7 +95,6 @@ export default function CategoriesPage() {
       const updatedCategories = [...categories, newCategory];
       setCategories(updatedCategories);
 
-      // Salvar no localStorage
       localStorage.setItem(
         "zentavo_categories",
         JSON.stringify(updatedCategories)
@@ -122,17 +109,13 @@ export default function CategoriesPage() {
     }
   };
 
-  // Mock API para deletar categoria
   const deleteCategory = async (id: string) => {
     try {
-      // Simular atraso de API
       await new Promise((resolve) => setTimeout(resolve, 600));
 
-      // Excluir categoria
       const updatedCategories = categories.filter((cat) => cat.id !== id);
       setCategories(updatedCategories);
 
-      // Salvar no localStorage
       localStorage.setItem(
         "zentavo_categories",
         JSON.stringify(updatedCategories)
@@ -147,12 +130,10 @@ export default function CategoriesPage() {
     }
   };
 
-  // Carregar categorias ao montar o componente
   useEffect(() => {
     fetchCategories();
   }, []);
 
-  // Filtrar e ordenar categorias
   const filteredCategories = categories.filter((category) =>
     category.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -169,7 +150,6 @@ export default function CategoriesPage() {
     }
   });
 
-  // Manipuladores de eventos
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const success = await createCategory(newCategoryName, selectedColor);

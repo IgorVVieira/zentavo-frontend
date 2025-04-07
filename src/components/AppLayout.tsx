@@ -15,20 +15,17 @@ const AppLayout = ({ children }: AppLayoutProps) => {
   const [isMobile, setIsMobile] = useState(false);
   const { user } = useAuth();
 
-  // Detect mobile screens
   useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth < 768);
     };
 
-    // Set initial state
     handleResize();
 
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Close mobile menu when changing screen size to desktop
   useEffect(() => {
     if (!isMobile) {
       setIsMobileMenuOpen(false);
@@ -37,12 +34,9 @@ const AppLayout = ({ children }: AppLayoutProps) => {
 
   return (
     <ProtectedRoute>
-      {/* Use flex e h-screen para garantir que ocupe toda a altura */}
       <div className="flex h-screen bg-gray-900 text-white">
-        {/* Sidebar for desktop (always visible) */}
         {!isMobile && <Sidebar />}
 
-        {/* Mobile Menu */}
         {isMobile && isMobileMenuOpen && (
           <>
             <div
@@ -53,9 +47,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
           </>
         )}
 
-        {/* Main Content - flex-1 faz ocupar 100% do espaço restante */}
         <div className="flex-1 flex flex-col">
-          {/* Top Header for Mobile */}
           {isMobile && (
             <header className="bg-gray-800 py-4 px-6 flex items-center justify-between">
               <div className="flex items-center">
@@ -75,7 +67,6 @@ const AppLayout = ({ children }: AppLayoutProps) => {
             </header>
           )}
 
-          {/* Page Content */}
           <main className="flex-1 overflow-auto relative">{children}</main>
         </div>
       </div>

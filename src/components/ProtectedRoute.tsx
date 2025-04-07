@@ -13,13 +13,11 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const router = useRouter();
 
   useEffect(() => {
-    // Se não estiver carregando e não estiver autenticado, redirecionar para o login
     if (!isLoading && !isAuthenticated) {
       router.push("/login");
     }
   }, [isAuthenticated, isLoading, router]);
 
-  // Mostrar nada enquanto verifica autenticação
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-900 flex items-center justify-center">
@@ -28,7 +26,6 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     );
   }
 
-  // Se estiver autenticado, renderizar os filhos (conteúdo protegido)
   return isAuthenticated ? <>{children}</> : null;
 };
 
