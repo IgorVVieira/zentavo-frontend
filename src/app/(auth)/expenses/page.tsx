@@ -21,6 +21,7 @@ import {
 } from "react-icons/fi";
 import ToastNotifications, { showToast } from "@/components/ToastNotificatons";
 import transactionService, { ExpenseItem } from "@/services/transactionService";
+import categoryService, { Category } from "@/services/categoryService";
 import Modal from "react-modal";
 
 if (typeof window !== "undefined") {
@@ -53,19 +54,6 @@ const customModalStyles = {
   },
 };
 
-const categoryColors: Record<string, string> = {
-  Alimentação: "bg-red-900 text-red-300",
-  Moradia: "bg-blue-900 text-blue-300",
-  Transporte: "bg-yellow-900 text-yellow-300",
-  Saúde: "bg-blue-900 text-blue-300",
-  Entretenimento: "bg-purple-900 text-purple-300",
-  Assinaturas: "bg-purple-900 text-purple-300",
-  Utilidades: "bg-gray-700 text-gray-300",
-  Pessoal: "bg-pink-900 text-pink-300",
-  Receita: "bg-green-900 text-green-300",
-  Outros: "bg-gray-700 text-gray-300",
-};
-
 const formatCurrency = (value: number) => {
   return new Intl.NumberFormat("pt-BR", {
     style: "currency",
@@ -79,8 +67,9 @@ interface EditModalProps {
   onClose: () => void;
   onSave: (
     id: string,
-    updates: { description: string; category: string }
+    updates: { description: string; categoryId: string }
   ) => void;
+  categories: Category[];
 }
 
 const EditTransactionModal = ({
@@ -88,14 +77,15 @@ const EditTransactionModal = ({
   expense,
   onClose,
   onSave,
+  categories,
 }: EditModalProps) => {
   const [description, setDescription] = useState("");
-  const [category, setCategory] = useState("");
+  const [categoryId, setCategoryId] = useState("");
 
   useEffect(() => {
     if (expense) {
       setDescription(expense.description);
-      setCategory(expense.category);
+      setCategoryId(expense.category.id || "");
     }
   }, [expense]);
 
@@ -103,8 +93,10 @@ const EditTransactionModal = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSave(expense.id, { description, category });
+    onSave(expense.id, { description, categoryId });
   };
+
+  const selectedCategory = categories.find((c) => c.id === categoryId);
 
   return (
     <Modal
@@ -144,36 +136,34 @@ const EditTransactionModal = ({
               Categoria
             </label>
             <select
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
+              value={categoryId}
+              onChange={(e) => setCategoryId(e.target.value)}
               className="w-full bg-gray-700 text-white px-3 py-2 rounded-lg border border-gray-600 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
             >
-              <option value="Alimentação">Alimentação</option>
-              <option value="Moradia">Moradia</option>
-              <option value="Transporte">Transporte</option>
-              <option value="Saúde">Saúde</option>
-              <option value="Entretenimento">Entretenimento</option>
-              <option value="Assinaturas">Assinaturas</option>
-              <option value="Utilidades">Utilidades</option>
-              <option value="Receita">Receita</option>
-              <option value="Pessoal">Pessoal</option>
-              <option value="Outros">Outros</option>
+              <option value="">-- Selecione uma categoria --</option>
+              {categories.map((category) => (
+                <option key={category.id} value={category.id}>
+                  {category.name}
+                </option>
+              ))}
             </select>
           </div>
 
           <div className="pt-2">
             <div className="flex items-center mb-4">
               <div
-                className={`w-4 h-4 rounded-full mr-2 ${
-                  categoryColors[category]?.split(" ")[0] || "bg-gray-700"
-                }`}
+                className="w-4 h-4 rounded-full mr-2"
+                style={{
+                  backgroundColor:
+                    selectedCategory?.color ||
+                    expense.category.color ||
+                    "#6B7280",
+                }}
               ></div>
-              <span
-                className={
-                  categoryColors[category]?.split(" ")[1] || "text-gray-300"
-                }
-              >
-                Pré-visualização da categoria
+              <span className="text-gray-300">
+                {selectedCategory
+                  ? selectedCategory.name
+                  : expense.category.name || "Sem categoria"}
               </span>
             </div>
           </div>
@@ -205,6 +195,7 @@ export default function ExpensesTable() {
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth() + 1); // Mês atual (1-12)
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
   const [expenses, setExpenses] = useState<ExpenseItem[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [isTableLoading, setIsTableLoading] = useState(true);
   const [sorting, setSorting] = useState<SortingState>([
     { id: "date", desc: true },
@@ -239,6 +230,21 @@ export default function ExpensesTable() {
     currentYearJs + 1,
   ];
 
+  // Carregar categorias
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const categoriesData = await categoryService.getCategories();
+        setCategories(categoriesData);
+      } catch (error) {
+        console.error("Erro ao buscar categorias:", error);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
+  // Carregar transações
   useEffect(() => {
     const fetchTransactions = async () => {
       setIsTableLoading(true);
@@ -249,9 +255,10 @@ export default function ExpensesTable() {
           currentYear
         );
         setExpenses(data);
-      } catch (error) {
+      } catch (error: any) {
         console.error("Erro ao buscar transações:", error);
-        showToast("Erro ao carregar as transações", "error");
+        showToast(error.message || "Erro ao carregar as transações", "error");
+        setExpenses([]);
       } finally {
         setIsTableLoading(false);
         stopLoading();
@@ -288,36 +295,51 @@ export default function ExpensesTable() {
 
   const handleSave = async (
     id: string,
-    updates: { description: string; category: string }
+    updates: { description: string; categoryId: string }
   ) => {
     const expense = expenses.find((e) => e.id === id);
-    if (
-      !expense ||
-      (expense.description === updates.description &&
-        expense.category === updates.category)
-    ) {
+    if (!expense) {
       closeEditModal();
       return;
     }
 
     startLoading();
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      // Enviar atualização para a API
+      await transactionService.updateTransaction(id, {
+        description: updates.description,
+        categoryId: updates.categoryId || undefined,
+      });
 
-      const success = Math.random() > 0.05;
+      // Encontrar a categoria selecionada
+      const selectedCategory = categories.find(
+        (c) => c.id === updates.categoryId
+      );
 
-      if (success) {
-        setExpenses((prevExpenses) =>
-          prevExpenses.map((expense) =>
-            expense.id === id ? { ...expense, ...updates } : expense
-          )
-        );
-        showToast("Transação atualizada com sucesso!", "success");
-      } else {
-        showToast("Erro ao atualizar transação. Tente novamente.", "error");
-      }
-    } catch (error) {
-      showToast("Erro ao conectar com o servidor.", "error");
+      // Atualizar o estado local com os dados atualizados
+      setExpenses((prevExpenses) =>
+        prevExpenses.map((expense) =>
+          expense.id === id
+            ? {
+                ...expense,
+                description: updates.description,
+                category: {
+                  id: updates.categoryId,
+                  name: selectedCategory?.name || expense.category.name,
+                  color: selectedCategory?.color || expense.category.color,
+                },
+              }
+            : expense
+        )
+      );
+
+      showToast("Transação atualizada com sucesso!", "success");
+    } catch (error: any) {
+      console.error("Erro ao atualizar transação:", error);
+      showToast(
+        error.message || "Erro ao atualizar transação. Tente novamente.",
+        "error"
+      );
     } finally {
       closeEditModal();
       stopLoading();
@@ -337,17 +359,20 @@ export default function ExpensesTable() {
         header: "Descrição",
         cell: (info) => info.getValue(),
       }),
-      columnHelper.accessor("category", {
+      columnHelper.accessor((row) => row.category.name, {
+        id: "category",
         header: "Categoria",
         cell: (info) => {
-          const category = info.getValue();
+          const category = info.row.original.category;
           return (
             <span
-              className={`px-2 py-1 text-xs rounded-full ${
-                categoryColors[category] || "bg-gray-700 text-gray-300"
-              }`}
+              className="px-2 py-1 text-xs rounded-full"
+              style={{
+                backgroundColor: category.color || "#6B7280",
+                color: "#FFFFFF",
+              }}
             >
-              {category}
+              {category.name || "Outros"}
             </span>
           );
         },
@@ -375,7 +400,7 @@ export default function ExpensesTable() {
             <span
               className={type === "income" ? "text-green-400" : "text-red-400"}
             >
-              {formatCurrency(amount)}
+              {formatCurrency(Math.abs(amount))}
             </span>
           );
         },
@@ -400,7 +425,7 @@ export default function ExpensesTable() {
         },
       }),
     ],
-    []
+    [categories]
   );
 
   const table = useReactTable({
@@ -435,6 +460,7 @@ export default function ExpensesTable() {
             expense={editingExpense}
             onClose={closeEditModal}
             onSave={handleSave}
+            categories={categories}
           />
 
           <main className="px-6 py-6">
@@ -478,7 +504,7 @@ export default function ExpensesTable() {
               <div className="bg-gray-800 px-6 py-6 rounded-lg border-l-4 border-red-500 flex-1">
                 <p className="text-sm text-gray-400">Total de saídas</p>
                 <p className="text-2xl font-bold text-red-400">
-                  {formatCurrency(totalExpenses)}
+                  {formatCurrency(Math.abs(totalExpenses))}
                 </p>
                 <p className="text-sm text-gray-400">Despesas do mês</p>
               </div>

@@ -13,16 +13,22 @@ export enum TransactionMethod {
   CARD_PAYMENT = "CARD_PAYMENT",
 }
 
+export interface Category {
+  id: string;
+  name: string;
+  color: string;
+}
+
 export interface Transaction {
   id: string;
   userId: string;
-  categoryId?: string;
   externalId?: string | null;
   amount: number;
   date: Date;
   description: string;
   type: TransactionType;
   method: TransactionMethod;
+  category?: Category;
 }
 
 export interface ExpenseItem {
@@ -30,7 +36,11 @@ export interface ExpenseItem {
   date: string;
   amount: number;
   description: string;
-  category: string;
+  category: {
+    id?: string;
+    name: string;
+    color: string;
+  };
   type: "income" | "expense";
 }
 
@@ -131,133 +141,71 @@ class TransactionService {
       const data = await response.json();
       const transactions = data || [];
 
-      return transactions.map((transaction: Transaction) => ({
-        id: transaction.id,
+      // Mapear para o formato esperado pela aplicação
+      return transactions.map((transaction: any) => ({
+        id: transaction.id as string,
         date: new Date(transaction.date).toISOString().split("T")[0],
         amount: transaction.amount,
         description: transaction.description,
-        category:
-          transaction.categoryId ||
-          this.getCategoryFromDescription(transaction.description),
+        category: {
+          id: transaction?.category?.id || undefined,
+          name: transaction?.category?.name || "Outros",
+          color: transaction?.category?.color || "#6B7280", // Cor padrão cinza
+        },
         type:
           transaction.type === TransactionType.CASH_IN ? "income" : "expense",
       }));
     } catch (error: any) {
       console.error("Erro ao buscar transações:", error);
-
-      return this.getMockTransactions(month, year);
+      throw error;
     }
   }
 
   /**
-   * Função auxiliar para inferir categoria a partir da descrição
-   * quando o categoryId não está disponível
+   * Atualiza uma transação
+   * @param id ID da transação
+   * @param updates Campos para atualizar
+   * @returns Transação atualizada
    */
-  private getCategoryFromDescription(description: string): string {
-    description = description.toLowerCase();
+  async updateTransaction(
+    id: string,
+    updates: { description?: string; categoryId?: string }
+  ): Promise<any> {
+    try {
+      const token = authService.getToken();
+      if (!token) {
+        throw new Error(
+          "Você precisa estar autenticado para atualizar transações."
+        );
+      }
 
-    if (
-      description.includes("mercado") ||
-      description.includes("supermercado")
-    ) {
-      return "Alimentação";
-    } else if (
-      description.includes("netflix") ||
-      description.includes("spotify") ||
-      description.includes("apple")
-    ) {
-      return "Assinaturas";
-    } else if (
-      description.includes("uber") ||
-      description.includes("99") ||
-      description.includes("taxi")
-    ) {
-      return "Transporte";
-    } else if (
-      description.includes("farmacia") ||
-      description.includes("hospital") ||
-      description.includes("medic")
-    ) {
-      return "Saúde";
-    } else if (
-      description.includes("aluguel") ||
-      description.includes("condominio") ||
-      description.includes("iptu")
-    ) {
-      return "Moradia";
-    } else if (
-      description.includes("energia") ||
-      description.includes("luz") ||
-      description.includes("agua") ||
-      description.includes("internet")
-    ) {
-      return "Utilidades";
-    } else if (
-      description.includes("salario") ||
-      description.includes("pagamento")
-    ) {
-      return "Receita";
-    } else {
-      return "Outros";
+      const response = await fetch(`${API_URL}/api/transactions/${id}`, {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updates),
+      });
+
+      if (!response.ok) {
+        let errorMsg = "Falha ao atualizar transação.";
+
+        try {
+          const errorData = await response.json();
+          errorMsg = errorData.message || errorMsg;
+        } catch (e) {
+          console.error("Erro ao processar resposta de erro:", e);
+        }
+
+        throw new Error(errorMsg);
+      }
+
+      return await response.json();
+    } catch (error: any) {
+      console.error("Erro ao atualizar transação:", error);
+      throw error;
     }
-  }
-
-  /**
-   * Dados mock para o caso da API falhar
-   */
-  private getMockTransactions(month: number, year: number): ExpenseItem[] {
-    const formattedMonth = month.toString().padStart(2, "0");
-
-    return [
-      {
-        id: "1",
-        date: `${year}-${formattedMonth}-05`,
-        amount: 1200.0,
-        description: "Aluguel",
-        category: "Moradia",
-        type: "expense",
-      },
-      {
-        id: "2",
-        date: `${year}-${formattedMonth}-24`,
-        amount: 256.78,
-        description: "Supermercado Extra",
-        category: "Alimentação",
-        type: "expense",
-      },
-      {
-        id: "3",
-        date: `${year}-${formattedMonth}-19`,
-        amount: 39.9,
-        description: "Netflix",
-        category: "Assinaturas",
-        type: "expense",
-      },
-      {
-        id: "4",
-        date: `${year}-${formattedMonth}-18`,
-        amount: 87.5,
-        description: "Farmácia",
-        category: "Saúde",
-        type: "expense",
-      },
-      {
-        id: "5",
-        date: `${year}-${formattedMonth}-15`,
-        amount: 45.6,
-        description: "Uber",
-        category: "Transporte",
-        type: "expense",
-      },
-      {
-        id: "14",
-        date: `${year}-${formattedMonth}-02`,
-        amount: 10000,
-        description: "Salario",
-        category: "Receita",
-        type: "income",
-      },
-    ];
   }
 }
 
