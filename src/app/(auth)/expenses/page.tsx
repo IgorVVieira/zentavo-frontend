@@ -20,7 +20,10 @@ import {
   FiX,
 } from "react-icons/fi";
 import ToastNotifications, { showToast } from "@/components/ToastNotificatons";
-import transactionService, { ExpenseItem } from "@/services/transactionService";
+import transactionService, {
+  ExpenseItem,
+  TransactionMethod,
+} from "@/services/transactionService";
 import categoryService, { Category } from "@/services/categoryService";
 import Modal from "react-modal";
 
@@ -230,6 +233,26 @@ export default function ExpensesTable() {
     currentYearJs + 1,
   ];
 
+  // Tradução dos métodos de pagamento para português
+  const translateMethod = (method?: string): string => {
+    // console.log("Método de pagamento:", method);
+    if (!method) return "Desconhecido";
+
+    const methodTranslations: Record<string, string> = {
+      [TransactionMethod.PIX]: "Pix",
+      [TransactionMethod.DEBIT]: "Débito",
+      [TransactionMethod.TRANSFER]: "Transferência",
+      [TransactionMethod.CARD_PAYMENT]: "Pagamento de Cartão",
+    };
+
+    return methodTranslations[method] || method;
+  };
+
+  const handleYearChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newYear = parseInt(e.target.value, 10);
+    setCurrentYear(newYear);
+  };
+
   // Carregar categorias
   useEffect(() => {
     const fetchCategories = async () => {
@@ -254,6 +277,7 @@ export default function ExpensesTable() {
           currentMonth,
           currentYear
         );
+        console.log(data);
         setExpenses(data);
       } catch (error: any) {
         console.error("Erro ao buscar transações:", error);
@@ -278,7 +302,10 @@ export default function ExpensesTable() {
     .reduce((sum, expense) => sum + expense.amount, 0);
 
   const totalExpenses = expenses
-    .filter((expense) => expense.amount < 0)
+    .filter(
+      (expense) =>
+        expense.amount < 0 && expense.description !== "Aplicação RDB"
+    )
     .reduce((sum, expense) => sum + expense.amount, 0);
 
   const balance = totalIncome + totalExpenses;
@@ -305,31 +332,19 @@ export default function ExpensesTable() {
 
     startLoading();
     try {
-      // Enviar atualização para a API
-      await transactionService.updateTransaction(id, {
-        description: updates.description,
-        categoryId: updates.categoryId || undefined,
-      });
-
-      // Encontrar a categoria selecionada
-      const selectedCategory = categories.find(
-        (c) => c.id === updates.categoryId
+      // Enviar atualização para a API e obter a transação atualizada
+      const updatedTransaction = await transactionService.updateTransaction(
+        id,
+        {
+          description: updates.description,
+          categoryId: updates.categoryId || null,
+        }
       );
 
-      // Atualizar o estado local com os dados atualizados
+      // Atualizar o estado local com os dados retornados pela API
       setExpenses((prevExpenses) =>
         prevExpenses.map((expense) =>
-          expense.id === id
-            ? {
-                ...expense,
-                description: updates.description,
-                category: {
-                  id: updates.categoryId,
-                  name: selectedCategory?.name || expense.category.name,
-                  color: selectedCategory?.color || expense.category.color,
-                },
-              }
-            : expense
+          expense.id === id ? updatedTransaction : expense
         )
       );
 
@@ -374,6 +389,15 @@ export default function ExpensesTable() {
             >
               {category.name || "Outros"}
             </span>
+          );
+        },
+      }),
+      columnHelper.accessor("method", {
+        header: "Método",
+        cell: (info) => {
+          const method = info.getValue();
+          return (
+            <span className="text-gray-300">{translateMethod(method)}</span>
           );
         },
       }),
@@ -442,11 +466,6 @@ export default function ExpensesTable() {
   const handleMonthChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newMonth = parseInt(e.target.value, 10);
     setCurrentMonth(newMonth);
-  };
-
-  const handleYearChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newYear = parseInt(e.target.value, 10);
-    setCurrentYear(newYear);
   };
 
   return (

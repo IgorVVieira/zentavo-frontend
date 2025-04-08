@@ -42,6 +42,7 @@ export interface ExpenseItem {
     color: string;
   };
   type: "income" | "expense";
+  method?: string;
 }
 
 class TransactionService {
@@ -154,6 +155,7 @@ class TransactionService {
         },
         type:
           transaction.type === TransactionType.CASH_IN ? "income" : "expense",
+        method: transaction.method,
       }));
     } catch (error: any) {
       console.error("Erro ao buscar transações:", error);
@@ -164,13 +166,13 @@ class TransactionService {
   /**
    * Atualiza uma transação
    * @param id ID da transação
-   * @param updates Campos para atualizar
+   * @param updates Campos para atualizar (description e/ou categoryId)
    * @returns Transação atualizada
    */
   async updateTransaction(
     id: string,
-    updates: { description?: string; categoryId?: string }
-  ): Promise<any> {
+    updates: { description?: string; categoryId?: string | null }
+  ): Promise<ExpenseItem> {
     try {
       const token = authService.getToken();
       if (!token) {
@@ -179,13 +181,22 @@ class TransactionService {
         );
       }
 
+      // Criar o DTO conforme a estrutura esperada pela API
+      const updateDto = {
+        id: id,
+        description: updates.description,
+        categoryId: updates.categoryId,
+      };
+
+      console.log("Atualizando transação:", id, "com dados:", updateDto);
+
       const response = await fetch(`${API_URL}/api/transactions/${id}`, {
         method: "PATCH",
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(updates),
+        body: JSON.stringify(updateDto),
       });
 
       if (!response.ok) {
@@ -201,7 +212,23 @@ class TransactionService {
         throw new Error(errorMsg);
       }
 
-      return await response.json();
+      // Processar a resposta para o formato ExpenseItem
+      const responseData = await response.json();
+
+      return {
+        id: responseData.id,
+        date: new Date(responseData.date).toISOString().split("T")[0],
+        amount: responseData.amount,
+        description: responseData.description,
+        category: {
+          id: responseData?.category?.id,
+          name: responseData?.category?.name || "Outros",
+          color: responseData?.category?.color || "#6B7280",
+        },
+        type:
+          responseData.type === TransactionType.CASH_IN ? "income" : "expense",
+        method: responseData.method,
+      };
     } catch (error: any) {
       console.error("Erro ao atualizar transação:", error);
       throw error;
