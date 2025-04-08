@@ -11,14 +11,10 @@ import {
   FiSearch,
   FiArrowUp,
   FiArrowDown,
+  FiEdit,
 } from "react-icons/fi";
 import ToastNotifications, { showToast } from "@/components/ToastNotificatons";
-
-interface Category {
-  id: string;
-  name: string;
-  color: string;
-}
+import categoryService, { Category } from "@/services/categoryService";
 
 const predefinedColors = [
   "#EF4444", // Vermelho
@@ -53,27 +49,23 @@ export default function CategoriesPage() {
   const [newCategoryName, setNewCategoryName] = useState("");
   const [selectedColor, setSelectedColor] = useState(predefinedColors[0]);
 
+  // Função para buscar categorias da API
   const fetchCategories = async () => {
     setIsLoading(true);
     startLoading();
     try {
-      await new Promise((resolve) => setTimeout(resolve, 800));
-
-      const storedCategories = localStorage.getItem("zentavo_categories");
-      if (storedCategories) {
-        setCategories(JSON.parse(storedCategories));
-      } else {
-        setCategories([]);
-      }
-    } catch (error) {
+      const fetchedCategories = await categoryService.getCategories();
+      setCategories(fetchedCategories);
+    } catch (error: any) {
       console.error("Erro ao buscar categorias:", error);
-      showToast("Erro ao carregar categorias", "error");
+      showToast(error.message || "Erro ao carregar categorias", "error");
     } finally {
       setIsLoading(false);
       stopLoading();
     }
   };
 
+  // Função para criar uma nova categoria
   const createCategory = async (name: string, color: string) => {
     startLoading();
     try {
@@ -91,61 +83,55 @@ export default function CategoriesPage() {
         return false;
       }
 
-      await new Promise((resolve) => setTimeout(resolve, 600));
-
-      const newCategory: Category = {
-        id: Date.now().toString(),
-        name: name.trim(),
-        color,
-      };
-
-      const updatedCategories = [...categories, newCategory];
-      setCategories(updatedCategories);
-
-      localStorage.setItem(
-        "zentavo_categories",
-        JSON.stringify(updatedCategories)
+      // Chamar a API para criar categoria
+      const newCategory = await categoryService.createCategory(
+        name.trim(),
+        color
       );
+
+      // Atualizar o estado com a nova categoria
+      setCategories((prevCategories) => [...prevCategories, newCategory]);
 
       showToast("Categoria criada com sucesso", "success");
       return true;
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erro ao criar categoria:", error);
-      showToast("Erro ao criar categoria", "error");
+      showToast(error.message || "Erro ao criar categoria", "error");
       return false;
     } finally {
       stopLoading();
     }
   };
 
+  // Função para excluir uma categoria
   const deleteCategory = async (id: string) => {
     startLoading();
     try {
-      await new Promise((resolve) => setTimeout(resolve, 600));
+      // Chamar a API para excluir categoria
+      await categoryService.deleteCategory(id);
 
-      const updatedCategories = categories.filter((cat) => cat.id !== id);
-      setCategories(updatedCategories);
-
-      localStorage.setItem(
-        "zentavo_categories",
-        JSON.stringify(updatedCategories)
+      // Atualizar o estado removendo a categoria
+      setCategories((prevCategories) =>
+        prevCategories.filter((cat) => cat.id !== id)
       );
 
       showToast("Categoria excluída com sucesso", "success");
       return true;
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erro ao excluir categoria:", error);
-      showToast("Erro ao excluir categoria", "error");
+      showToast(error.message || "Erro ao excluir categoria", "error");
       return false;
     } finally {
       stopLoading();
     }
   };
 
+  // Carregar categorias ao iniciar a página
   useEffect(() => {
     fetchCategories();
   }, []);
 
+  // Filtragem e ordenação de categorias
   const filteredCategories = categories.filter((category) =>
     category.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -162,6 +148,7 @@ export default function CategoriesPage() {
     }
   });
 
+  // Manipulação do formulário
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const success = await createCategory(newCategoryName, selectedColor);
@@ -171,12 +158,14 @@ export default function CategoriesPage() {
     }
   };
 
+  // Confirmação e exclusão de categoria
   const handleDelete = async (id: string) => {
     if (window.confirm("Tem certeza que deseja excluir esta categoria?")) {
       await deleteCategory(id);
     }
   };
 
+  // Ordenação de colunas
   const handleSort = (field: "name" | "color") => {
     if (field === sortField) {
       setSortDirection(sortDirection === "asc" ? "desc" : "asc");
