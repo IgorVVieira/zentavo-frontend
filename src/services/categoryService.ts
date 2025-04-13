@@ -22,10 +22,6 @@ export interface CategoryDto extends CreateCategoryDto {
 }
 
 class CategoryService {
-  /**
-   * Busca todas as categorias do usuário
-   * @returns Lista de categorias
-   */
   async getCategories(): Promise<Category[]> {
     try {
       const token = authService.getToken();
@@ -64,12 +60,6 @@ class CategoryService {
     }
   }
 
-  /**
-   * Cria uma nova categoria
-   * @param name Nome da categoria
-   * @param color Cor da categoria (em formato hex)
-   * @returns Categoria criada
-   */
   async createCategory(name: string, color: string): Promise<Category> {
     try {
       const token = authService.getToken();
@@ -119,11 +109,6 @@ class CategoryService {
     }
   }
 
-  /**
-   * Remove uma categoria
-   * @param id ID da categoria a ser removida
-   * @returns Resposta da API
-   */
   async deleteCategory(id: string): Promise<void> {
     try {
       const token = authService.getToken();
@@ -133,16 +118,13 @@ class CategoryService {
         );
       }
 
-      const response = await fetch(
-        `${API_URL}/api/categories/${id}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const response = await fetch(`${API_URL}/api/categories/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
 
       if (!response.ok) {
         let errorMsg = "Falha ao excluir categoria.";
@@ -162,12 +144,6 @@ class CategoryService {
     }
   }
 
-  /**
-   * Atualiza uma categoria existente
-   * @param id ID da categoria a ser atualizada
-   * @param data Dados a serem atualizados (nome e/ou cor)
-   * @returns Categoria atualizada
-   */
   async updateCategory(
     id: string,
     data: { name?: string; color?: string }
@@ -180,17 +156,14 @@ class CategoryService {
         );
       }
 
-      const response = await fetch(
-        `${API_URL}/api/categories/${id}`,
-        {
-          method: "PATCH",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(data),
-        }
-      );
+      const response = await fetch(`${API_URL}/api/categories/${id}`, {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
 
       if (!response.ok) {
         let errorMsg = "Falha ao atualizar categoria.";

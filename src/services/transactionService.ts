@@ -1,5 +1,6 @@
 import { API_URL } from "@/constants/env";
 import authService from "./authService";
+import axios from "axios";
 
 export enum TransactionType {
   CASH_IN = "CASH_IN",
@@ -46,12 +47,6 @@ export interface ExpenseItem {
 }
 
 class TransactionService {
-  /**
-   * Importa um arquivo CSV de transações
-   * @param file O arquivo CSV a ser importado
-   * @param bankType O tipo de banco do arquivo (ex: "nubank")
-   * @returns Resposta da API
-   */
   async importCSV(file: File, bankType: string): Promise<any> {
     try {
       const token = authService.getToken();
@@ -62,45 +57,32 @@ class TransactionService {
       }
 
       const formData = new FormData();
-      formData.append("statement", file);
-      formData.append("bankType", bankType);
+      formData.append("statement", file); // mesmo nome do backend
 
       console.log("Enviando arquivo:", file.name, "tipo:", bankType);
 
-      const response = await fetch(`${API_URL}/api/transactions/import`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: formData,
-      });
-
-      if (!response.ok) {
-        let errorMsg = "Falha ao importar o arquivo.";
-
-        try {
-          const errorData = await response.json();
-          errorMsg = errorData.message || errorMsg;
-        } catch (e) {
-          console.error("Erro ao processar resposta de erro:", e);
+      const response = await axios.post(
+        `${API_URL}/api/transactions/import`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
+      );
 
-        throw new Error(errorMsg);
-      }
-
-      return await response.json();
+      return response.data;
     } catch (error: any) {
       console.error("Erro na importação:", error);
+
+      if (axios.isAxiosError(error) && error.response) {
+        throw new Error(error.response.data.message || "Erro na importação");
+      }
+
       throw error;
     }
   }
 
-  /**
-   * Busca transações do usuário para um mês e ano específicos
-   * @param month Mês (1-12)
-   * @param year Ano (ex: 2025)
-   * @returns Lista de transações
-   */
   async getMonthlyTransactions(
     month: number,
     year: number
@@ -142,7 +124,6 @@ class TransactionService {
       const data = await response.json();
       const transactions = data || [];
 
-      // Mapear para o formato esperado pela aplicação
       return transactions.map((transaction: any) => ({
         id: transaction.id as string,
         date: new Date(transaction.date).toISOString().split("T")[0],
@@ -163,12 +144,6 @@ class TransactionService {
     }
   }
 
-  /**
-   * Atualiza uma transação
-   * @param id ID da transação
-   * @param updates Campos para atualizar (description e/ou categoryId)
-   * @returns Transação atualizada
-   */
   async updateTransaction(
     id: string,
     updates: { description?: string; categoryId?: string | null }
@@ -181,7 +156,6 @@ class TransactionService {
         );
       }
 
-      // Criar o DTO conforme a estrutura esperada pela API
       const updateDto = {
         id: id,
         description: updates.description,
@@ -191,7 +165,7 @@ class TransactionService {
       console.log("Atualizando transação:", id, "com dados:", updateDto);
 
       const response = await fetch(`${API_URL}/api/transactions/${id}`, {
-        method: "PATCH",
+        method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
@@ -212,7 +186,6 @@ class TransactionService {
         throw new Error(errorMsg);
       }
 
-      // Processar a resposta para o formato ExpenseItem
       const responseData = await response.json();
 
       return {
