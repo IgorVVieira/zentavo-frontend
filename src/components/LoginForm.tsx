@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
 import { showToast } from "@/components/ToastNotificatons";
 import { useLoading } from "@/contexts/LoadingContext";
+import PasswordInput from "@/components/PasswordInput";
 
 export default function LoginForm() {
   const router = useRouter();
@@ -116,13 +117,10 @@ export default function LoginForm() {
                   Esqueceu a senha?
                 </Link>
               </div>
-              <input
+              <PasswordInput
                 id="password"
-                type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                placeholder="••••••••"
                 required
               />
             </div>

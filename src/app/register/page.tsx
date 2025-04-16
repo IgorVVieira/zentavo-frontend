@@ -6,6 +6,7 @@ import Link from "next/link";
 import authService from "@/services/authService";
 import { showToast } from "@/components/ToastNotificatons";
 import { useLoading } from "@/contexts/LoadingContext";
+import PasswordInput from "@/components/PasswordInput";
 
 export default function Register() {
   const router = useRouter();
@@ -121,12 +122,10 @@ export default function Register() {
               >
                 Senha
               </label>
-              <input
+              <PasswordInput
                 id="senha"
-                type="password"
                 value={senha}
                 onChange={(e) => setSenha(e.target.value)}
-                className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                 placeholder="Pelo menos 6 caracteres"
                 required
                 minLength={6}
@@ -140,12 +139,10 @@ export default function Register() {
               >
                 Confirmar senha
               </label>
-              <input
+              <PasswordInput
                 id="confirmarSenha"
-                type="password"
                 value={confirmarSenha}
                 onChange={(e) => setConfirmarSenha(e.target.value)}
-                className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                 placeholder="Repita sua senha"
                 required
                 minLength={6}

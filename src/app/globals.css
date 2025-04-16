@@ -53,6 +53,10 @@ body {
   line-height: 1.5;
 }
 
+.btn-transparent {
+  background-color: transparent;
+}
+
 /* Estilo base para todos os containers */
 .container {
   width: 100%;
