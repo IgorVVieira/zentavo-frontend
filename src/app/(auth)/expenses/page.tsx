@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import ProtectedRoute from "@/components/ProtectedRoute";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLoading } from "@/contexts/LoadingContext";
 import {
@@ -235,7 +234,6 @@ export default function ExpensesTable() {
 
   // Tradução dos métodos de pagamento para português
   const translateMethod = (method?: string): string => {
-    // console.log("Método de pagamento:", method);
     if (!method) return "Desconhecido";
 
     const methodTranslations: Record<string, string> = {
@@ -277,7 +275,6 @@ export default function ExpensesTable() {
           currentMonth,
           currentYear
         );
-        console.log(data);
         setExpenses(data);
       } catch (error: any) {
         console.error("Erro ao buscar transações:", error);
@@ -303,8 +300,7 @@ export default function ExpensesTable() {
 
   const totalExpenses = expenses
     .filter(
-      (expense) =>
-        expense.amount < 0 && expense.description !== "Aplicação RDB"
+      (expense) => expense.amount < 0 && expense.description !== "Aplicação RDB"
     )
     .reduce((sum, expense) => sum + expense.amount, 0);
 
@@ -469,185 +465,179 @@ export default function ExpensesTable() {
   };
 
   return (
-    <ProtectedRoute>
-      <div className="min-h-screen bg-gray-900 text-white flex">
-        <div className="flex-1">
-          <ToastNotifications />
+    <>
+      <ToastNotifications />
 
-          <EditTransactionModal
-            isOpen={isModalOpen}
-            expense={editingExpense}
-            onClose={closeEditModal}
-            onSave={handleSave}
-            categories={categories}
-          />
+      <EditTransactionModal
+        isOpen={isModalOpen}
+        expense={editingExpense}
+        onClose={closeEditModal}
+        onSave={handleSave}
+        categories={categories}
+      />
 
-          <main className="px-6 py-6">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold">Gastos Mensais</h2>
-              <div className="flex space-x-4">
-                <select
-                  value={currentMonth}
-                  onChange={handleMonthChange}
-                  className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2"
-                >
-                  {months.map((month, index) => (
-                    <option key={month} value={index + 1}>
-                      {month}
-                    </option>
-                  ))}
-                </select>
-                <select
-                  value={currentYear}
-                  onChange={handleYearChange}
-                  className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2"
-                >
-                  {years.map((year) => (
-                    <option key={year} value={year}>
-                      {year}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
+      <div className="px-4 py-4">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-bold">Gastos Mensais</h2>
+          <div className="flex space-x-3">
+            <select
+              value={currentMonth}
+              onChange={handleMonthChange}
+              className="bg-gray-700 border border-gray-600 rounded-lg px-2 py-1 text-sm"
+            >
+              {months.map((month, index) => (
+                <option key={month} value={index + 1}>
+                  {month}
+                </option>
+              ))}
+            </select>
+            <select
+              value={currentYear}
+              onChange={handleYearChange}
+              className="bg-gray-700 border border-gray-600 rounded-lg px-2 py-1 text-sm"
+            >
+              {years.map((year) => (
+                <option key={year} value={year}>
+                  {year}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
 
-            <div className="flex flex-wrap md:flex-nowrap gap-6 mb-6">
-              <div className="bg-gray-800 px-6 py-6 rounded-lg border-l-4 border-green-500 flex-1">
-                <p className="text-sm text-gray-400">Total de entradas</p>
-                <p className="text-2xl font-bold text-green-400">
-                  {formatCurrency(totalIncome)}
-                </p>
-                <p className="text-sm text-gray-400">Receitas do mês</p>
-              </div>
+        <div className="flex flex-wrap md:flex-nowrap gap-4 mb-4">
+          <div className="bg-gray-800 px-4 py-3 rounded-lg border-l-4 border-green-500 flex-1">
+            <p className="text-xs text-gray-400">Total de entradas</p>
+            <p className="text-lg font-bold text-green-400">
+              {formatCurrency(totalIncome)}
+            </p>
+            <p className="text-xs text-gray-400">Receitas do mês</p>
+          </div>
 
-              <div className="bg-gray-800 px-6 py-6 rounded-lg border-l-4 border-red-500 flex-1">
-                <p className="text-sm text-gray-400">Total de saídas</p>
-                <p className="text-2xl font-bold text-red-400">
-                  {formatCurrency(Math.abs(totalExpenses))}
-                </p>
-                <p className="text-sm text-gray-400">Despesas do mês</p>
-              </div>
+          <div className="bg-gray-800 px-4 py-3 rounded-lg border-l-4 border-red-500 flex-1">
+            <p className="text-xs text-gray-400">Total de saídas</p>
+            <p className="text-lg font-bold text-red-400">
+              {formatCurrency(Math.abs(totalExpenses))}
+            </p>
+            <p className="text-xs text-gray-400">Despesas do mês</p>
+          </div>
 
-              <div className="bg-gray-800 px-6 py-6 rounded-lg border-l-4 border-purple-500 flex-1">
-                <p className="text-sm text-gray-400">Saldo do período</p>
-                <p
-                  className={`text-2xl font-bold ${
-                    balance >= 0 ? "text-green-400" : "text-red-400"
-                  }`}
-                >
-                  {formatCurrency(balance)}
-                </p>
-                <p className="text-sm text-gray-400">
-                  {balance >= 0 ? "Positivo" : "Negativo"}
-                </p>
-              </div>
-            </div>
+          <div className="bg-gray-800 px-4 py-3 rounded-lg border-l-4 border-purple-500 flex-1">
+            <p className="text-xs text-gray-400">Saldo do período</p>
+            <p
+              className={`text-lg font-bold ${
+                balance >= 0 ? "text-green-400" : "text-red-400"
+              }`}
+            >
+              {formatCurrency(balance)}
+            </p>
+            <p className="text-xs text-gray-400">
+              {balance >= 0 ? "Positivo" : "Negativo"}
+            </p>
+          </div>
+        </div>
 
-            <div className="bg-gray-800 rounded-lg overflow-hidden shadow-lg">
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    {table.getHeaderGroups().map((headerGroup) => (
-                      <tr
-                        key={headerGroup.id}
-                        className="bg-gray-700 text-left text-sm"
+        <div className="bg-gray-800 rounded-lg overflow-hidden shadow-lg">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                {table.getHeaderGroups().map((headerGroup) => (
+                  <tr
+                    key={headerGroup.id}
+                    className="bg-gray-700 text-left text-sm"
+                  >
+                    {headerGroup.headers.map((header) => (
+                      <th
+                        key={header.id}
+                        className="px-4 py-2 font-medium"
+                        onClick={header.column.getToggleSortingHandler()}
+                        style={{
+                          cursor: header.column.getCanSort()
+                            ? "pointer"
+                            : "default",
+                        }}
                       >
-                        {headerGroup.headers.map((header) => (
-                          <th
-                            key={header.id}
-                            className="px-4 py-3 font-medium"
-                            onClick={header.column.getToggleSortingHandler()}
-                            style={{
-                              cursor: header.column.getCanSort()
-                                ? "pointer"
-                                : "default",
-                            }}
-                          >
-                            <div className="flex items-center">
-                              {flexRender(
-                                header.column.columnDef.header,
-                                header.getContext()
-                              )}
-                              {{
-                                asc: (
-                                  <FiArrowUp className="ml-2 text-purple-400" />
-                                ),
-                                desc: (
-                                  <FiArrowDown className="ml-2 text-purple-400" />
-                                ),
-                              }[header.column.getIsSorted() as string] ?? null}
-                              {header.column.getCanSort() &&
-                                !header.column.getIsSorted() && (
-                                  <span className="ml-2 text-gray-500">
-                                    <FiChevronsUp size={14} />
-                                  </span>
-                                )}
-                            </div>
-                          </th>
-                        ))}
-                      </tr>
+                        <div className="flex items-center">
+                          {flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                          {{
+                            asc: <FiArrowUp className="ml-2 text-purple-400" />,
+                            desc: (
+                              <FiArrowDown className="ml-2 text-purple-400" />
+                            ),
+                          }[header.column.getIsSorted() as string] ?? null}
+                          {header.column.getCanSort() &&
+                            !header.column.getIsSorted() && (
+                              <span className="ml-2 text-gray-500">
+                                <FiChevronsUp size={14} />
+                              </span>
+                            )}
+                        </div>
+                      </th>
                     ))}
-                  </thead>
-                  <tbody className="divide-y divide-gray-700">
-                    {isTableLoading ? (
-                      <tr>
-                        <td
-                          colSpan={columns.length}
-                          className="px-4 py-16 text-center"
-                        >
-                          <div className="flex justify-center">
-                            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
-                          </div>
-                          <p className="mt-4 text-gray-400">
-                            Carregando transações...
-                          </p>
+                  </tr>
+                ))}
+              </thead>
+              <tbody className="divide-y divide-gray-700">
+                {isTableLoading ? (
+                  <tr>
+                    <td
+                      colSpan={columns.length}
+                      className="px-4 py-16 text-center"
+                    >
+                      <div className="flex justify-center">
+                        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
+                      </div>
+                      <p className="mt-4 text-gray-400">
+                        Carregando transações...
+                      </p>
+                    </td>
+                  </tr>
+                ) : table.getRowModel().rows.length > 0 ? (
+                  table.getRowModel().rows.map((row) => (
+                    <tr key={row.id} className="hover:bg-gray-700">
+                      {row.getVisibleCells().map((cell) => (
+                        <td key={cell.id} className="px-4 py-2">
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
+                          )}
                         </td>
-                      </tr>
-                    ) : table.getRowModel().rows.length > 0 ? (
-                      table.getRowModel().rows.map((row) => (
-                        <tr key={row.id} className="hover:bg-gray-700">
-                          {row.getVisibleCells().map((cell) => (
-                            <td key={cell.id} className="px-4 py-3">
-                              {flexRender(
-                                cell.column.columnDef.cell,
-                                cell.getContext()
-                              )}
-                            </td>
-                          ))}
-                        </tr>
-                      ))
-                    ) : (
-                      <tr>
-                        <td
-                          colSpan={columns.length}
-                          className="px-4 py-8 text-center text-gray-400"
-                        >
-                          Nenhuma transação encontrada para{" "}
-                          {months[currentMonth - 1]} de {currentYear}.
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
+                      ))}
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td
+                      colSpan={columns.length}
+                      className="px-4 py-8 text-center text-gray-400"
+                    >
+                      Nenhuma transação encontrada para{" "}
+                      {months[currentMonth - 1]} de {currentYear}.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
 
-              {table.getRowModel().rows.length > 0 && (
-                <div className="px-4 py-3 bg-gray-700 border-t border-gray-600 flex justify-between items-center text-sm">
-                  <div>
-                    <span className="text-gray-400">
-                      Mostrando {table.getRowModel().rows.length} de{" "}
-                      {expenses.length} transações
-                    </span>
-                  </div>
-                  <div className="text-gray-400">
-                    <p>Clique no botão de edição para modificar os dados</p>
-                  </div>
-                </div>
-              )}
+          {table.getRowModel().rows.length > 0 && (
+            <div className="px-4 py-2 bg-gray-700 border-t border-gray-600 flex justify-between items-center text-sm">
+              <div>
+                <span className="text-gray-400">
+                  Mostrando {table.getRowModel().rows.length} de{" "}
+                  {expenses.length} transações
+                </span>
+              </div>
+              <div className="text-gray-400">
+                <p>Clique no botão de edição para modificar os dados</p>
+              </div>
             </div>
-          </main>
+          )}
         </div>
       </div>
-    </ProtectedRoute>
+    </>
   );
 }

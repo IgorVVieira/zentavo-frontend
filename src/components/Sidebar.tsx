@@ -68,7 +68,6 @@ const Sidebar = ({ isMobile = false, className = "" }: SidebarProps) => {
         flex flex-col
         ${isMobile ? "fixed z-20 shadow-xl" : ""}
         flex-shrink-0 overflow-hidden
-        h-screen
         ${className}
       `}
     >
