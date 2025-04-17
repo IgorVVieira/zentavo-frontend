@@ -192,6 +192,98 @@ class AuthService {
       Authorization: token ? `Bearer ${token}` : "",
     };
   }
+
+  // Métodos adicionais a serem implementados em authService.ts
+
+  async updateProfile(name: string): Promise<User> {
+    try {
+      const token = this.getToken();
+      if (!token) {
+        throw new Error("Não autenticado");
+      }
+
+      const response = await fetch(`${API_URL}/api/users/profile`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Falha ao atualizar perfil");
+      }
+
+      const userData = await response.json();
+      this.setUser(userData);
+
+      return userData;
+    } catch (error: any) {
+      console.error("Erro ao atualizar perfil:", error);
+      throw new Error(error.message || "Erro ao atualizar o perfil");
+    }
+  }
+
+  async changePassword(
+    currentPassword: string,
+    newPassword: string
+  ): Promise<boolean> {
+    try {
+      const token = this.getToken();
+      if (!token) {
+        throw new Error("Não autenticado");
+      }
+
+      const response = await fetch(`${API_URL}/api/users/change-password`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ currentPassword, newPassword }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Falha ao alterar senha");
+      }
+
+      return true;
+    } catch (error: any) {
+      console.error("Erro ao alterar senha:", error);
+      throw new Error(error.message || "Erro ao alterar a senha");
+    }
+  }
+
+  // Obter estatísticas do usuário
+  async getUserStats(): Promise<any> {
+    try {
+      const token = this.getToken();
+      if (!token) {
+        throw new Error("Não autenticado");
+      }
+
+      const response = await fetch(`${API_URL}/api/users/stats`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Falha ao obter estatísticas");
+      }
+
+      return await response.json();
+    } catch (error: any) {
+      console.error("Erro ao obter estatísticas:", error);
+      throw new Error(error.message || "Erro ao obter estatísticas do usuário");
+    }
+  }
 }
 
 const authService = new AuthService();
