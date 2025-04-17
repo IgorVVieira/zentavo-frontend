@@ -64,21 +64,27 @@ const Sidebar = ({ isMobile = false, className = "" }: SidebarProps) => {
         damping: 30,
       }}
       className={`
-        bg-gray-800
+        bg-gray-800 relative
         flex flex-col
         ${isMobile ? "fixed z-20 shadow-xl" : ""}
         flex-shrink-0 overflow-hidden
         ${className}
       `}
     >
-      <motion.button
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.95 }}
-        onClick={() => setIsCollapsed(!isCollapsed)}
-        className="absolute top-6 -right-3 bg-purple-600 p-1.5 rounded-full text-white z-10 shadow-lg hover:bg-purple-700 transition-all"
-      >
-        {isCollapsed ? <FiMenu size={16} /> : <FiChevronLeft size={16} />}
-      </motion.button>
+      {/* Botão de colapso - visível apenas quando expandido */}
+      {!isCollapsed && (
+        <div className="absolute top-5 right-0 z-20 flex items-center justify-center">
+          <motion.button
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => setIsCollapsed(true)}
+            className="bg-purple-600 p-1.5 rounded-l-full text-white shadow-lg hover:bg-purple-700 transition-all"
+            style={{ borderTopRightRadius: 0, borderBottomRightRadius: 0 }}
+          >
+            <FiChevronLeft size={16} />
+          </motion.button>
+        </div>
+      )}
 
       <div
         className={`flex items-center ${
@@ -87,7 +93,9 @@ const Sidebar = ({ isMobile = false, className = "" }: SidebarProps) => {
       >
         <motion.div
           whileHover={{ scale: 1.1 }}
-          className="h-10 w-10 rounded-full bg-purple-600 flex items-center justify-center shadow-md"
+          className="h-10 w-10 rounded-full bg-purple-600 flex items-center justify-center shadow-md cursor-pointer"
+          onClick={() => isCollapsed && setIsCollapsed(false)}
+          title={isCollapsed ? "Expandir menu" : ""}
         >
           <span className="text-xl font-bold">Z</span>
         </motion.div>

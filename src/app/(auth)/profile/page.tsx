@@ -325,7 +325,7 @@ export default function ProfilePage() {
                       onClick={cancelPasswordChange}
                       className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors"
                     >
-                      <FiX className="inline mr-1" /> Cancelar
+                      <FiX className="inline mr-4" /> Cancelar
                     </button>
                     <button
                       type="submit"
