@@ -28,6 +28,7 @@ import transactionService, {
 } from "@/services/transactionService";
 import categoryService, { Category } from "@/services/categoryService";
 import Modal from "react-modal";
+import Loading from "@/components/Loading";
 
 if (typeof window !== "undefined") {
   const nextRoot = document.getElementById("__next");
@@ -222,7 +223,7 @@ export default function ExpensesTable() {
   const [sorting, setSorting] = useState<SortingState>([
     { id: "date", desc: true },
   ]);
-  
+
   // Estado para controlar a visibilidade da análise detalhada
   const [showAnalysis, setShowAnalysis] = useState(false);
 
@@ -323,8 +324,7 @@ export default function ExpensesTable() {
 
   const totalExpenses = expenses
     .filter(
-      (expense) =>
-        expense.amount < 0 && expense.description !== "Aplicação RDB"
+      (expense) => expense.amount < 0 && expense.description !== "Aplicação RDB"
     )
     .reduce((sum, expense) => sum + expense.amount, 0);
 
@@ -387,15 +387,15 @@ export default function ExpensesTable() {
     const expensesOnly = expenses.filter(
       (expense) => expense.amount < 0 && expense.description !== "Aplicação RDB"
     );
-    
+
     // Calculamos o valor total negativo (em módulo)
     const totalExpenseAmount = Math.abs(
       expensesOnly.reduce((sum, expense) => sum + expense.amount, 0)
     );
-    
+
     // Agrupamos por método de pagamento
     const methodGroups: Record<string, { total: number; count: number }> = {};
-    
+
     expensesOnly.forEach((expense) => {
       const method = expense.method || "Desconhecido";
       if (!methodGroups[method]) {
@@ -404,14 +404,17 @@ export default function ExpensesTable() {
       methodGroups[method].total += Math.abs(expense.amount);
       methodGroups[method].count += 1;
     });
-    
+
     // Convertemos para o formato de saída
-    return Object.entries(methodGroups).map(([method, data]) => ({
-      method: translateMethod(method),
-      total: data.total,
-      count: data.count,
-      percentage: totalExpenseAmount > 0 ? (data.total / totalExpenseAmount) * 100 : 0,
-    })).sort((a, b) => b.total - a.total);
+    return Object.entries(methodGroups)
+      .map(([method, data]) => ({
+        method: translateMethod(method),
+        total: data.total,
+        count: data.count,
+        percentage:
+          totalExpenseAmount > 0 ? (data.total / totalExpenseAmount) * 100 : 0,
+      }))
+      .sort((a, b) => b.total - a.total);
   }, [expenses]);
 
   // Gerar dados de análise por categoria
@@ -420,46 +423,52 @@ export default function ExpensesTable() {
     const expensesOnly = expenses.filter(
       (expense) => expense.amount < 0 && expense.description !== "Aplicação RDB"
     );
-    
+
     // Calculamos o valor total negativo (em módulo)
     const totalExpenseAmount = Math.abs(
       expensesOnly.reduce((sum, expense) => sum + expense.amount, 0)
     );
-    
+
     // Agrupamos por categoria
-    const categoryGroups: Record<string, { 
-      total: number; 
-      count: number; 
-      name: string;
-      color: string;
-    }> = {};
-    
+    const categoryGroups: Record<
+      string,
+      {
+        total: number;
+        count: number;
+        name: string;
+        color: string;
+      }
+    > = {};
+
     expensesOnly.forEach((expense) => {
       const categoryId = expense.category?.id || "others";
       const categoryName = expense.category?.name || "Outros";
       const categoryColor = expense.category?.color || "#6B7280";
-      
+
       if (!categoryGroups[categoryId]) {
-        categoryGroups[categoryId] = { 
-          total: 0, 
+        categoryGroups[categoryId] = {
+          total: 0,
           count: 0,
           name: categoryName,
-          color: categoryColor
+          color: categoryColor,
         };
       }
       categoryGroups[categoryId].total += Math.abs(expense.amount);
       categoryGroups[categoryId].count += 1;
     });
-    
+
     // Convertemos para o formato de saída
-    return Object.entries(categoryGroups).map(([id, data]) => ({
-      id,
-      name: data.name,
-      color: data.color,
-      total: data.total,
-      count: data.count,
-      percentage: totalExpenseAmount > 0 ? (data.total / totalExpenseAmount) * 100 : 0,
-    })).sort((a, b) => b.total - a.total);
+    return Object.entries(categoryGroups)
+      .map(([id, data]) => ({
+        id,
+        name: data.name,
+        color: data.color,
+        total: data.total,
+        count: data.count,
+        percentage:
+          totalExpenseAmount > 0 ? (data.total / totalExpenseAmount) * 100 : 0,
+      }))
+      .sort((a, b) => b.total - a.total);
   }, [expenses]);
 
   const columnHelper = createColumnHelper<ExpenseItem>();
@@ -658,7 +667,9 @@ export default function ExpensesTable() {
               <FiEye className="mr-2" />
             )}
             <FiPieChart className="mr-2" />
-            <span>{showAnalysis ? "Ocultar" : "Mostrar"} análise detalhada</span>
+            <span>
+              {showAnalysis ? "Ocultar" : "Mostrar"} análise detalhada
+            </span>
           </button>
         </div>
 
@@ -681,10 +692,17 @@ export default function ExpensesTable() {
                   </thead>
                   <tbody>
                     {paymentMethodAnalysis.map((item, index) => (
-                      <tr key={index} className="border-b border-gray-700 last:border-b-0">
+                      <tr
+                        key={index}
+                        className="border-b border-gray-700 last:border-b-0"
+                      >
                         <td className="py-2">{item.method}</td>
-                        <td className="py-2 text-right">{formatCurrency(item.total)}</td>
-                        <td className="py-2 text-right">{item.percentage.toFixed(1)}%</td>
+                        <td className="py-2 text-right">
+                          {formatCurrency(item.total)}
+                        </td>
+                        <td className="py-2 text-right">
+                          {item.percentage.toFixed(1)}%
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -708,18 +726,25 @@ export default function ExpensesTable() {
                   </thead>
                   <tbody>
                     {categoryAnalysis.map((item, index) => (
-                      <tr key={index} className="border-b border-gray-700 last:border-b-0">
+                      <tr
+                        key={index}
+                        className="border-b border-gray-700 last:border-b-0"
+                      >
                         <td className="py-2">
                           <div className="flex items-center">
-                            <div 
-                              className="w-3 h-3 rounded-full mr-2" 
+                            <div
+                              className="w-3 h-3 rounded-full mr-2"
                               style={{ backgroundColor: item.color }}
                             ></div>
                             {item.name}
                           </div>
                         </td>
-                        <td className="py-2 text-right">{formatCurrency(item.total)}</td>
-                        <td className="py-2 text-right">{item.percentage.toFixed(1)}%</td>
+                        <td className="py-2 text-right">
+                          {formatCurrency(item.total)}
+                        </td>
+                        <td className="py-2 text-right">
+                          {item.percentage.toFixed(1)}%
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -756,9 +781,7 @@ export default function ExpensesTable() {
                             header.getContext()
                           )}
                           {{
-                            asc: (
-                              <FiArrowUp className="ml-2 text-purple-400" />
-                            ),
+                            asc: <FiArrowUp className="ml-2 text-purple-400" />,
                             desc: (
                               <FiArrowDown className="ml-2 text-purple-400" />
                             ),
@@ -780,14 +803,13 @@ export default function ExpensesTable() {
                   <tr>
                     <td
                       colSpan={columns.length}
-                      className="px-4 py-16 text-center"
+                      className="px-4 py-8 text-center"
                     >
-                      <div className="flex justify-center">
-                        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
-                      </div>
-                      <p className="mt-4 text-gray-400">
-                        Carregando transações...
-                      </p>
+                      <Loading
+                        size="medium"
+                        text="Carregando transações..."
+                        show={true}
+                      />
                     </td>
                   </tr>
                 ) : table.getRowModel().rows.length > 0 ? (

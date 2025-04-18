@@ -15,6 +15,7 @@ import {
 } from "react-icons/fi";
 import ToastNotifications, { showToast } from "@/components/ToastNotificatons";
 import categoryService, { Category } from "@/services/categoryService";
+import Loading from "@/components/Loading";
 
 const predefinedColors = [
   "#EF4444", // Vermelho
@@ -284,9 +285,11 @@ export default function CategoriesPage() {
         >
           <div className="overflow-x-auto">
             {isLoading ? (
-              <div className="p-8 flex justify-center items-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
-              </div>
+              <Loading
+                size="medium"
+                text="Carregando categorias..."
+                show={true}
+              />
             ) : (
               <table className="w-full">
                 <thead>

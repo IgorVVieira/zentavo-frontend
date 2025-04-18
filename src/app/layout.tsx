@@ -4,7 +4,6 @@ import "./globals.css";
 import { AuthProvider } from "@/contexts/AuthContext";
 import ToastNotifications from "@/components/ToastNotificatons";
 import { LoadingProvider } from "@/contexts/LoadingContext";
-import LoadingSpinner from "@/components/LoadingSpinner";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -19,7 +18,6 @@ export default function RootLayout({
         <LoadingProvider>
           <AuthProvider>{children}</AuthProvider>
           <ToastNotifications />
-          <LoadingSpinner />
         </LoadingProvider>
       </body>
     </html>

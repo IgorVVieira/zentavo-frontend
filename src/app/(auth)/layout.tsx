@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import AppLayout from "@/components/AppLayout";
+import Loading from "@/components/Loading";
 
 export default function AuthLayout({
   children,
@@ -21,9 +22,7 @@ export default function AuthLayout({
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center bg-gray-900 p-4">
-        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-purple-500"></div>
-      </div>
+      <Loading size="medium" text="Carregando transações..." show={true} />
     );
   }
 

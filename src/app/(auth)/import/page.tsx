@@ -6,6 +6,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import transactionService from "@/services/transactionService";
 import { showToast } from "@/components/ToastNotificatons";
 import { useLoading } from "@/contexts/LoadingContext";
+import Loading from "@/components/Loading";
 
 export default function ImportCSV() {
   const router = useRouter();
@@ -252,21 +253,11 @@ export default function ImportCSV() {
                 }}
               >
                 {isLoading ? (
-                  <>
-                    <span
-                      style={{
-                        display: "inline-block",
-                        width: "20px",
-                        height: "20px",
-                        border: "3px solid rgba(255, 255, 255, 0.3)",
-                        borderRadius: "50%",
-                        borderTopColor: "white",
-                        animation: "spin 1s linear infinite",
-                        marginRight: "10px",
-                      }}
-                    ></span>
-                    Processando...
-                  </>
+                  <Loading
+                    size="medium"
+                    text="Processando importacao..."
+                    show={true}
+                  />
                 ) : (
                   "Importar Arquivo"
                 )}
