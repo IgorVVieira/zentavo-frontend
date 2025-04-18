@@ -9,10 +9,8 @@ import {
   FiPieChart,
   FiBarChart2,
   FiTrendingUp,
-  FiFilter,
   FiCalendar,
 } from "react-icons/fi";
-import Link from "next/link";
 import ToastNotifications, { showToast } from "@/components/ToastNotificatons";
 import transactionService, {
   ExpenseItem,
@@ -69,13 +67,6 @@ export default function DashboardPage() {
     };
 
     return methodTranslations[method] || method;
-  };
-
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat("pt-BR", {
-      style: "currency",
-      currency: "BRL",
-    }).format(value);
   };
 
   // Função para obter dados de comparação mensal
