@@ -1,7 +1,85 @@
 /* src/app/globals.css */
+@import './custom-styles.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 248, 250, 252;
+  --background-end-rgb: 241, 245, 249;
+  --primary-color: 124, 58, 237; /* Roxo */
+  --primary-color-light: 139, 92, 246;
+  --primary-color-dark: 109, 40, 217;
+}
+
+.dark {
+  --foreground-rgb: 255, 255, 255;
+  --background-start-rgb: 15, 23, 42;
+  --background-end-rgb: 30, 41, 59;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: linear-gradient(
+    to bottom,
+    rgb(var(--background-start-rgb)),
+    rgb(var(--background-end-rgb))
+  );
+  min-height: 100vh;
+}
+
+/* Customização para tema roxo */
+.btn-primary {
+  @reference bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors;
+}
+
+.btn-outline {
+  @reference border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors;
+}
+
+.card {
+  @reference bg-white dark:bg-gray-800 rounded-xl shadow-md p-6;
+}
+
+.feature-icon {
+  @reference bg-purple-100 dark:bg-purple-900/30 inline-flex p-3 rounded-lg text-purple-600 dark:text-purple-300 mb-4;
+}
+
+.section-light {
+  @reference bg-white dark:bg-gray-900;
+}
+
+.section-dark {
+  @reference bg-gray-50 dark:bg-gray-800;
+}
+
+.heading-primary {
+  @reference text-3xl font-bold text-gray-900 dark:text-white;
+}
+
+.heading-secondary {
+  @reference text-lg font-semibold text-gray-900 dark:text-white mb-4;
+}
+
+.text-primary {
+  @reference text-gray-900 dark:text-white;
+}
+
+.text-secondary {
+  @reference text-gray-600 dark:text-gray-300;
+}
+
+.text-muted {
+  @reference text-gray-500 dark:text-gray-400;
+}
+
+.border-custom {
+  @reference border-gray-200 dark:border-gray-700;
+}
 
 /* Importar estilos personalizados em vez de Tailwind */
-@import './custom-styles.css';
 
 :root {
   --foreground-rgb: 255, 255, 255;
