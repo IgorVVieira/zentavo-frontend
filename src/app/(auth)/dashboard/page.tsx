@@ -10,7 +10,9 @@ import {
   FiBarChart2,
   FiTrendingUp,
   FiFilter,
+  FiCalendar,
 } from "react-icons/fi";
+import Link from "next/link";
 import ToastNotifications, { showToast } from "@/components/ToastNotificatons";
 import transactionService, {
   ExpenseItem,
@@ -19,6 +21,7 @@ import transactionService, {
 import PaymentMethodChart from "@/components/charts/PaymentMethodChart";
 import CategoryPieChart from "@/components/charts/CategoryPieChart";
 import ExpenseTrendChart from "@/components/charts/ExpenseTrendChart";
+import MonthlyComparisonChart from "@/components/charts/MonthlyComparisonChart";
 import Loading from "@/components/Loading";
 
 export default function DashboardPage() {
@@ -28,6 +31,7 @@ export default function DashboardPage() {
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
   const [transactions, setTransactions] = useState<ExpenseItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [monthlyComparisonData, setMonthlyComparisonData] = useState<any[]>([]);
 
   const months = [
     "Janeiro",
@@ -74,28 +78,99 @@ export default function DashboardPage() {
     }).format(value);
   };
 
-  // Carregar transações
+  // Função para obter dados de comparação mensal
+  const getMonthlyComparisonData = async () => {
+    const today = new Date();
+    const fetchPromises = [];
+    const monthsToFetch: { month: number; year: number }[] = [];
+
+    // Prepara as chamadas para os últimos 6 meses
+    for (let i = 5; i >= 0; i--) {
+      const date = new Date(today.getFullYear(), today.getMonth() - i, 1);
+      const month = date.getMonth() + 1;
+      const year = date.getFullYear();
+
+      monthsToFetch.push({ month, year });
+      fetchPromises.push(
+        transactionService.getMonthlyTransactions(month, year)
+      );
+    }
+
+    try {
+      // Executa todas as chamadas em paralelo
+      const results = await Promise.allSettled(fetchPromises);
+
+      return results.map((result, index) => {
+        const { month, year } = monthsToFetch[index];
+        const monthName = months[month - 1].substring(0, 3);
+
+        if (result.status === "fulfilled") {
+          const data = result.value;
+
+          const income = data
+            .filter((item) => item.amount > 0)
+            .reduce((sum, item) => sum + item.amount, 0);
+
+          const expenses = Math.abs(
+            data
+              .filter(
+                (item) =>
+                  item.amount < 0 && item.description !== "Aplicação RDB"
+              )
+              .reduce((sum, item) => sum + item.amount, 0)
+          );
+
+          return {
+            month: `${monthName}/${year.toString().slice(-2)}`,
+            income: income,
+            expenses: expenses,
+          };
+        } else {
+          // Em caso de erro, retorna dados vazios
+          console.error(
+            `Erro ao obter dados de ${month}/${year}:`,
+            result.reason
+          );
+          return {
+            month: `${monthName}/${year.toString().slice(-2)}`,
+            income: 0,
+            expenses: 0,
+          };
+        }
+      });
+    } catch (error) {
+      console.error("Erro ao obter comparação mensal:", error);
+      return [];
+    }
+  };
+
+  // Carregar transações e dados de comparação
   useEffect(() => {
-    const fetchTransactions = async () => {
+    const loadData = async () => {
       setIsLoading(true);
       startLoading();
+
       try {
+        // Carrega as transações do mês atual
         const data = await transactionService.getMonthlyTransactions(
           currentMonth,
           currentYear
         );
         setTransactions(data);
+
+        // Carrega dados históricos para comparação mensal
+        const comparisonData = await getMonthlyComparisonData();
+        setMonthlyComparisonData(comparisonData);
       } catch (error: any) {
-        console.error("Erro ao buscar transações:", error);
-        showToast(error.message || "Erro ao carregar as transações", "error");
-        setTransactions([]);
+        console.error("Erro ao carregar dados:", error);
+        showToast(error.message || "Erro ao carregar dados", "error");
       } finally {
         setIsLoading(false);
         stopLoading();
       }
     };
 
-    fetchTransactions();
+    loadData();
   }, [currentMonth, currentYear, startLoading, stopLoading]);
 
   // Gerar dados para o gráfico de tendência (agrupando despesas por dia no mês atual)
@@ -260,7 +335,7 @@ export default function DashboardPage() {
           </h1>
 
           <div className="flex items-center gap-2 bg-gray-800 p-2 rounded-lg">
-            <FiFilter className="text-gray-400" />
+            <FiCalendar className="text-gray-400" />
             <select
               value={currentMonth}
               onChange={handleMonthChange}
@@ -290,6 +365,27 @@ export default function DashboardPage() {
           <Loading text="Carregando dados financeiros..." />
         ) : (
           <>
+            {/* Gráfico de Comparação Mensal */}
+            <div className="mb-6">
+              <div className="bg-gray-800 rounded-lg overflow-hidden shadow-lg">
+                <div className="px-4 py-3 bg-gray-700 border-b border-gray-600 flex items-center">
+                  <FiBarChart2 className="text-purple-400 mr-2" />
+                  <h3 className="font-medium">
+                    Comparativo Mensal - Últimos 6 Meses
+                  </h3>
+                </div>
+                <div className="p-4">
+                  {monthlyComparisonData.length > 0 ? (
+                    <MonthlyComparisonChart data={monthlyComparisonData} />
+                  ) : (
+                    <div className="flex items-center justify-center h-48 text-gray-400">
+                      Carregando dados históricos...
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
             {/* Gráfico de tendência de despesas */}
             {dailyExpenseTrend.length > 1 && (
               <div className="mb-6">
@@ -343,109 +439,6 @@ export default function DashboardPage() {
                       Sem dados para o período selecionado
                     </div>
                   )}
-                </div>
-              </div>
-            </div>
-
-            {/* Tabelas de detalhes */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Tabela de métodos de pagamento */}
-              <div className="bg-gray-800 rounded-lg overflow-hidden shadow-lg">
-                <div className="px-4 py-3 bg-gray-700 border-b border-gray-600">
-                  <h3 className="font-medium">
-                    Detalhes por Método de Pagamento
-                  </h3>
-                </div>
-                <div className="p-4 overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="text-left text-gray-400 border-b border-gray-700">
-                        <th className="pb-2">Método</th>
-                        <th className="pb-2 text-right">Valor</th>
-                        <th className="pb-2 text-right">%</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {paymentMethodAnalysis.length > 0 ? (
-                        paymentMethodAnalysis.map((item, index) => (
-                          <tr
-                            key={index}
-                            className="border-b border-gray-700 last:border-b-0"
-                          >
-                            <td className="py-2">{item.method}</td>
-                            <td className="py-2 text-right">
-                              {formatCurrency(item.total)}
-                            </td>
-                            <td className="py-2 text-right">
-                              {item.percentage.toFixed(1)}%
-                            </td>
-                          </tr>
-                        ))
-                      ) : (
-                        <tr>
-                          <td
-                            colSpan={3}
-                            className="py-4 text-center text-gray-400"
-                          >
-                            Sem dados para o período selecionado
-                          </td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-              {/* Tabela de categorias */}
-              <div className="bg-gray-800 rounded-lg overflow-hidden shadow-lg">
-                <div className="px-4 py-3 bg-gray-700 border-b border-gray-600">
-                  <h3 className="font-medium">Detalhes por Categoria</h3>
-                </div>
-                <div className="p-4 overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="text-left text-gray-400 border-b border-gray-700">
-                        <th className="pb-2">Categoria</th>
-                        <th className="pb-2 text-right">Valor</th>
-                        <th className="pb-2 text-right">%</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {categoryAnalysis.length > 0 ? (
-                        categoryAnalysis.map((item, index) => (
-                          <tr
-                            key={index}
-                            className="border-b border-gray-700 last:border-b-0"
-                          >
-                            <td className="py-2">
-                              <div className="flex items-center">
-                                <div
-                                  className="w-3 h-3 rounded-full mr-2"
-                                  style={{ backgroundColor: item.color }}
-                                ></div>
-                                {item.name}
-                              </div>
-                            </td>
-                            <td className="py-2 text-right">
-                              {formatCurrency(item.total)}
-                            </td>
-                            <td className="py-2 text-right">
-                              {item.percentage.toFixed(1)}%
-                            </td>
-                          </tr>
-                        ))
-                      ) : (
-                        <tr>
-                          <td
-                            colSpan={3}
-                            className="py-4 text-center text-gray-400"
-                          >
-                            Sem dados para o período selecionado
-                          </td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
                 </div>
               </div>
             </div>
