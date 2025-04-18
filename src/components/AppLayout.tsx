@@ -34,7 +34,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
 
   return (
     <ProtectedRoute>
-      <div className="flex bg-gray-900 text-white">
+      <div className="flex bg-gray-900 text-white min-h-screen">
         {!isMobile && <Sidebar />}
 
         {isMobile && isMobileMenuOpen && (
@@ -47,7 +47,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
           </>
         )}
 
-        <div className="flex-1 flex-col">
+        <div className="flex-1 flex flex-col min-h-screen">
           {isMobile && (
             <header className="bg-gray-800 py-4 px-6 flex items-center justify-between">
               <div className="flex items-center">
@@ -67,8 +67,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
             </header>
           )}
 
-          {/* Conteúdo sem overflow-auto para evitar espaços extras */}
-          {children}
+          <div className="flex-1 flex flex-col">{children}</div>
         </div>
       </div>
     </ProtectedRoute>
