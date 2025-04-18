@@ -13,6 +13,7 @@ import {
   FiMenu,
   FiChevronLeft,
   FiTag,
+  FiPieChart,
 } from "react-icons/fi";
 
 interface SidebarProps {
@@ -26,6 +27,7 @@ const Sidebar = ({ isMobile = false, className = "" }: SidebarProps) => {
   const { user, logout } = useAuth();
 
   const menuItems = [
+    { name: "Dashboard", icon: <FiPieChart />, path: "/dashboard" },
     { name: "Gastos Mensais", icon: <FiDollarSign />, path: "/expenses" },
     { name: "Categorias", icon: <FiTag />, path: "/categories" },
     { name: "Importar CSV", icon: <FiUploadCloud />, path: "/import" },

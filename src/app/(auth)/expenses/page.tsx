@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import Link from "next/link";
 import { useLoading } from "@/contexts/LoadingContext";
 import {
   createColumnHelper,
@@ -622,7 +623,6 @@ export default function ExpensesTable() {
             </select>
           </div>
         </div>
-
         <div className="flex flex-wrap md:flex-nowrap gap-4 mb-4">
           <div className="bg-gray-800 px-4 py-3 rounded-lg border-l-4 border-green-500 flex-1">
             <p className="text-xs text-gray-400">Total de entradas</p>
@@ -654,106 +654,15 @@ export default function ExpensesTable() {
             </p>
           </div>
         </div>
-
-        {/* Botão de análise detalhada */}
         <div className="mb-4">
-          <button
-            onClick={toggleAnalysis}
+          <Link
+            href="/dashboard"
             className="flex items-center py-2 px-4 bg-gray-800 hover:bg-gray-700 rounded-lg text-purple-300 border border-gray-700 transition-colors"
           >
-            {showAnalysis ? (
-              <FiEyeOff className="mr-2" />
-            ) : (
-              <FiEye className="mr-2" />
-            )}
             <FiPieChart className="mr-2" />
-            <span>
-              {showAnalysis ? "Ocultar" : "Mostrar"} análise detalhada
-            </span>
-          </button>
+            <span>Visualizar dashboard completo</span>
+          </Link>
         </div>
-
-        {/* Seção de análise detalhada - visível apenas quando showAnalysis é true */}
-        {showAnalysis && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            {/* Análise por método de pagamento */}
-            <div className="bg-gray-800 rounded-lg overflow-hidden shadow-lg">
-              <div className="px-4 py-3 bg-gray-700 border-b border-gray-600">
-                <h3 className="font-medium">Análise por Método de Pagamento</h3>
-              </div>
-              <div className="p-4">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="text-left text-gray-400 border-b border-gray-700">
-                      <th className="pb-2">Método</th>
-                      <th className="pb-2 text-right">Valor</th>
-                      <th className="pb-2 text-right">%</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {paymentMethodAnalysis.map((item, index) => (
-                      <tr
-                        key={index}
-                        className="border-b border-gray-700 last:border-b-0"
-                      >
-                        <td className="py-2">{item.method}</td>
-                        <td className="py-2 text-right">
-                          {formatCurrency(item.total)}
-                        </td>
-                        <td className="py-2 text-right">
-                          {item.percentage.toFixed(1)}%
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            {/* Análise por categoria */}
-            <div className="bg-gray-800 rounded-lg overflow-hidden shadow-lg">
-              <div className="px-4 py-3 bg-gray-700 border-b border-gray-600">
-                <h3 className="font-medium">Análise por Categoria</h3>
-              </div>
-              <div className="p-4">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="text-left text-gray-400 border-b border-gray-700">
-                      <th className="pb-2">Categoria</th>
-                      <th className="pb-2 text-right">Valor</th>
-                      <th className="pb-2 text-right">%</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {categoryAnalysis.map((item, index) => (
-                      <tr
-                        key={index}
-                        className="border-b border-gray-700 last:border-b-0"
-                      >
-                        <td className="py-2">
-                          <div className="flex items-center">
-                            <div
-                              className="w-3 h-3 rounded-full mr-2"
-                              style={{ backgroundColor: item.color }}
-                            ></div>
-                            {item.name}
-                          </div>
-                        </td>
-                        <td className="py-2 text-right">
-                          {formatCurrency(item.total)}
-                        </td>
-                        <td className="py-2 text-right">
-                          {item.percentage.toFixed(1)}%
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        )}
-
         {/* Tabela de transações */}
         <div className="bg-gray-800 rounded-lg overflow-hidden shadow-lg">
           <div className="overflow-x-auto">
