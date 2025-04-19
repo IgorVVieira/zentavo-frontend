@@ -30,7 +30,7 @@ class AuthService {
 
   async register(name: string, email: string, password: string): Promise<User> {
     try {
-      const response = await fetch(`${API_URL}/api/auth`, {
+      const response = await fetch(`${API_URL}/users/create`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, email, password }),
@@ -62,7 +62,7 @@ class AuthService {
 
       console.log("Enviando payload:", payload);
 
-      const response = await fetch(`${API_URL}/api/auth/login`, {
+      const response = await fetch(`${API_URL}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -202,7 +202,7 @@ class AuthService {
         throw new Error("Não autenticado");
       }
 
-      const response = await fetch(`${API_URL}/api/users/profile`, {
+      const response = await fetch(`${API_URL}/users/profile`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -236,7 +236,7 @@ class AuthService {
         throw new Error("Não autenticado");
       }
 
-      const response = await fetch(`${API_URL}/api/users/change-password`, {
+      const response = await fetch(`${API_URL}/users/change-password`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -265,7 +265,7 @@ class AuthService {
         throw new Error("Não autenticado");
       }
 
-      const response = await fetch(`${API_URL}/api/users/stats`, {
+      const response = await fetch(`${API_URL}/users/stats`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,

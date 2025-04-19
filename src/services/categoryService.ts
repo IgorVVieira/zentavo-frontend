@@ -31,7 +31,7 @@ class CategoryService {
         );
       }
 
-      const response = await fetch(`${API_URL}/api/categories`, {
+      const response = await fetch(`${API_URL}/categories`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -80,7 +80,7 @@ class CategoryService {
         color,
       };
 
-      const response = await fetch(`${API_URL}/api/categories`, {
+      const response = await fetch(`${API_URL}/categories`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -118,7 +118,7 @@ class CategoryService {
         );
       }
 
-      const response = await fetch(`${API_URL}/api/categories/${id}`, {
+      const response = await fetch(`${API_URL}/categories/${id}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -156,7 +156,7 @@ class CategoryService {
         );
       }
 
-      const response = await fetch(`${API_URL}/api/categories/${id}`, {
+      const response = await fetch(`${API_URL}//categories/${id}`, {
         method: "PATCH",
         headers: {
           Authorization: `Bearer ${token}`,

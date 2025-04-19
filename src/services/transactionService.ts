@@ -62,7 +62,7 @@ class TransactionService {
       console.log("Enviando arquivo:", file.name, "tipo:", bankType);
 
       const response = await axios.post(
-        `${API_URL}/api/transactions/import`,
+        `${API_URL}/transactions/import`,
         formData,
         {
           headers: {
@@ -98,7 +98,7 @@ class TransactionService {
       }
 
       const response = await fetch(
-        `${API_URL}/api/transactions/${month}/${year}`,
+        `${API_URL}/transactions/${month}/${year}`,
         {
           method: "GET",
           headers: {
@@ -164,7 +164,7 @@ class TransactionService {
 
       console.log("Atualizando transação:", id, "com dados:", updateDto);
 
-      const response = await fetch(`${API_URL}/api/transactions/${id}`, {
+      const response = await fetch(`${API_URL}/transactions/${id}`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,

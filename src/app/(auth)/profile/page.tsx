@@ -375,41 +375,6 @@ export default function ProfilePage() {
                     <p className="font-medium">{userStats.memberSince}</p>
                   </div>
                 </div>
-
-                <div className="flex items-center py-2">
-                  <FiRefreshCw className="text-purple-400 mr-3" size={18} />
-                  <div>
-                    <p className="text-sm text-gray-400">Último acesso</p>
-                    <p className="font-medium">{userStats.lastLogin}</p>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="bg-gray-800 rounded-lg p-6 shadow-lg w-full"
-            >
-              <h3 className="text-lg font-semibold mb-4 pb-2 border-b border-gray-700">
-                Estatísticas
-              </h3>
-
-              <div className="space-y-4">
-                <div className="bg-gray-700 rounded-lg p-4">
-                  <h4 className="text-sm text-gray-400">Total de Transações</h4>
-                  <p className="text-2xl font-bold text-purple-400">
-                    {userStats.transactionsCount}
-                  </p>
-                </div>
-
-                <div className="bg-gray-700 rounded-lg p-4">
-                  <h4 className="text-sm text-gray-400">Categorias Criadas</h4>
-                  <p className="text-2xl font-bold text-purple-400">
-                    {userStats.categoriesCount}
-                  </p>
-                </div>
               </div>
             </motion.div>
           </div>
