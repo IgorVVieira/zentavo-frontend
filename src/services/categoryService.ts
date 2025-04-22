@@ -1,5 +1,6 @@
 import { API_URL } from "@/constants/env";
 import authService from "./authService";
+import axios from "axios";
 
 export interface Category {
   id: string;
@@ -118,29 +119,18 @@ class CategoryService {
         );
       }
 
-      const response = await fetch(`${API_URL}/categories/${id}`, {
-        method: "DELETE",
+      const response = await axios.delete(`${API_URL}/categories/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
       });
 
-      if (!response.ok) {
-        let errorMsg = "Falha ao excluir categoria.";
-
-        try {
-          const errorData = await response.json();
-          errorMsg = errorData.message || errorMsg;
-        } catch (e) {
-          console.error("Erro ao processar resposta de erro:", e);
-        }
-
-        throw new Error(errorMsg);
-      }
+      console.log(response);
     } catch (error: any) {
+      const errorMsg = "Falha ao excluir categoria.";
       console.error("Erro ao excluir categoria:", error);
-      throw error;
+      throw new Error(errorMsg);
     }
   }
 

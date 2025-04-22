@@ -46,7 +46,48 @@ export interface ExpenseItem {
   method?: string;
 }
 
+export interface TransactionsByMethodDto {
+  method: TransactionMethod;
+  total: number;
+}
+
+export interface DashboardData {
+  transactionsByMethod: TransactionsByMethodDto[];
+}
+
 class TransactionService {
+  async getTransactionsByMethod(
+    month: number,
+    year: number
+  ): Promise<TransactionsByMethodDto[]> {
+    try {
+      const token = authService.getToken();
+      if (!token) {
+        throw new Error(
+          "Você precisa estar autenticado para visualizar os dados do dashboard."
+        );
+      }
+
+      const { data } = await axios.get(
+        `${API_URL}/transactions/dashboard/payment-methods/${month}/${year}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      return data;
+    } catch (error: any) {
+      let errorMsg = "Falha ao buscar dados do dashboard.";
+      errorMsg = error.message || errorMsg;
+
+      console.error("Erro ao buscar dados do dashboard:", error);
+      throw new Error(errorMsg);
+    }
+  }
+
   async importCSV(file: File, bankType: string): Promise<any> {
     try {
       const token = authService.getToken();
@@ -97,16 +138,13 @@ class TransactionService {
         );
       }
 
-      const response = await fetch(
-        `${API_URL}/transactions/${month}/${year}`,
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const response = await fetch(`${API_URL}/transactions/${month}/${year}`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
 
       if (!response.ok) {
         let errorMsg = "Falha ao buscar transações.";
