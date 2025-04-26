@@ -51,6 +51,14 @@ export interface TransactionsByMethodDto {
   total: number;
 }
 
+export interface TransactionsByCategoryDto {
+  id: string;
+  name: string;
+  color: string;
+  total: number;
+  percentage: number;
+}
+
 export interface DashboardData {
   transactionsByMethod: TransactionsByMethodDto[];
 }
@@ -84,6 +92,38 @@ class TransactionService {
       errorMsg = error.message || errorMsg;
 
       console.error("Erro ao buscar dados do dashboard:", error);
+      throw new Error(errorMsg);
+    }
+  }
+
+  async getTransactionsByCategory(
+    month: number,
+    year: number
+  ): Promise<TransactionsByCategoryDto[]> {
+    try {
+      const token = authService.getToken();
+      if (!token) {
+        throw new Error(
+          "Você precisa estar autenticado para visualizar os dados de categorias."
+        );
+      }
+
+      const { data } = await axios.get(
+        `${API_URL}/transactions/dashboard/categories/${month}/${year}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      return data;
+    } catch (error: any) {
+      let errorMsg = "Falha ao buscar dados de categorias.";
+      errorMsg = error.message || errorMsg;
+
+      console.error("Erro ao buscar dados de categorias:", error);
       throw new Error(errorMsg);
     }
   }

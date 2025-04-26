@@ -9,19 +9,39 @@ import {
 } from "recharts";
 
 interface CategoryData {
-  id?: string;
+  id: string;
   name: string;
-  color: string;
+  color?: string;
   total: number;
-  count: number;
   percentage: number;
 }
 
 interface CategoryPieChartProps {
   data: CategoryData[];
+  loading?: boolean;
 }
 
 const RADIAN = Math.PI / 180;
+const DEFAULT_COLORS = [
+  "#EF4444", // Vermelho
+  "#F97316", // Laranja
+  "#F59E0B", // Âmbar
+  "#EAB308", // Amarelo
+  "#84CC16", // Lima
+  "#22C55E", // Verde
+  "#10B981", // Esmeralda
+  "#14B8A6", // Turquesa
+  "#06B6D4", // Ciano
+  "#0EA5E9", // Azul Claro
+  "#3B82F6", // Azul
+  "#6366F1", // Índigo
+  "#8B5CF6", // Violeta
+  "#A855F7", // Roxo
+  "#D946EF", // Fúcsia
+  "#EC4899", // Rosa
+  "#F43F5E", // Rosa Escuro
+  "#6B7280", // Cinza
+];
 
 // Componente para renderizar os rótulos dentro do gráfico de pizza
 const renderCustomizedLabel = ({
@@ -31,12 +51,12 @@ const renderCustomizedLabel = ({
   innerRadius,
   outerRadius,
   percent,
-  name,
+  index,
 }: any) => {
   // Não mostrar rótulos para segmentos muito pequenos
   if (percent < 0.05) return null;
 
-  const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+  const radius = innerRadius + (outerRadius - innerRadius) * 0.6;
   const x = cx + radius * Math.cos(-midAngle * RADIAN);
   const y = cy + radius * Math.sin(-midAngle * RADIAN);
 
@@ -55,7 +75,27 @@ const renderCustomizedLabel = ({
   );
 };
 
-const CategoryPieChart: React.FC<CategoryPieChartProps> = ({ data }) => {
+const CategoryPieChart: React.FC<CategoryPieChartProps> = ({
+  data,
+  loading = false,
+}) => {
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
+        <span className="ml-3 text-gray-400">Carregando dados...</span>
+      </div>
+    );
+  }
+
+  if (!data || data.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-64 text-gray-400">
+        Sem dados para o período selecionado
+      </div>
+    );
+  }
+
   return (
     <ResponsiveContainer width="100%" height={300}>
       <PieChart>
@@ -71,11 +111,16 @@ const CategoryPieChart: React.FC<CategoryPieChartProps> = ({ data }) => {
           nameKey="name"
         >
           {data.map((entry, index) => (
-            <Cell key={`cell-${index}`} fill={entry.color || "#8884d8"} />
+            <Cell
+              key={`cell-${index}`}
+              fill={
+                entry.color || DEFAULT_COLORS[index % DEFAULT_COLORS.length]
+              }
+            />
           ))}
         </Pie>
         <Tooltip
-          formatter={(value: number) => [`R$ ${value.toFixed(2)}`, "Valor"]}
+          formatter={(value: number) => [`R$ ${10}`, "Valor"]}
           contentStyle={{
             backgroundColor: "#1f2937",
             borderColor: "#374151",

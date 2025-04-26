@@ -14,6 +14,7 @@ import transactionService, {
   ExpenseItem,
   TransactionMethod,
   TransactionsByMethodDto,
+  TransactionsByCategoryDto,
 } from "@/services/transactionService";
 import PaymentMethodChart from "@/components/charts/PaymentMethodChart";
 import CategoryPieChart from "@/components/charts/CategoryPieChart";
@@ -21,23 +22,21 @@ import ExpenseTrendChart from "@/components/charts/ExpenseTrendChart";
 import MonthlyComparisonChart from "@/components/charts/MonthlyComparisonChart";
 import Loading from "@/components/Loading";
 
-// Interface para resumo de dashboard
-interface DashboardData {
-  totalIncome?: number;
-  totalExpense?: number;
-  balance?: number;
-  transactionsByMethod: TransactionsByMethodDto[];
-}
-
 export default function DashboardPage() {
   const { user } = useAuth();
   const { startLoading, stopLoading } = useLoading();
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth() + 1); // Mês atual (1-12)
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
-  const [dashboardData, setDashboardData] = useState<DashboardData | null>(
-    null
-  );
-  const [isLoading, setIsLoading] = useState(true);
+
+  // Estados separados para cada tipo de dado
+  const [methodsData, setMethodsData] = useState<TransactionsByMethodDto[]>([]);
+  const [categoriesData, setCategoriesData] = useState<
+    TransactionsByCategoryDto[]
+  >([]);
+
+  // Estados de loading separados
+  const [isMethodsLoading, setIsMethodsLoading] = useState(true);
+  const [isCategoryLoading, setIsCategoryLoading] = useState(true);
 
   const months = [
     "Janeiro",
@@ -76,9 +75,10 @@ export default function DashboardPage() {
     return methodTranslations[method] || method;
   };
 
+  // Efeito para carregar dados de métodos de pagamento
   useEffect(() => {
-    const loadDashboardData = async () => {
-      setIsLoading(true);
+    const loadMethodsData = async () => {
+      setIsMethodsLoading(true);
       startLoading();
 
       try {
@@ -86,33 +86,60 @@ export default function DashboardPage() {
           currentMonth,
           currentYear
         );
-        setDashboardData({ transactionsByMethod: data });
-        console.log("Dados do dashboard carregados com sucesso:", data);
+
+        setMethodsData(data);
+        console.log("Dados de métodos de pagamento carregados:", data);
       } catch (error: any) {
-        console.error("Erro ao carregar dados de dashboard:", error);
+        console.error("Erro ao carregar dados de métodos de pagamento:", error);
         showToast(
-          "Ocorreu um erro ao carregar o dashboard. Alguns dados podem estar incompletos.",
+          "Ocorreu um erro ao carregar dados de métodos de pagamento.",
           "warning"
         );
       } finally {
-        setIsLoading(false);
+        setIsMethodsLoading(false);
         stopLoading();
       }
     };
 
-    loadDashboardData();
+    loadMethodsData();
   }, [currentMonth, currentYear, startLoading, stopLoading]);
+
+  // Efeito separado para carregar dados de categorias
+  useEffect(() => {
+    const loadCategoryData = async () => {
+      setIsCategoryLoading(true);
+
+      try {
+        const data = await transactionService.getTransactionsByCategory(
+          currentMonth,
+          currentYear
+        );
+
+        setCategoriesData(data);
+        console.log("Dados de categorias carregados:", data);
+      } catch (error: any) {
+        console.error("Erro ao carregar dados de categorias:", error);
+        showToast(
+          "Ocorreu um erro ao carregar dados de categorias.",
+          "warning"
+        );
+      } finally {
+        setIsCategoryLoading(false);
+      }
+    };
+
+    loadCategoryData();
+  }, [currentMonth, currentYear]);
 
   // Preparar dados para o PaymentMethodChart
   const paymentMethodChartData = useMemo(() => {
-    console.log(dashboardData);
-    if (!dashboardData || !dashboardData.transactionsByMethod) return [];
+    if (!methodsData || methodsData.length === 0) return [];
 
     // Mapear os dados para o formato necessário para o gráfico
-    const chartData = dashboardData.transactionsByMethod.map((item) => ({
+    const chartData = methodsData.map((item) => ({
       method: translateMethod(item.method),
       total: Math.abs(item.total),
-      count: dashboardData.transactionsByMethod.length, // Este valor não é fornecido pelo endpoint
+      count: methodsData.length,
       percentage: 0, // Calcularemos isso a seguir
     }));
 
@@ -124,7 +151,7 @@ export default function DashboardPage() {
     });
 
     return chartData;
-  }, [dashboardData]);
+  }, [methodsData]);
 
   const handleMonthChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newMonth = parseInt(e.target.value, 10);
@@ -181,7 +208,7 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {isLoading ? (
+        {isMethodsLoading ? (
           <Loading text="Carregando dados financeiros..." />
         ) : (
           <>
@@ -206,24 +233,17 @@ export default function DashboardPage() {
                 </div>
               </div>
 
-              {/* Placeholder para Análise por categoria - será implementado em chamada separada */}
+              {/* Gráfico de análise por categoria - agora usando a API real */}
               <div className="bg-gray-800 rounded-lg overflow-hidden shadow-lg">
                 <div className="px-4 py-3 bg-gray-700 border-b border-gray-600 flex items-center">
                   <FiPieChart className="text-purple-400 mr-2" />
                   <h3 className="font-medium">Gastos por Categoria</h3>
                 </div>
                 <div className="p-4">
-                  <div className="flex flex-col items-center justify-center h-48 text-gray-400">
-                    <p>Dados serão implementados em uma chamada separada</p>
-                    <button
-                      className="mt-4 px-4 py-2 bg-purple-600 rounded-lg text-white hover:bg-purple-700 transition-colors"
-                      onClick={() =>
-                        showToast("Função será implementada em breve", "info")
-                      }
-                    >
-                      Carregar dados
-                    </button>
-                  </div>
+                  <CategoryPieChart
+                    data={categoriesData}
+                    loading={isCategoryLoading}
+                  />
                 </div>
               </div>
             </div>
