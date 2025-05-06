@@ -284,6 +284,61 @@ class AuthService {
       throw new Error(error.message || "Erro ao obter estatísticas do usuário");
     }
   }
+
+  async requestPasswordReset(email: string): Promise<boolean> {
+    try {
+      if (!email.includes("@")) {
+        throw new Error("Email inválido");
+      }
+
+      const response = await fetch(`${API_URL}/auth/forgot-password`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(
+          errorData.message || "Falha ao solicitar recuperação de senha"
+        );
+      }
+
+      return true;
+    } catch (error: any) {
+      console.error("Erro ao solicitar recuperação de senha:", error);
+      throw new Error(
+        error.message || "Erro ao processar solicitação de recuperação de senha"
+      );
+    }
+  }
+
+  async resetPassword(token: string, newPassword: string): Promise<boolean> {
+    try {
+      // Código para quando a API estiver pronta
+      /* 
+      const response = await fetch(`${API_URL}/auth/reset-password`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token, newPassword }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Falha ao redefinir senha");
+      }
+      */
+
+      // Simulação
+      console.log(`Redefinindo senha com token: ${token}`);
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      return true;
+    } catch (error: any) {
+      console.error("Erro ao redefinir senha:", error);
+      throw new Error(error.message || "Erro ao redefinir senha");
+    }
+  }
 }
 
 const authService = new AuthService();
