@@ -1,6 +1,6 @@
 import { API_URL } from "@/constants/env";
-import authService from "./authService";
 import axios from "axios";
+import authService from "./authService";
 
 export enum TransactionType {
   CASH_IN = "CASH_IN",
@@ -59,6 +59,14 @@ export interface TransactionsByCategoryDto {
   percentage: number;
 }
 
+// Nova interface para os dados dos últimos 6 meses
+export interface LastSixMonthsData {
+  month: number;
+  year: number;
+  totalCashIn: number;
+  totalCashOut: number;
+}
+
 export interface DashboardData {
   transactionsByMethod: TransactionsByMethodDto[];
 }
@@ -66,13 +74,13 @@ export interface DashboardData {
 class TransactionService {
   async getTransactionsByMethod(
     month: number,
-    year: number
+    year: number,
   ): Promise<TransactionsByMethodDto[]> {
     try {
       const token = authService.getToken();
       if (!token) {
         throw new Error(
-          "Você precisa estar autenticado para visualizar os dados do dashboard."
+          "Você precisa estar autenticado para visualizar os dados do dashboard.",
         );
       }
 
@@ -83,7 +91,7 @@ class TransactionService {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
-        }
+        },
       );
 
       return data;
@@ -98,13 +106,13 @@ class TransactionService {
 
   async getTransactionsByCategory(
     month: number,
-    year: number
+    year: number,
   ): Promise<TransactionsByCategoryDto[]> {
     try {
       const token = authService.getToken();
       if (!token) {
         throw new Error(
-          "Você precisa estar autenticado para visualizar os dados de categorias."
+          "Você precisa estar autenticado para visualizar os dados de categorias.",
         );
       }
 
@@ -115,7 +123,7 @@ class TransactionService {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
-        }
+        },
       );
 
       return data;
@@ -128,12 +136,42 @@ class TransactionService {
     }
   }
 
+  // Nova função para buscar dados dos últimos 6 meses
+  async getLastSixMonthsData(): Promise<LastSixMonthsData[]> {
+    try {
+      const token = authService.getToken();
+      if (!token) {
+        throw new Error(
+          "Você precisa estar autenticado para visualizar os dados dos últimos 6 meses.",
+        );
+      }
+
+      const { data } = await axios.get(
+        `${API_URL}/transactions/dashboard/last-six-months`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        },
+      );
+
+      return data;
+    } catch (error: any) {
+      let errorMsg = "Falha ao buscar dados dos últimos 6 meses.";
+      errorMsg = error.message || errorMsg;
+
+      console.error("Erro ao buscar dados dos últimos 6 meses:", error);
+      throw new Error(errorMsg);
+    }
+  }
+
   async importCSV(file: File, bankType: string): Promise<any> {
     try {
       const token = authService.getToken();
       if (!token) {
         throw new Error(
-          "Você precisa estar autenticado para importar arquivos."
+          "Você precisa estar autenticado para importar arquivos.",
         );
       }
 
@@ -149,7 +187,7 @@ class TransactionService {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
 
       return response.data;
@@ -166,7 +204,7 @@ class TransactionService {
 
   async getMonthlyTransactions(
     month: number,
-    year: number
+    year: number,
   ): Promise<ExpenseItem[]> {
     try {
       console.log(`Buscando transações para ${month}/${year}`);
@@ -174,7 +212,7 @@ class TransactionService {
       const token = authService.getToken();
       if (!token) {
         throw new Error(
-          "Você precisa estar autenticado para visualizar as transações."
+          "Você precisa estar autenticado para visualizar as transações.",
         );
       }
 
@@ -224,13 +262,13 @@ class TransactionService {
 
   async updateTransaction(
     id: string,
-    updates: { description?: string; categoryId?: string | null }
+    updates: { description?: string; categoryId?: string | null },
   ): Promise<ExpenseItem> {
     try {
       const token = authService.getToken();
       if (!token) {
         throw new Error(
-          "Você precisa estar autenticado para atualizar transações."
+          "Você precisa estar autenticado para atualizar transações.",
         );
       }
 

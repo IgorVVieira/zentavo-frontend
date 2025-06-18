@@ -11,21 +11,20 @@ import {
 } from "react-icons/fi";
 import ToastNotifications, { showToast } from "@/components/ToastNotificatons";
 import transactionService, {
-  ExpenseItem,
   TransactionMethod,
   TransactionsByMethodDto,
   TransactionsByCategoryDto,
+  LastSixMonthsData,
 } from "@/services/transactionService";
 import PaymentMethodChart from "@/components/charts/PaymentMethodChart";
 import CategoryPieChart from "@/components/charts/CategoryPieChart";
-import ExpenseTrendChart from "@/components/charts/ExpenseTrendChart";
 import MonthlyComparisonChart from "@/components/charts/MonthlyComparisonChart";
 import Loading from "@/components/Loading";
 
 export default function DashboardPage() {
   const { user } = useAuth();
   const { startLoading, stopLoading } = useLoading();
-  const [currentMonth, setCurrentMonth] = useState(new Date().getMonth() + 1); // Mês atual (1-12)
+  const [currentMonth, setCurrentMonth] = useState(new Date().getMonth() + 1);
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
 
   // Estados separados para cada tipo de dado
@@ -33,10 +32,12 @@ export default function DashboardPage() {
   const [categoriesData, setCategoriesData] = useState<
     TransactionsByCategoryDto[]
   >([]);
+  const [sixMonthsData, setSixMonthsData] = useState<LastSixMonthsData[]>([]);
 
   // Estados de loading separados
   const [isMethodsLoading, setIsMethodsLoading] = useState(true);
   const [isCategoryLoading, setIsCategoryLoading] = useState(true);
+  const [isSixMonthsLoading, setIsSixMonthsLoading] = useState(true);
 
   const months = [
     "Janeiro",
@@ -84,7 +85,7 @@ export default function DashboardPage() {
       try {
         const data = await transactionService.getTransactionsByMethod(
           currentMonth,
-          currentYear
+          currentYear,
         );
 
         setMethodsData(data);
@@ -93,7 +94,7 @@ export default function DashboardPage() {
         console.error("Erro ao carregar dados de métodos de pagamento:", error);
         showToast(
           "Ocorreu um erro ao carregar dados de métodos de pagamento.",
-          "warning"
+          "warning",
         );
       } finally {
         setIsMethodsLoading(false);
@@ -102,7 +103,7 @@ export default function DashboardPage() {
     };
 
     loadMethodsData();
-  }, [currentMonth, currentYear, startLoading, stopLoading]);
+  }, [currentMonth, currentYear]); // REMOVIDO startLoading, stopLoading e user
 
   // Efeito separado para carregar dados de categorias
   useEffect(() => {
@@ -112,7 +113,7 @@ export default function DashboardPage() {
       try {
         const data = await transactionService.getTransactionsByCategory(
           currentMonth,
-          currentYear
+          currentYear,
         );
 
         setCategoriesData(data);
@@ -121,7 +122,7 @@ export default function DashboardPage() {
         console.error("Erro ao carregar dados de categorias:", error);
         showToast(
           "Ocorreu um erro ao carregar dados de categorias.",
-          "warning"
+          "warning",
         );
       } finally {
         setIsCategoryLoading(false);
@@ -129,7 +130,30 @@ export default function DashboardPage() {
     };
 
     loadCategoryData();
-  }, [currentMonth, currentYear]);
+  }, [currentMonth, currentYear]); // REMOVIDO user
+
+  // Efeito para carregar dados dos últimos 6 meses
+  useEffect(() => {
+    const loadSixMonthsData = async () => {
+      setIsSixMonthsLoading(true);
+
+      try {
+        const data = await transactionService.getLastSixMonthsData();
+        setSixMonthsData(data);
+        console.log("Dados dos últimos 6 meses carregados:", data);
+      } catch (error: any) {
+        console.error("Erro ao carregar dados dos últimos 6 meses:", error);
+        showToast(
+          "Ocorreu um erro ao carregar dados dos últimos 6 meses.",
+          "warning",
+        );
+      } finally {
+        setIsSixMonthsLoading(false);
+      }
+    };
+
+    loadSixMonthsData();
+  }, []); // Executa apenas uma vez ao montar o componente
 
   // Preparar dados para o PaymentMethodChart
   const paymentMethodChartData = useMemo(() => {
@@ -153,6 +177,32 @@ export default function DashboardPage() {
     return chartData;
   }, [methodsData]);
 
+  // Preparar dados para o MonthlyComparisonChart
+  const monthlyComparisonData = useMemo(() => {
+    if (!sixMonthsData || sixMonthsData.length === 0) return [];
+
+    const monthNames = [
+      "Jan",
+      "Fev",
+      "Mar",
+      "Abr",
+      "Mai",
+      "Jun",
+      "Jul",
+      "Ago",
+      "Set",
+      "Out",
+      "Nov",
+      "Dez",
+    ];
+
+    return sixMonthsData.map((item) => ({
+      month: `${monthNames[item.month - 1]}/${item.year}`,
+      income: item.totalCashIn,
+      expenses: Math.abs(item.totalCashOut), // Converter para positivo para melhor visualização
+    }));
+  }, [sixMonthsData]);
+
   const handleMonthChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newMonth = parseInt(e.target.value, 10);
     setCurrentMonth(newMonth);
@@ -161,14 +211,6 @@ export default function DashboardPage() {
   const handleYearChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newYear = parseInt(e.target.value, 10);
     setCurrentYear(newYear);
-  };
-
-  // Função para formatar valores monetários
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat("pt-BR", {
-      style: "currency",
-      currency: "BRL",
-    }).format(value);
   };
 
   return (
@@ -258,17 +300,10 @@ export default function DashboardPage() {
                   </h3>
                 </div>
                 <div className="p-4">
-                  <div className="flex flex-col items-center justify-center h-48 text-gray-400">
-                    <p>Dados serão implementados em uma chamada separada</p>
-                    <button
-                      className="mt-4 px-4 py-2 bg-purple-600 rounded-lg text-white hover:bg-purple-700 transition-colors"
-                      onClick={() =>
-                        showToast("Função será implementada em breve", "info")
-                      }
-                    >
-                      Carregar dados
-                    </button>
-                  </div>
+                  <MonthlyComparisonChart
+                    data={monthlyComparisonData}
+                    loading={isSixMonthsLoading}
+                  />
                 </div>
               </div>
             </div>

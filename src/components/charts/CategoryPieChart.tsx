@@ -11,7 +11,7 @@ import {
 interface CategoryData {
   id: string;
   name: string;
-  color?: string;
+  color?: string | null;
   total: number;
   percentage: number;
 }
@@ -96,31 +96,43 @@ const CategoryPieChart: React.FC<CategoryPieChartProps> = ({
     );
   }
 
+  // Processar os dados para o gráfico
+  const processedData = data.map((item, index) => ({
+    ...item,
+    // Converter valores negativos para positivos para o gráfico
+    value: Math.abs(item.total),
+    // Garantir que temos uma cor válida
+    color: item.color || DEFAULT_COLORS[index % DEFAULT_COLORS.length],
+  }));
+
+  console.log("Dados processados para o gráfico:", processedData);
+
   return (
     <ResponsiveContainer width="100%" height={300}>
       <PieChart>
         <Pie
-          data={data}
+          data={processedData}
           cx="50%"
           cy="50%"
           labelLine={false}
           label={renderCustomizedLabel}
           outerRadius={100}
           fill="#8884d8"
-          dataKey="total"
+          dataKey="value" // Mudou de "total" para "value"
           nameKey="name"
         >
-          {data.map((entry, index) => (
-            <Cell
-              key={`cell-${index}`}
-              fill={
-                entry.color || DEFAULT_COLORS[index % DEFAULT_COLORS.length]
-              }
-            />
+          {processedData.map((entry, index) => (
+            <Cell key={`cell-${index}`} fill={entry.color} />
           ))}
         </Pie>
         <Tooltip
-          formatter={(value: number) => [`R$ ${10}`, "Valor"]}
+          formatter={(value: number) => [
+            `R$ ${value.toLocaleString("pt-BR", {
+              style: "currency",
+              currency: "BRL",
+            })}`,
+            "Valor",
+          ]}
           contentStyle={{
             backgroundColor: "#1f2937",
             borderColor: "#374151",
