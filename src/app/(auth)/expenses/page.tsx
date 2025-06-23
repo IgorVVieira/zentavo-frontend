@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import Link from "next/link";
 import { useLoading } from "@/contexts/LoadingContext";
+import { DateTime } from "luxon";
 import {
   createColumnHelper,
   flexRender,
@@ -18,8 +19,6 @@ import {
   FiChevronsUp,
   FiEdit,
   FiX,
-  FiEye,
-  FiEyeOff,
   FiPieChart,
 } from "react-icons/fi";
 import ToastNotifications, { showToast } from "@/components/ToastNotificatons";
@@ -315,8 +314,10 @@ export default function ExpensesTable() {
   }, [currentMonth, currentYear, startLoading, stopLoading]);
 
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("pt-BR");
+    console.log(dateString);
+    return DateTime.fromSQL(dateString)
+      .setZone("America/Sao_Paulo")
+      .toFormat("dd/LL/yyyy");
   };
 
   const totalIncome = expenses
