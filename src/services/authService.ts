@@ -1,5 +1,5 @@
 import { API_URL } from "@/constants/env";
-
+import axios from "axios";
 export interface User {
   email: string;
   name?: string;
@@ -51,8 +51,6 @@ class AuthService {
 
   async login(email: string, password: string): Promise<AuthResponse> {
     try {
-      console.log("Tentando login com:", { email, password });
-
       const payload = {
         email,
         password,
@@ -60,20 +58,15 @@ class AuthService {
         senha: password,
       };
 
-      console.log("Enviando payload:", payload);
-
       const response = await fetch(`${API_URL}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
 
-      console.log("Status da resposta:", response.status);
-
       let responseData;
       try {
         responseData = await response.json();
-        console.log("Dados da resposta:", responseData);
       } catch (e) {
         console.error("Erro ao parsear resposta JSON:", e);
         responseData = {};
@@ -103,9 +96,6 @@ class AuthService {
           email: email,
           name: responseData.name || responseData.nome || email.split("@")[0],
         };
-
-      console.log("Dados do usuário extraídos:", userData);
-      console.log("Token extraído:", token);
 
       this.setToken(token);
       this.setUser(userData);
@@ -330,13 +320,54 @@ class AuthService {
       */
 
       // Simulação
-      console.log(`Redefinindo senha com token: ${token}`);
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
       return true;
     } catch (error: any) {
       console.error("Erro ao redefinir senha:", error);
       throw new Error(error.message || "Erro ao redefinir senha");
+    }
+  }
+
+  async activateAccount(token: string, userId: string): Promise<boolean> {
+    try {
+      // Garantir que o token seja apenas dígitos
+      const cleanToken = token.replace(/\D/g, "");
+
+      await axios.post(
+        `${API_URL}/users/activate`,
+        {
+          token: cleanToken,
+          userId,
+        },
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+      return true;
+    } catch (error: any) {
+      console.error(error);
+      throw new Error(error.message || "Erro ao ativar conta");
+    }
+  }
+
+  async resendActivationCode(userId: string): Promise<boolean> {
+    try {
+      const response = await fetch(`${API_URL}/users/resend-activation`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Falha ao reenviar código");
+      }
+
+      return true;
+    } catch (error: any) {
+      console.error(error);
+      throw new Error(error.message || "Erro ao reenviar código de ativação");
     }
   }
 }
