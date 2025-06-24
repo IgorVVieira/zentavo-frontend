@@ -74,13 +74,13 @@ export interface DashboardData {
 class TransactionService {
   async getTransactionsByMethod(
     month: number,
-    year: number,
+    year: number
   ): Promise<TransactionsByMethodDto[]> {
     try {
       const token = authService.getToken();
       if (!token) {
         throw new Error(
-          "Você precisa estar autenticado para visualizar os dados do dashboard.",
+          "Você precisa estar autenticado para visualizar os dados do dashboard."
         );
       }
 
@@ -91,7 +91,7 @@ class TransactionService {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
-        },
+        }
       );
 
       return data;
@@ -106,13 +106,13 @@ class TransactionService {
 
   async getTransactionsByCategory(
     month: number,
-    year: number,
+    year: number
   ): Promise<TransactionsByCategoryDto[]> {
     try {
       const token = authService.getToken();
       if (!token) {
         throw new Error(
-          "Você precisa estar autenticado para visualizar os dados de categorias.",
+          "Você precisa estar autenticado para visualizar os dados de categorias."
         );
       }
 
@@ -123,7 +123,7 @@ class TransactionService {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
-        },
+        }
       );
 
       return data;
@@ -142,7 +142,7 @@ class TransactionService {
       const token = authService.getToken();
       if (!token) {
         throw new Error(
-          "Você precisa estar autenticado para visualizar os dados dos últimos 6 meses.",
+          "Você precisa estar autenticado para visualizar os dados dos últimos 6 meses."
         );
       }
 
@@ -153,7 +153,7 @@ class TransactionService {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
-        },
+        }
       );
 
       return data;
@@ -166,19 +166,17 @@ class TransactionService {
     }
   }
 
-  async importCSV(file: File, bankType: string): Promise<any> {
+  async importCSV(file: File): Promise<any> {
     try {
       const token = authService.getToken();
       if (!token) {
         throw new Error(
-          "Você precisa estar autenticado para importar arquivos.",
+          "Você precisa estar autenticado para importar arquivos."
         );
       }
 
       const formData = new FormData();
       formData.append("statement", file); // mesmo nome do backend
-
-      console.log("Enviando arquivo:", file.name, "tipo:", bankType);
 
       const response = await axios.post(
         `${API_URL}/transactions/import`,
@@ -187,7 +185,7 @@ class TransactionService {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        },
+        }
       );
 
       return response.data;
@@ -204,15 +202,13 @@ class TransactionService {
 
   async getMonthlyTransactions(
     month: number,
-    year: number,
+    year: number
   ): Promise<ExpenseItem[]> {
     try {
-      console.log(`Buscando transações para ${month}/${year}`);
-
       const token = authService.getToken();
       if (!token) {
         throw new Error(
-          "Você precisa estar autenticado para visualizar as transações.",
+          "Você precisa estar autenticado para visualizar as transações."
         );
       }
 
@@ -262,13 +258,13 @@ class TransactionService {
 
   async updateTransaction(
     id: string,
-    updates: { description?: string; categoryId?: string | null },
+    updates: { description?: string; categoryId?: string | null }
   ): Promise<ExpenseItem> {
     try {
       const token = authService.getToken();
       if (!token) {
         throw new Error(
-          "Você precisa estar autenticado para atualizar transações.",
+          "Você precisa estar autenticado para atualizar transações."
         );
       }
 
@@ -277,8 +273,6 @@ class TransactionService {
         description: updates.description,
         categoryId: updates.categoryId,
       };
-
-      console.log("Atualizando transação:", id, "com dados:", updateDto);
 
       const response = await fetch(`${API_URL}/transactions/${id}`, {
         method: "PUT",

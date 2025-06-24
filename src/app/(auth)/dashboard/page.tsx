@@ -89,7 +89,6 @@ export default function DashboardPage() {
         );
 
         setMethodsData(data);
-        console.log("Dados de métodos de pagamento carregados:", data);
       } catch (error: any) {
         console.error("Erro ao carregar dados de métodos de pagamento:", error);
         showToast(
@@ -117,7 +116,6 @@ export default function DashboardPage() {
         );
 
         setCategoriesData(data);
-        console.log("Dados de categorias carregados:", data);
       } catch (error: any) {
         console.error("Erro ao carregar dados de categorias:", error);
         showToast(
@@ -140,7 +138,6 @@ export default function DashboardPage() {
       try {
         const data = await transactionService.getLastSixMonthsData();
         setSixMonthsData(data);
-        console.log("Dados dos últimos 6 meses carregados:", data);
       } catch (error: any) {
         console.error("Erro ao carregar dados dos últimos 6 meses:", error);
         showToast(

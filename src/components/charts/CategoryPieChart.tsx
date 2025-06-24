@@ -105,8 +105,6 @@ const CategoryPieChart: React.FC<CategoryPieChartProps> = ({
     color: item.color || DEFAULT_COLORS[index % DEFAULT_COLORS.length],
   }));
 
-  console.log("Dados processados para o gráfico:", processedData);
-
   return (
     <ResponsiveContainer width="100%" height={300}>
       <PieChart>

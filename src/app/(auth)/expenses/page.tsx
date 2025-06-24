@@ -314,7 +314,6 @@ export default function ExpensesTable() {
   }, [currentMonth, currentYear, startLoading, stopLoading]);
 
   const formatDate = (dateString: string) => {
-    console.log(dateString);
     return DateTime.fromSQL(dateString)
       .setZone("America/Sao_Paulo")
       .toFormat("dd/LL/yyyy");

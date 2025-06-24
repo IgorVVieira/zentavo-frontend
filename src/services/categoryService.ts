@@ -119,14 +119,12 @@ class CategoryService {
         );
       }
 
-      const response = await axios.delete(`${API_URL}/categories/${id}`, {
+      await axios.delete(`${API_URL}/categories/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
       });
-
-      console.log(response);
     } catch (error: any) {
       const errorMsg = "Falha ao excluir categoria.";
       console.error("Erro ao excluir categoria:", error);

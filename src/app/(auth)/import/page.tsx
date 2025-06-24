@@ -45,13 +45,11 @@ export default function ImportCSV() {
     startLoading();
 
     try {
-      const result = await transactionService.importCSV(file, selectedBank);
-      console.log("Importação bem-sucedida:", result);
+      await transactionService.importCSV(file);
 
       showToast("Arquivo importado com sucesso!", "success");
       setSuccess(true);
     } catch (error: any) {
-      console.log(error);
       console.error("Erro na importação:", error);
       setError(error.message || "Ocorreu um erro ao importar o arquivo.");
       showToast(error.message || "Erro ao importar arquivo", "error");
