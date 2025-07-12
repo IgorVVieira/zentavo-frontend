@@ -47,7 +47,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           }
         }
       } catch (error) {
-        console.error("Erro ao verificar autenticação:", error);
         authService.logout();
       } finally {
         setIsLoading(false);
@@ -71,7 +70,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return false;
       }
     } catch (error: any) {
-      console.error("Erro ao fazer login:", error);
       showToast(error.message || "Erro ao fazer login", "error");
       return false;
     } finally {

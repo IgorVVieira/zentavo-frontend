@@ -275,14 +275,13 @@ export default function ExpensesTable() {
     setCurrentYear(newYear);
   };
 
-  // Carregar categorias
   useEffect(() => {
     const fetchCategories = async () => {
       try {
         const categoriesData = await categoryService.getCategories();
         setCategories(categoriesData);
-      } catch (error) {
-        console.error("Erro ao buscar categorias:", error);
+      } catch {
+        showToast("Erro ao carregar categorias");
       }
     };
 
@@ -301,7 +300,6 @@ export default function ExpensesTable() {
         );
         setExpenses(data);
       } catch (error: any) {
-        console.error("Erro ao buscar transações:", error);
         showToast(error.message || "Erro ao carregar as transações", "error");
         setExpenses([]);
       } finally {
@@ -371,7 +369,6 @@ export default function ExpensesTable() {
 
       showToast("Transação atualizada com sucesso!", "success");
     } catch (error: any) {
-      console.error("Erro ao atualizar transação:", error);
       showToast(
         error.message || "Erro ao atualizar transação. Tente novamente.",
         "error"
@@ -384,12 +381,10 @@ export default function ExpensesTable() {
 
   // Gerar dados de análise por método de pagamento
   const paymentMethodAnalysis = useMemo(() => {
-    // Filtramos apenas as despesas (valores negativos)
     const expensesOnly = expenses.filter(
       (expense) => expense.amount < 0 && expense.description !== "Aplicação RDB"
     );
 
-    // Calculamos o valor total negativo (em módulo)
     const totalExpenseAmount = Math.abs(
       expensesOnly.reduce((sum, expense) => sum + expense.amount, 0)
     );
@@ -420,12 +415,10 @@ export default function ExpensesTable() {
 
   // Gerar dados de análise por categoria
   const categoryAnalysis = useMemo(() => {
-    // Filtramos apenas as despesas (valores negativos)
     const expensesOnly = expenses.filter(
       (expense) => expense.amount < 0 && expense.description !== "Aplicação RDB"
     );
 
-    // Calculamos o valor total negativo (em módulo)
     const totalExpenseAmount = Math.abs(
       expensesOnly.reduce((sum, expense) => sum + expense.amount, 0)
     );

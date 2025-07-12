@@ -49,7 +49,6 @@ export default function Register() {
       setError(
         err.message || "Erro ao tentar realizar o cadastro. Tente novamente."
       );
-      console.error("Erro de cadastro:", err);
     } finally {
       setIsLoading(false);
       stopLoading();

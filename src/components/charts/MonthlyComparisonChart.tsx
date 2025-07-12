@@ -1,4 +1,5 @@
 // src/components/charts/MonthlyComparisonChart.tsx
+import { formatMoney } from "@/utils/format-money";
 import React from "react";
 import {
   BarChart,
@@ -11,18 +12,18 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-interface MonthlyData {
+interface IMonthlyData {
   month: string;
   expenses: number;
   income: number;
 }
 
-interface MonthlyComparisonChartProps {
-  data: MonthlyData[];
+interface IMonthlyComparisonChartProps {
+  data: IMonthlyData[];
   loading?: boolean;
 }
 
-const MonthlyComparisonChart: React.FC<MonthlyComparisonChartProps> = ({
+const MonthlyComparisonChart: React.FC<IMonthlyComparisonChartProps> = ({
   data,
   loading = false,
 }) => {
@@ -35,7 +36,7 @@ const MonthlyComparisonChart: React.FC<MonthlyComparisonChartProps> = ({
     );
   }
 
-  if (!data || data.length === 0) {
+  if (!data?.length) {
     return (
       <div className="flex items-center justify-center h-64 text-gray-400">
         Sem dados para exibir
@@ -58,13 +59,7 @@ const MonthlyComparisonChart: React.FC<MonthlyComparisonChartProps> = ({
         <XAxis dataKey="month" stroke="#ccc" />
         <YAxis stroke="#ccc" />
         <Tooltip
-          formatter={(value: number) => [
-            `R$ ${Math.abs(value).toLocaleString("pt-BR", {
-              style: "currency",
-              currency: "BRL",
-            })}`,
-            "",
-          ]}
+          formatter={(value: number) => [formatMoney(value), ""]}
           contentStyle={{
             backgroundColor: "#1f2937",
             borderColor: "#374151",

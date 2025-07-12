@@ -71,7 +71,7 @@ class CategoryService {
       }
 
       const user = authService.getUser();
-      if (!user || !user.id) {
+      if (!user?.id) {
         throw new Error("Informações do usuário não encontradas.");
       }
 

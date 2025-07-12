@@ -25,8 +25,8 @@ export interface RegisterData {
 }
 
 class AuthService {
-  private tokenKey = "zentavo_token";
-  private userKey = "zentavo_user";
+  private readonly tokenKey = "zentavo_token";
+  private readonly userKey = "zentavo_user";
 
   async register(name: string, email: string, password: string): Promise<User> {
     try {
@@ -44,7 +44,6 @@ class AuthService {
       const data = await response.json();
       return data.user;
     } catch (error: any) {
-      console.error("Erro de registro:", error);
       throw new Error(error.message || "Erro ao registrar usuário");
     }
   }
@@ -81,7 +80,7 @@ class AuthService {
       const token =
         responseData.token ||
         responseData.accessToken ||
-        (responseData.data && responseData.data.token) ||
+        (responseData?.data?.token) ||
         "";
 
       if (!token) {

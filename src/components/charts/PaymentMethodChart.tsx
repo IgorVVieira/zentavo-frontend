@@ -1,3 +1,4 @@
+import { formatMoney } from "@/utils/format-money";
 import React from "react";
 import {
   BarChart,
@@ -41,15 +42,15 @@ const PaymentMethodChart: React.FC<PaymentMethodChartProps> = ({ data }) => {
         <YAxis stroke="#ccc" />
         <Tooltip
           formatter={(value: number, name: string) => [
-            `R$ ${value.toFixed(2)}`,
+            formatMoney(value),
             "Total",
           ]}
           contentStyle={{
-            backgroundColor: "#1f2937",
+            backgroundColor: "#F8F8F2",
             borderColor: "#374151",
-            color: "#fff",
+            color: "#F8F8F2",
           }}
-          labelStyle={{ color: "#fff" }}
+          labelStyle={{ color: "#374151" }}
         />
         <Legend />
         <Bar dataKey="total" name="Valor Gasto" radius={[5, 5, 0, 0]}>

@@ -58,7 +58,6 @@ export default function CategoriesPage() {
       const fetchedCategories = await categoryService.getCategories();
       setCategories(fetchedCategories);
     } catch (error: any) {
-      console.error("Erro ao buscar categorias:", error);
       showToast(error.message || "Erro ao carregar categorias", "error");
     } finally {
       setIsLoading(false);
@@ -96,7 +95,6 @@ export default function CategoriesPage() {
       showToast("Categoria criada com sucesso", "success");
       return true;
     } catch (error: any) {
-      console.error("Erro ao criar categoria:", error);
       showToast(error.message || "Erro ao criar categoria", "error");
       return false;
     } finally {
@@ -119,7 +117,6 @@ export default function CategoriesPage() {
       showToast("Categoria excluída com sucesso", "success");
       return true;
     } catch (error: any) {
-      console.error("Erro ao excluir categoria:", error);
       showToast(error.message || "Erro ao excluir categoria", "error");
       return false;
     } finally {

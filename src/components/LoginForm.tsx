@@ -48,7 +48,6 @@ export default function LoginForm() {
         );
       }
     } catch (err: any) {
-      console.error("Erro durante o login:", err);
       setError(err.message || "Erro ao tentar fazer login. Tente novamente.");
     } finally {
       stopLoading();

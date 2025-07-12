@@ -69,7 +69,6 @@ export default function ProfilePage() {
       showToast("Perfil atualizado com sucesso!", "success");
       setIsEditingProfile(false);
     } catch (error: any) {
-      console.error("Erro ao atualizar perfil:", error);
       showToast(error.message || "Falha ao atualizar o perfil", "error");
     } finally {
       stopLoading();
@@ -106,7 +105,6 @@ export default function ProfilePage() {
       setConfirmPassword("");
       setIsChangingPassword(false);
     } catch (error: any) {
-      console.error("Erro ao alterar senha:", error);
       setPasswordError(error.message || "Falha ao alterar a senha");
     } finally {
       stopLoading();
@@ -114,7 +112,6 @@ export default function ProfilePage() {
   };
 
   const cancelProfileEdit = () => {
-    // Restaurar valores originais
     if (user) {
       setName(user.name || "");
       setEmail(user.email || "");

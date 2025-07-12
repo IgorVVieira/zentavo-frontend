@@ -1,3 +1,4 @@
+import { formatMoney } from "@/utils/format-money";
 import React from "react";
 import {
   PieChart,
@@ -8,7 +9,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-interface CategoryData {
+interface ICategoryData {
   id: string;
   name: string;
   color?: string | null;
@@ -16,8 +17,8 @@ interface CategoryData {
   percentage: number;
 }
 
-interface CategoryPieChartProps {
-  data: CategoryData[];
+interface ICategoryPieChartProps {
+  data: ICategoryData[];
   loading?: boolean;
 }
 
@@ -43,7 +44,6 @@ const DEFAULT_COLORS = [
   "#6B7280", // Cinza
 ];
 
-// Componente para renderizar os rótulos dentro do gráfico de pizza
 const renderCustomizedLabel = ({
   cx,
   cy,
@@ -53,7 +53,6 @@ const renderCustomizedLabel = ({
   percent,
   index,
 }: any) => {
-  // Não mostrar rótulos para segmentos muito pequenos
   if (percent < 0.05) return null;
 
   const radius = innerRadius + (outerRadius - innerRadius) * 0.6;
@@ -75,7 +74,7 @@ const renderCustomizedLabel = ({
   );
 };
 
-const CategoryPieChart: React.FC<CategoryPieChartProps> = ({
+const CategoryPieChart: React.FC<ICategoryPieChartProps> = ({
   data,
   loading = false,
 }) => {
@@ -88,7 +87,7 @@ const CategoryPieChart: React.FC<CategoryPieChartProps> = ({
     );
   }
 
-  if (!data || data.length === 0) {
+  if (!data?.length) {
     return (
       <div className="flex items-center justify-center h-64 text-gray-400">
         Sem dados para o período selecionado
@@ -96,12 +95,10 @@ const CategoryPieChart: React.FC<CategoryPieChartProps> = ({
     );
   }
 
-  // Processar os dados para o gráfico
-  const processedData = data.map((item, index) => ({
+  const orderedData = data.toReversed();
+  const processedData = orderedData.map((item, index) => ({
     ...item,
-    // Converter valores negativos para positivos para o gráfico
     value: Math.abs(item.total),
-    // Garantir que temos uma cor válida
     color: item.color || DEFAULT_COLORS[index % DEFAULT_COLORS.length],
   }));
 
@@ -118,21 +115,16 @@ const CategoryPieChart: React.FC<CategoryPieChartProps> = ({
           fill="#8884d8"
           dataKey="value" // Mudou de "total" para "value"
           nameKey="name"
+          isAnimationActive={true}
         >
           {processedData.map((entry, index) => (
             <Cell key={`cell-${index}`} fill={entry.color} />
           ))}
         </Pie>
         <Tooltip
-          formatter={(value: number) => [
-            `R$ ${value.toLocaleString("pt-BR", {
-              style: "currency",
-              currency: "BRL",
-            })}`,
-            "Valor",
-          ]}
+          formatter={(value: number) => [formatMoney(value), "Valor"]}
           contentStyle={{
-            backgroundColor: "#1f2937",
+            backgroundColor: "#fff",
             borderColor: "#374151",
             color: "#fff",
           }}

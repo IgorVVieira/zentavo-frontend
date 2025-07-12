@@ -27,14 +27,12 @@ export default function DashboardPage() {
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth() + 1);
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
 
-  // Estados separados para cada tipo de dado
   const [methodsData, setMethodsData] = useState<TransactionsByMethodDto[]>([]);
   const [categoriesData, setCategoriesData] = useState<
     TransactionsByCategoryDto[]
   >([]);
   const [sixMonthsData, setSixMonthsData] = useState<LastSixMonthsData[]>([]);
 
-  // Estados de loading separados
   const [isMethodsLoading, setIsMethodsLoading] = useState(true);
   const [isCategoryLoading, setIsCategoryLoading] = useState(true);
   const [isSixMonthsLoading, setIsSixMonthsLoading] = useState(true);
@@ -85,15 +83,14 @@ export default function DashboardPage() {
       try {
         const data = await transactionService.getTransactionsByMethod(
           currentMonth,
-          currentYear,
+          currentYear
         );
 
         setMethodsData(data);
       } catch (error: any) {
-        console.error("Erro ao carregar dados de métodos de pagamento:", error);
         showToast(
           "Ocorreu um erro ao carregar dados de métodos de pagamento.",
-          "warning",
+          "warning"
         );
       } finally {
         setIsMethodsLoading(false);
@@ -112,15 +109,14 @@ export default function DashboardPage() {
       try {
         const data = await transactionService.getTransactionsByCategory(
           currentMonth,
-          currentYear,
+          currentYear
         );
 
         setCategoriesData(data);
       } catch (error: any) {
-        console.error("Erro ao carregar dados de categorias:", error);
         showToast(
           "Ocorreu um erro ao carregar dados de categorias.",
-          "warning",
+          "warning"
         );
       } finally {
         setIsCategoryLoading(false);
@@ -139,10 +135,9 @@ export default function DashboardPage() {
         const data = await transactionService.getLastSixMonthsData();
         setSixMonthsData(data);
       } catch (error: any) {
-        console.error("Erro ao carregar dados dos últimos 6 meses:", error);
         showToast(
           "Ocorreu um erro ao carregar dados dos últimos 6 meses.",
-          "warning",
+          "warning"
         );
       } finally {
         setIsSixMonthsLoading(false);
@@ -156,7 +151,6 @@ export default function DashboardPage() {
   const paymentMethodChartData = useMemo(() => {
     if (!methodsData || methodsData.length === 0) return [];
 
-    // Mapear os dados para o formato necessário para o gráfico
     const chartData = methodsData.map((item) => ({
       method: translateMethod(item.method),
       total: Math.abs(item.total),
@@ -164,7 +158,6 @@ export default function DashboardPage() {
       percentage: 0, // Calcularemos isso a seguir
     }));
 
-    // Calcular percentuais
     const totalAmount = chartData.reduce((sum, item) => sum + item.total, 0);
 
     chartData.forEach((item) => {

@@ -99,7 +99,6 @@ class TransactionService {
       let errorMsg = "Falha ao buscar dados do dashboard.";
       errorMsg = error.message || errorMsg;
 
-      console.error("Erro ao buscar dados do dashboard:", error);
       throw new Error(errorMsg);
     }
   }

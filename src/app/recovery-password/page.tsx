@@ -36,7 +36,6 @@ export default function RecuperarSenha() {
         "success"
       );
     } catch (err: any) {
-      console.error("Erro ao solicitar recuperação de senha:", err);
       setError(
         err.message ||
           "Não foi possível processar sua solicitação. Tente novamente."

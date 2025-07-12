@@ -62,7 +62,6 @@ export default function RedefinirSenha() {
       setSuccess(true);
       showToast("Senha redefinida com sucesso!", "success");
     } catch (err: any) {
-      console.error("Erro ao redefinir senha:", err);
       setError(
         err.message || "Não foi possível redefinir sua senha. Tente novamente."
       );

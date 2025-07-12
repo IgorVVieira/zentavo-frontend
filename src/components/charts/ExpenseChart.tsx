@@ -29,6 +29,7 @@ const ExpenseChart = ({ data }: ExpenseChartProps) => {
           outerRadius={80}
           fill="#8884d8"
           dataKey="value"
+          isAnimationActive={true}
           label={({ name, percent }) =>
             `${name}: ${(percent * 100).toFixed(0)}%`
           }
@@ -40,6 +41,17 @@ const ExpenseChart = ({ data }: ExpenseChartProps) => {
         <Tooltip
           formatter={(value: number) => [`R$ ${value.toFixed(2)}`, "Valor"]}
           labelFormatter={(name) => `Categoria: ${name}`}
+          contentStyle={{
+            backgroundColor: "#333", // Cor de fundo do tooltip
+            borderColor: "#888", // Cor da borda
+            color: "#fff", // Cor do texto
+          }}
+          itemStyle={{
+            color: "#00ff00", // Cor do texto dos itens
+          }}
+          labelStyle={{
+            color: "#ff9900", // Cor do label (categoria)
+          }}
         />
         <Legend />
       </PieChart>

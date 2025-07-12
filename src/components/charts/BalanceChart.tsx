@@ -1,5 +1,6 @@
 "use client";
 
+import { formatMoney } from "@/utils/format-money";
 import {
   BarChart,
   Bar,
@@ -37,7 +38,7 @@ const BalanceChart = ({ data }: BalanceChartProps) => {
         <XAxis dataKey="month" stroke="#888" />
         <YAxis stroke="#888" />
         <Tooltip
-          formatter={(value: number) => [`R$ ${value.toFixed(2)}`, ""]}
+          formatter={(value: number) => [formatMoney(value), ""]}
           contentStyle={{ backgroundColor: "#2D3748", borderColor: "#4A5568" }}
         />
         <Legend />
