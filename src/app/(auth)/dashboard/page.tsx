@@ -12,6 +12,7 @@ import {
 import ToastNotifications, { showToast } from "@/components/ToastNotificatons";
 import transactionService, {
   TransactionMethod,
+  TransactionType,
   TransactionsByMethodDto,
   TransactionsByCategoryDto,
   LastSixMonthsData,
@@ -28,13 +29,17 @@ export default function DashboardPage() {
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
 
   const [methodsData, setMethodsData] = useState<TransactionsByMethodDto[]>([]);
-  const [categoriesData, setCategoriesData] = useState<
+  const [expenseCategoriesData, setExpenseCategoriesData] = useState<
+    TransactionsByCategoryDto[]
+  >([]);
+  const [incomeCategoriesData, setIncomeCategoriesData] = useState<
     TransactionsByCategoryDto[]
   >([]);
   const [sixMonthsData, setSixMonthsData] = useState<LastSixMonthsData[]>([]);
 
   const [isMethodsLoading, setIsMethodsLoading] = useState(true);
-  const [isCategoryLoading, setIsCategoryLoading] = useState(true);
+  const [isExpenseCategoryLoading, setIsExpenseCategoryLoading] = useState(true);
+  const [isIncomeCategoryLoading, setIsIncomeCategoryLoading] = useState(true);
   const [isSixMonthsLoading, setIsSixMonthsLoading] = useState(true);
 
   const months = [
@@ -101,30 +106,57 @@ export default function DashboardPage() {
     loadMethodsData();
   }, [currentMonth, currentYear]); // REMOVIDO startLoading, stopLoading e user
 
-  // Efeito separado para carregar dados de categorias
+  // Efeito separado para carregar dados de categorias de gastos
   useEffect(() => {
-    const loadCategoryData = async () => {
-      setIsCategoryLoading(true);
+    const loadExpenseCategoryData = async () => {
+      setIsExpenseCategoryLoading(true);
 
       try {
         const data = await transactionService.getTransactionsByCategory(
           currentMonth,
-          currentYear
+          currentYear,
+          TransactionType.CASH_OUT
         );
 
-        setCategoriesData(data);
+        setExpenseCategoriesData(data);
       } catch (error: any) {
         showToast(
-          "Ocorreu um erro ao carregar dados de categorias.",
+          "Ocorreu um erro ao carregar dados de categorias de gastos.",
           "warning"
         );
       } finally {
-        setIsCategoryLoading(false);
+        setIsExpenseCategoryLoading(false);
       }
     };
 
-    loadCategoryData();
-  }, [currentMonth, currentYear]); // REMOVIDO user
+    loadExpenseCategoryData();
+  }, [currentMonth, currentYear]);
+
+  // Efeito separado para carregar dados de categorias de receita
+  useEffect(() => {
+    const loadIncomeCategoryData = async () => {
+      setIsIncomeCategoryLoading(true);
+
+      try {
+        const data = await transactionService.getTransactionsByCategory(
+          currentMonth,
+          currentYear,
+          TransactionType.CASH_IN
+        );
+
+        setIncomeCategoriesData(data);
+      } catch (error: any) {
+        showToast(
+          "Ocorreu um erro ao carregar dados de categorias de receita.",
+          "warning"
+        );
+      } finally {
+        setIsIncomeCategoryLoading(false);
+      }
+    };
+
+    loadIncomeCategoryData();
+  }, [currentMonth, currentYear]);
 
   // Efeito para carregar dados dos últimos 6 meses
   useEffect(() => {
@@ -265,7 +297,7 @@ export default function DashboardPage() {
                 </div>
               </div>
 
-              {/* Gráfico de análise por categoria - agora usando a API real */}
+              {/* Gráfico de análise por categoria de gastos */}
               <div className="bg-gray-800 rounded-lg overflow-hidden shadow-lg">
                 <div className="px-4 py-3 bg-gray-700 border-b border-gray-600 flex items-center">
                   <FiPieChart className="text-purple-400 mr-2" />
@@ -273,8 +305,25 @@ export default function DashboardPage() {
                 </div>
                 <div className="p-4">
                   <CategoryPieChart
-                    data={categoriesData}
-                    loading={isCategoryLoading}
+                    data={expenseCategoriesData}
+                    loading={isExpenseCategoryLoading}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Nova seção para o gráfico de receita por categoria */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              {/* Gráfico de análise por categoria de receita */}
+              <div className="bg-gray-800 rounded-lg overflow-hidden shadow-lg">
+                <div className="px-4 py-3 bg-gray-700 border-b border-gray-600 flex items-center">
+                  <FiPieChart className="text-purple-400 mr-2" />
+                  <h3 className="font-medium">Receita por Categoria</h3>
+                </div>
+                <div className="p-4">
+                  <CategoryPieChart
+                    data={incomeCategoriesData}
+                    loading={isIncomeCategoryLoading}
                   />
                 </div>
               </div>

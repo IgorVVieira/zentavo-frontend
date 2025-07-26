@@ -106,7 +106,8 @@ class TransactionService {
 
   async getTransactionsByCategory(
     month: number,
-    year: number
+    year: number,
+    transactionType: TransactionType
   ): Promise<TransactionsByCategoryDto[]> {
     try {
       const token = authService.getToken();
@@ -117,7 +118,7 @@ class TransactionService {
       }
 
       const { data } = await axios.get(
-        `${API_URL}/transactions/dashboard/categories/${month}/${year}`,
+        `${API_URL}/transactions/dashboard/categories/${month}/${year}/${transactionType}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
