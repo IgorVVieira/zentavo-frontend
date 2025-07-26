@@ -59,7 +59,6 @@ export interface TransactionsByCategoryDto {
   percentage: number;
 }
 
-// Nova interface para os dados dos últimos 6 meses
 export interface LastSixMonthsData {
   month: number;
   year: number;
@@ -96,6 +95,8 @@ class TransactionService {
 
       return data;
     } catch (error: any) {
+      authService.handleAuthError(error);
+
       let errorMsg = "Falha ao buscar dados do dashboard.";
       errorMsg = error.message || errorMsg;
 
@@ -127,6 +128,8 @@ class TransactionService {
 
       return data;
     } catch (error: any) {
+      authService.handleAuthError(error);
+
       let errorMsg = "Falha ao buscar dados de categorias.";
       errorMsg = error.message || errorMsg;
 
@@ -157,6 +160,8 @@ class TransactionService {
 
       return data;
     } catch (error: any) {
+      authService.handleAuthError(error);
+
       let errorMsg = "Falha ao buscar dados dos últimos 6 meses.";
       errorMsg = error.message || errorMsg;
 

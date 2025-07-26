@@ -45,9 +45,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           if (userData) {
             setUser(userData);
           }
+        } else {
+          // Token is invalid or expired, redirect to login
+          setUser(null);
+          router.push("/login");
         }
       } catch (error) {
+        console.error("Error checking authentication:", error);
         authService.logout();
+        setUser(null);
+        router.push("/login");
       } finally {
         setIsLoading(false);
         stopLoading();
@@ -55,7 +62,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
 
     checkAuth();
-  }, [startLoading, stopLoading]);
+  }, [startLoading, stopLoading, router]);
 
   const login = async (email: string, password: string): Promise<boolean> => {
     startLoading();

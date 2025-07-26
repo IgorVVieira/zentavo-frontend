@@ -56,6 +56,8 @@ class CategoryService {
       const data = await response.json();
       return data || [];
     } catch (error: any) {
+      authService.handleAuthError(error);
+
       console.error("Erro ao buscar categorias:", error);
       throw error;
     }
@@ -105,6 +107,8 @@ class CategoryService {
 
       return await response.json();
     } catch (error: any) {
+      authService.handleAuthError(error);
+
       console.error("Erro ao criar categoria:", error);
       throw error;
     }
@@ -126,6 +130,8 @@ class CategoryService {
         },
       });
     } catch (error: any) {
+      authService.handleAuthError(error);
+
       const errorMsg = "Falha ao excluir categoria.";
       console.error("Erro ao excluir categoria:", error);
       throw new Error(errorMsg);
@@ -168,6 +174,8 @@ class CategoryService {
 
       return await response.json();
     } catch (error: any) {
+      authService.handleAuthError(error);
+
       console.error("Erro ao atualizar categoria:", error);
       throw error;
     }

@@ -28,6 +28,39 @@ class AuthService {
   private readonly tokenKey = "zentavo_token";
   private readonly userKey = "zentavo_user";
 
+  constructor() {
+    this.setupAxiosInterceptors();
+  }
+
+  private setupAxiosInterceptors(): void {
+    axios.interceptors.request.use(
+      (config) => {
+        const token = this.getToken();
+        if (token && this.isTokenValid()) {
+          config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;
+      },
+      (error) => {
+        return Promise.reject(error);
+      }
+    );
+
+    axios.interceptors.response.use(
+      (response) => response,
+      (error) => {
+        if (error.response?.status === 401 || error.response?.status === 403) {
+          console.warn("Authentication failed, logging out user");
+          this.logout();
+          if (typeof window !== "undefined") {
+            window.location.href = "/login";
+          }
+        }
+        return Promise.reject(error);
+      }
+    );
+  }
+
   async register(name: string, email: string, password: string): Promise<User> {
     try {
       const response = await fetch(`${API_URL}/users/create`, {
@@ -80,7 +113,7 @@ class AuthService {
       const token =
         responseData.token ||
         responseData.accessToken ||
-        (responseData?.data?.token) ||
+        responseData?.data?.token ||
         "";
 
       if (!token) {
@@ -151,15 +184,43 @@ class AuthService {
     const token = this.getToken();
     if (!token) return false;
 
-    return true;
+    try {
+      const payload = JSON.parse(atob(token.split(".")[1]));
+
+      const currentTime = Math.floor(Date.now() / 1000);
+      if (payload.exp && payload.exp < currentTime) {
+        this.logout();
+        return false;
+      }
+
+      return true;
+    } catch (error) {
+      console.error("Error validating token:", error);
+      this.logout();
+      return false;
+    }
   }
 
-  async fetchWithAuth(
+  handleAuthError(error: any): void {
+    if (error.response?.status === 401 || error.response?.status === 403) {
+      console.warn("Authentication failed, logging out user");
+      this.logout();
+      if (typeof window !== "undefined") {
+        window.location.href = "/login";
+      }
+    }
+  }
+
+  async fetchWithAuthAndErrorHandling(
     url: string,
     options: RequestInit = {}
   ): Promise<Response> {
     const token = this.getToken();
-    if (!token) {
+    if (!token || !this.isTokenValid()) {
+      this.logout();
+      if (typeof window !== "undefined") {
+        window.location.href = "/login";
+      }
       throw new Error("Não autenticado");
     }
 
@@ -168,10 +229,40 @@ class AuthService {
       Authorization: `Bearer ${token}`,
     };
 
-    return fetch(url, {
-      ...options,
-      headers,
-    });
+    try {
+      const response = await fetch(url, {
+        ...options,
+        headers,
+      });
+
+      if (response.status === 401 || response.status === 403) {
+        console.warn("Authentication failed, logging out user");
+        this.logout();
+        if (typeof window !== "undefined") {
+          window.location.href = "/login";
+        }
+        throw new Error("Sessão expirada. Redirecionando para login...");
+      }
+
+      return response;
+    } catch (error) {
+      if (error instanceof TypeError && error.message.includes("fetch")) {
+        if (!this.isTokenValid()) {
+          this.logout();
+          if (typeof window !== "undefined") {
+            window.location.href = "/login";
+          }
+        }
+      }
+      throw error;
+    }
+  }
+
+  async fetchWithAuth(
+    url: string,
+    options: RequestInit = {}
+  ): Promise<Response> {
+    return this.fetchWithAuthAndErrorHandling(url, options);
   }
 
   getAuthHeaders(): HeadersInit {
@@ -181,8 +272,6 @@ class AuthService {
       Authorization: token ? `Bearer ${token}` : "",
     };
   }
-
-  // Métodos adicionais a serem implementados em authService.ts
 
   async updateProfile(name: string): Promise<User> {
     try {
@@ -246,7 +335,6 @@ class AuthService {
     }
   }
 
-  // Obter estatísticas do usuário
   async getUserStats(): Promise<any> {
     try {
       const token = this.getToken();
