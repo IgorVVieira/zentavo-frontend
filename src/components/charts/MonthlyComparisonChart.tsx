@@ -1,4 +1,3 @@
-// src/components/charts/MonthlyComparisonChart.tsx
 import { formatMoney } from "@/utils/format-money";
 import React from "react";
 import {
@@ -64,6 +63,7 @@ const MonthlyComparisonChart: React.FC<IMonthlyComparisonChartProps> = ({
             backgroundColor: "#1f2937",
             borderColor: "#374151",
             color: "#fff",
+            borderRadius: "8px",
           }}
         />
         <Legend />

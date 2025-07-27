@@ -1,6 +1,6 @@
 import { API_URL } from "@/constants/env";
 import axios from "axios";
-export interface User {
+export interface IUser {
   email: string;
   name?: string;
   role?: string;
@@ -8,20 +8,9 @@ export interface User {
   token?: string;
 }
 
-export interface AuthResponse {
-  user: User;
+export interface IAuthResponse {
+  user: IUser;
   token: string;
-}
-
-export interface LoginCredentials {
-  email: string;
-  password: string;
-}
-
-export interface RegisterData {
-  name: string;
-  email: string;
-  password: string;
 }
 
 class AuthService {
@@ -61,7 +50,11 @@ class AuthService {
     );
   }
 
-  async register(name: string, email: string, password: string): Promise<User> {
+  async register(
+    name: string,
+    email: string,
+    password: string
+  ): Promise<IUser> {
     try {
       const response = await fetch(`${API_URL}/users/create`, {
         method: "POST",
@@ -81,7 +74,7 @@ class AuthService {
     }
   }
 
-  async login(email: string, password: string): Promise<AuthResponse> {
+  async login(email: string, password: string): Promise<IAuthResponse> {
     try {
       const payload = {
         email,
@@ -158,7 +151,7 @@ class AuthService {
     localStorage.setItem(this.tokenKey, token);
   }
 
-  getUser(): User | null {
+  getUser(): IUser | null {
     if (typeof window !== "undefined") {
       const userStr = localStorage.getItem(this.userKey);
       if (userStr) {
@@ -172,7 +165,7 @@ class AuthService {
     return null;
   }
 
-  private setUser(user: User): void {
+  private setUser(user: IUser): void {
     localStorage.setItem(this.userKey, JSON.stringify(user));
   }
 
@@ -273,7 +266,7 @@ class AuthService {
     };
   }
 
-  async updateProfile(name: string): Promise<User> {
+  async updateProfile(name: string): Promise<IUser> {
     try {
       const token = this.getToken();
       if (!token) {

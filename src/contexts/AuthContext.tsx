@@ -8,19 +8,19 @@ import React, {
   ReactNode,
 } from "react";
 import { useRouter } from "next/navigation";
-import authService, { User } from "@/services/authService";
+import authService, { IUser } from "@/services/authService";
 import { showToast } from "@/components/ToastNotificatons";
 import { useLoading } from "./LoadingContext";
 
-interface AuthContextType {
-  user: User | null;
+interface IAuthContextType {
+  user: IUser | null;
   isLoading: boolean;
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<boolean>;
   logout: () => void;
 }
 
-export const AuthContext = createContext<AuthContextType | null>(null);
+export const AuthContext = createContext<IAuthContextType | null>(null);
 
 export function useAuth() {
   const context = useContext(AuthContext);
@@ -31,7 +31,7 @@ export function useAuth() {
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<IUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
   const { startLoading, stopLoading } = useLoading();
@@ -46,7 +46,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             setUser(userData);
           }
         } else {
-          // Token is invalid or expired, redirect to login
           setUser(null);
           router.push("/login");
         }

@@ -160,46 +160,6 @@ export default function ImportCSV() {
                   fontWeight: "bold",
                 }}
               >
-                Modelo de Extrato
-              </label>
-              <select
-                value={selectedBank}
-                onChange={(e) => setSelectedBank(e.target.value)}
-                style={{
-                  width: "100%",
-                  padding: "10px",
-                  backgroundColor: "#374151",
-                  color: "white",
-                  border: "1px solid #4b5563",
-                  borderRadius: "4px",
-                }}
-                disabled={isLoading}
-              >
-                <option value="nubank">Nubank</option>
-                <option value="itau">Itaú</option>
-                <option value="bradesco">Bradesco</option>
-                <option value="santander">Santander</option>
-                <option value="bb">Banco do Brasil</option>
-                <option value="caixa">Caixa Econômica</option>
-                <option value="inter">Banco Inter</option>
-                <option value="outro">Outro Banco</option>
-              </select>
-              <p
-                style={{ fontSize: "14px", color: "#9ca3af", marginTop: "4px" }}
-              >
-                Selecione o banco correspondente ao arquivo que você vai
-                importar.
-              </p>
-            </div>
-
-            <div style={{ marginBottom: "20px" }}>
-              <label
-                style={{
-                  display: "block",
-                  marginBottom: "8px",
-                  fontWeight: "bold",
-                }}
-              >
                 Arquivo CSV
               </label>
               <input

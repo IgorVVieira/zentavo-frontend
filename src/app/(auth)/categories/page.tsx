@@ -11,10 +11,9 @@ import {
   FiSearch,
   FiArrowUp,
   FiArrowDown,
-  FiEdit,
 } from "react-icons/fi";
 import ToastNotifications, { showToast } from "@/components/ToastNotificatons";
-import categoryService, { Category } from "@/services/categoryService";
+import categoryService, { ICategory } from "@/services/categoryService";
 import Loading from "@/components/Loading";
 
 const predefinedColors = [
@@ -41,7 +40,7 @@ const predefinedColors = [
 export default function CategoriesPage() {
   const { user } = useAuth();
   const { startLoading, stopLoading } = useLoading();
-  const [categories, setCategories] = useState<Category[]>([]);
+  const [categories, setCategories] = useState<ICategory[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortField, setSortField] = useState<"name" | "color">("name");
@@ -50,7 +49,6 @@ export default function CategoriesPage() {
   const [newCategoryName, setNewCategoryName] = useState("");
   const [selectedColor, setSelectedColor] = useState(predefinedColors[0]);
 
-  // Função para buscar categorias da API
   const fetchCategories = async () => {
     setIsLoading(true);
     startLoading();
@@ -65,7 +63,6 @@ export default function CategoriesPage() {
     }
   };
 
-  // Função para criar uma nova categoria
   const createCategory = async (name: string, color: string) => {
     startLoading();
     try {
@@ -83,13 +80,11 @@ export default function CategoriesPage() {
         return false;
       }
 
-      // Chamar a API para criar categoria
       const newCategory = await categoryService.createCategory(
         name.trim(),
         color
       );
 
-      // Atualizar o estado com a nova categoria
       setCategories((prevCategories) => [...prevCategories, newCategory]);
 
       showToast("Categoria criada com sucesso", "success");
@@ -102,14 +97,11 @@ export default function CategoriesPage() {
     }
   };
 
-  // Função para excluir uma categoria
   const deleteCategory = async (id: string) => {
     startLoading();
     try {
-      // Chamar a API para excluir categoria
       await categoryService.deleteCategory(id);
 
-      // Atualizar o estado removendo a categoria
       setCategories((prevCategories) =>
         prevCategories.filter((cat) => cat.id !== id)
       );
@@ -124,12 +116,10 @@ export default function CategoriesPage() {
     }
   };
 
-  // Carregar categorias ao iniciar a página
   useEffect(() => {
     fetchCategories();
   }, []);
 
-  // Filtragem e ordenação de categorias
   const filteredCategories = categories.filter((category) =>
     category.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -146,7 +136,6 @@ export default function CategoriesPage() {
     }
   });
 
-  // Manipulação do formulário
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const success = await createCategory(newCategoryName, selectedColor);
@@ -156,14 +145,12 @@ export default function CategoriesPage() {
     }
   };
 
-  // Confirmação e exclusão de categoria
   const handleDelete = async (id: string) => {
     if (window.confirm("Tem certeza que deseja excluir esta categoria?")) {
       await deleteCategory(id);
     }
   };
 
-  // Ordenação de colunas
   const handleSort = (field: "name" | "color") => {
     if (field === sortField) {
       setSortDirection(sortDirection === "asc" ? "desc" : "asc");
@@ -178,7 +165,6 @@ export default function CategoriesPage() {
       <ToastNotifications />
 
       <main className="container mx-auto px-4 py-6">
-        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -203,7 +189,6 @@ export default function CategoriesPage() {
           </div>
         </motion.div>
 
-        {/* Form para adicionar categoria */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -273,7 +258,6 @@ export default function CategoriesPage() {
           </form>
         </motion.div>
 
-        {/* Tabela de categorias */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}

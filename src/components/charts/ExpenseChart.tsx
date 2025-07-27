@@ -9,7 +9,7 @@ import {
   Tooltip,
 } from "recharts";
 
-interface ExpenseChartProps {
+interface IExpenseChartProps {
   data: {
     name: string;
     value: number;
@@ -17,7 +17,7 @@ interface ExpenseChartProps {
   }[];
 }
 
-const ExpenseChart = ({ data }: ExpenseChartProps) => {
+const ExpenseChart = ({ data }: IExpenseChartProps) => {
   return (
     <ResponsiveContainer width="100%" height="100%">
       <PieChart>
@@ -42,15 +42,15 @@ const ExpenseChart = ({ data }: ExpenseChartProps) => {
           formatter={(value: number) => [`R$ ${value.toFixed(2)}`, "Valor"]}
           labelFormatter={(name) => `Categoria: ${name}`}
           contentStyle={{
-            backgroundColor: "#333", // Cor de fundo do tooltip
-            borderColor: "#888", // Cor da borda
-            color: "#fff", // Cor do texto
+            backgroundColor: "#333",
+            borderColor: "#888",
+            color: "#fff",
           }}
           itemStyle={{
-            color: "#00ff00", // Cor do texto dos itens
+            color: "#00ff00",
           }}
           labelStyle={{
-            color: "#ff9900", // Cor do label (categoria)
+            color: "#ff9900",
           }}
         />
         <Legend />

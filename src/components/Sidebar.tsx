@@ -10,18 +10,17 @@ import {
   FiUploadCloud,
   FiUser,
   FiLogOut,
-  FiMenu,
   FiChevronLeft,
   FiTag,
   FiPieChart,
 } from "react-icons/fi";
 
-interface SidebarProps {
+interface ISidebarProps {
   isMobile?: boolean;
   className?: string;
 }
 
-const Sidebar = ({ isMobile = false, className = "" }: SidebarProps) => {
+const Sidebar = ({ isMobile = false, className = "" }: ISidebarProps) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const pathname = usePathname();
   const { user, logout } = useAuth();
@@ -74,7 +73,6 @@ const Sidebar = ({ isMobile = false, className = "" }: SidebarProps) => {
       `}
       style={isMobile ? { height: "100vh" } : {}}
     >
-      {/* Botão de colapso - visível apenas quando expandido */}
       {!isCollapsed && (
         <div className="absolute top-5 right-0 z-20 flex items-center justify-center">
           <motion.button

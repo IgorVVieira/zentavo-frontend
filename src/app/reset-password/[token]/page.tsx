@@ -56,7 +56,6 @@ export default function RedefinirSenha() {
     }
 
     try {
-      // Chamar o serviço para redefinir a senha
       await authService.resetPassword(token, senha);
 
       setSuccess(true);

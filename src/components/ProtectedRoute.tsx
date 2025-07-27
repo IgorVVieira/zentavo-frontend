@@ -6,11 +6,11 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import authService from "@/services/authService";
 
-interface ProtectedRouteProps {
+interface IProtectedRouteProps {
   children: React.ReactNode;
 }
 
-const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
+const ProtectedRoute = ({ children }: IProtectedRouteProps) => {
   const { isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
   const hasChecked = useRef(false);

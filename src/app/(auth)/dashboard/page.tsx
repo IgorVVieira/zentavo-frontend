@@ -13,9 +13,9 @@ import ToastNotifications, { showToast } from "@/components/ToastNotificatons";
 import transactionService, {
   TransactionMethod,
   TransactionType,
-  TransactionsByMethodDto,
-  TransactionsByCategoryDto,
-  LastSixMonthsData,
+  ITransactionsByMethodDto,
+  ITransactionsByCategoryDto,
+  ILastSixMonthsData,
 } from "@/services/transactionService";
 import PaymentMethodChart from "@/components/charts/PaymentMethodChart";
 import CategoryPieChart from "@/components/charts/CategoryPieChart";
@@ -28,17 +28,20 @@ export default function DashboardPage() {
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth() + 1);
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
 
-  const [methodsData, setMethodsData] = useState<TransactionsByMethodDto[]>([]);
+  const [methodsData, setMethodsData] = useState<ITransactionsByMethodDto[]>(
+    []
+  );
   const [expenseCategoriesData, setExpenseCategoriesData] = useState<
-    TransactionsByCategoryDto[]
+    ITransactionsByCategoryDto[]
   >([]);
   const [incomeCategoriesData, setIncomeCategoriesData] = useState<
-    TransactionsByCategoryDto[]
+    ITransactionsByCategoryDto[]
   >([]);
-  const [sixMonthsData, setSixMonthsData] = useState<LastSixMonthsData[]>([]);
+  const [sixMonthsData, setSixMonthsData] = useState<ILastSixMonthsData[]>([]);
 
   const [isMethodsLoading, setIsMethodsLoading] = useState(true);
-  const [isExpenseCategoryLoading, setIsExpenseCategoryLoading] = useState(true);
+  const [isExpenseCategoryLoading, setIsExpenseCategoryLoading] =
+    useState(true);
   const [isIncomeCategoryLoading, setIsIncomeCategoryLoading] = useState(true);
   const [isSixMonthsLoading, setIsSixMonthsLoading] = useState(true);
 
@@ -79,7 +82,6 @@ export default function DashboardPage() {
     return methodTranslations[method] || method;
   };
 
-  // Efeito para carregar dados de métodos de pagamento
   useEffect(() => {
     const loadMethodsData = async () => {
       setIsMethodsLoading(true);
@@ -132,7 +134,6 @@ export default function DashboardPage() {
     loadExpenseCategoryData();
   }, [currentMonth, currentYear]);
 
-  // Efeito separado para carregar dados de categorias de receita
   useEffect(() => {
     const loadIncomeCategoryData = async () => {
       setIsIncomeCategoryLoading(true);
@@ -179,7 +180,6 @@ export default function DashboardPage() {
     loadSixMonthsData();
   }, []); // Executa apenas uma vez ao montar o componente
 
-  // Preparar dados para o PaymentMethodChart
   const paymentMethodChartData = useMemo(() => {
     if (!methodsData || methodsData.length === 0) return [];
 
@@ -199,7 +199,6 @@ export default function DashboardPage() {
     return chartData;
   }, [methodsData]);
 
-  // Preparar dados para o MonthlyComparisonChart
   const monthlyComparisonData = useMemo(() => {
     if (!sixMonthsData || sixMonthsData.length === 0) return [];
 
@@ -276,9 +275,7 @@ export default function DashboardPage() {
           <Loading text="Carregando dados financeiros..." />
         ) : (
           <>
-            {/* Gráficos de análise por método e categoria */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-              {/* Análise por método de pagamento */}
               <div className="bg-gray-800 rounded-lg overflow-hidden shadow-lg">
                 <div className="px-4 py-3 bg-gray-700 border-b border-gray-600 flex items-center">
                   <FiBarChart2 className="text-purple-400 mr-2" />
@@ -287,7 +284,7 @@ export default function DashboardPage() {
                   </h3>
                 </div>
                 <div className="p-4">
-                  {paymentMethodChartData.length > 0 ? (
+                  {paymentMethodChartData?.length ? (
                     <PaymentMethodChart data={paymentMethodChartData} />
                   ) : (
                     <div className="flex items-center justify-center h-48 text-gray-400">
@@ -297,7 +294,6 @@ export default function DashboardPage() {
                 </div>
               </div>
 
-              {/* Gráfico de análise por categoria de gastos */}
               <div className="bg-gray-800 rounded-lg overflow-hidden shadow-lg">
                 <div className="px-4 py-3 bg-gray-700 border-b border-gray-600 flex items-center">
                   <FiPieChart className="text-purple-400 mr-2" />
@@ -312,9 +308,7 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            {/* Nova seção para o gráfico de receita por categoria */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-              {/* Gráfico de análise por categoria de receita */}
               <div className="bg-gray-800 rounded-lg overflow-hidden shadow-lg">
                 <div className="px-4 py-3 bg-gray-700 border-b border-gray-600 flex items-center">
                   <FiPieChart className="text-purple-400 mr-2" />

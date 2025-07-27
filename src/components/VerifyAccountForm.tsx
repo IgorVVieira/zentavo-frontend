@@ -52,7 +52,6 @@ export default function VerifyAccountForm() {
       return;
     }
 
-    // Garantir que temos exatamente 6 dígitos
     const cleanToken = token.replace(/\D/g, "");
     if (cleanToken.length !== 6) {
       setError("O código deve ter exatamente 6 dígitos.");
@@ -98,13 +97,10 @@ export default function VerifyAccountForm() {
   };
 
   const formatToken = (value: string) => {
-    // Remove caracteres não numéricos
     const numbers = value.replace(/\D/g, "");
 
-    // Limita a 6 dígitos
     const limited = numbers.slice(0, 6);
 
-    // Adiciona espaços a cada 3 dígitos para melhor visualização
     return limited.replace(/(.{3})/g, "$1 ").trim();
   };
 
@@ -117,7 +113,6 @@ export default function VerifyAccountForm() {
     <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="bg-gray-800 rounded-lg shadow-xl p-6 animate-fadeIn">
-          {/* Logo e título */}
           <div className="text-center mb-8">
             <div className="flex items-center justify-center mb-4">
               <div className="h-12 w-12 rounded-full bg-purple-600 flex items-center justify-center mr-3">
@@ -213,7 +208,6 @@ export default function VerifyAccountForm() {
                 </button>
               </form>
 
-              {/* Opção para reenviar código */}
               <div className="mt-6 text-center">
                 <p className="text-gray-400 text-sm mb-3">
                   Não recebeu o código?
@@ -252,7 +246,6 @@ export default function VerifyAccountForm() {
           </div>
         </div>
 
-        {/* Rodapé */}
         <div className="mt-8 text-center text-gray-500 text-xs">
           <p>
             &copy; {new Date().getFullYear()} Zentavo. Todos os direitos

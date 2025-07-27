@@ -14,13 +14,13 @@ export enum TransactionMethod {
   CARD_PAYMENT = "CARD_PAYMENT",
 }
 
-export interface Category {
+export interface ICategory {
   id: string;
   name: string;
   color: string;
 }
 
-export interface Transaction {
+export interface ITransaction {
   id: string;
   userId: string;
   externalId?: string | null;
@@ -29,10 +29,10 @@ export interface Transaction {
   description: string;
   type: TransactionType;
   method: TransactionMethod;
-  category?: Category;
+  category?: ICategory;
 }
 
-export interface ExpenseItem {
+export interface IExpenseItem {
   id: string;
   date: string;
   amount: number;
@@ -46,12 +46,12 @@ export interface ExpenseItem {
   method?: string;
 }
 
-export interface TransactionsByMethodDto {
+export interface ITransactionsByMethodDto {
   method: TransactionMethod;
   total: number;
 }
 
-export interface TransactionsByCategoryDto {
+export interface ITransactionsByCategoryDto {
   id: string;
   name: string;
   color: string;
@@ -59,22 +59,22 @@ export interface TransactionsByCategoryDto {
   percentage: number;
 }
 
-export interface LastSixMonthsData {
+export interface ILastSixMonthsData {
   month: number;
   year: number;
   totalCashIn: number;
   totalCashOut: number;
 }
 
-export interface DashboardData {
-  transactionsByMethod: TransactionsByMethodDto[];
+export interface IDashboardData {
+  transactionsByMethod: ITransactionsByMethodDto[];
 }
 
 class TransactionService {
   async getTransactionsByMethod(
     month: number,
     year: number
-  ): Promise<TransactionsByMethodDto[]> {
+  ): Promise<ITransactionsByMethodDto[]> {
     try {
       const token = authService.getToken();
       if (!token) {
@@ -108,7 +108,7 @@ class TransactionService {
     month: number,
     year: number,
     transactionType: TransactionType
-  ): Promise<TransactionsByCategoryDto[]> {
+  ): Promise<ITransactionsByCategoryDto[]> {
     try {
       const token = authService.getToken();
       if (!token) {
@@ -139,8 +139,7 @@ class TransactionService {
     }
   }
 
-  // Nova função para buscar dados dos últimos 6 meses
-  async getLastSixMonthsData(): Promise<LastSixMonthsData[]> {
+  async getLastSixMonthsData(): Promise<ILastSixMonthsData[]> {
     try {
       const token = authService.getToken();
       if (!token) {
@@ -181,7 +180,7 @@ class TransactionService {
       }
 
       const formData = new FormData();
-      formData.append("statement", file); // mesmo nome do backend
+      formData.append("statement", file);
 
       const response = await axios.post(
         `${API_URL}/transactions/import`,
@@ -208,7 +207,7 @@ class TransactionService {
   async getMonthlyTransactions(
     month: number,
     year: number
-  ): Promise<ExpenseItem[]> {
+  ): Promise<IExpenseItem[]> {
     try {
       const token = authService.getToken();
       if (!token) {
@@ -249,7 +248,7 @@ class TransactionService {
         category: {
           id: transaction?.category?.id || undefined,
           name: transaction?.category?.name || "Outros",
-          color: transaction?.category?.color || "#6B7280", // Cor padrão cinza
+          color: transaction?.category?.color || "#6B7280",
         },
         type:
           transaction.type === TransactionType.CASH_IN ? "income" : "expense",
@@ -264,7 +263,7 @@ class TransactionService {
   async updateTransaction(
     id: string,
     updates: { description?: string; categoryId?: string | null }
-  ): Promise<ExpenseItem> {
+  ): Promise<IExpenseItem> {
     try {
       const token = authService.getToken();
       if (!token) {

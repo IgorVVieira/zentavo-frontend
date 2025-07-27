@@ -23,10 +23,10 @@ import {
 } from "react-icons/fi";
 import ToastNotifications, { showToast } from "@/components/ToastNotificatons";
 import transactionService, {
-  ExpenseItem,
+  IExpenseItem,
   TransactionMethod,
 } from "@/services/transactionService";
-import categoryService, { Category } from "@/services/categoryService";
+import categoryService, { ICategory } from "@/services/categoryService";
 import Modal from "react-modal";
 import Loading from "@/components/Loading";
 
@@ -69,30 +69,13 @@ const formatCurrency = (value: number) => {
 
 interface EditModalProps {
   isOpen: boolean;
-  expense: ExpenseItem | null;
+  expense: IExpenseItem | null;
   onClose: () => void;
   onSave: (
     id: string,
     updates: { description: string; categoryId: string }
   ) => void;
-  categories: Category[];
-}
-
-// Interface para a análise por método de pagamento
-interface PaymentMethodAnalysis {
-  method: string;
-  total: number;
-  count: number;
-  percentage: number;
-}
-
-// Interface para a análise por categoria
-interface CategoryAnalysis {
-  name: string;
-  color: string;
-  total: number;
-  count: number;
-  percentage: number;
+  categories: ICategory[];
 }
 
 const EditTransactionModal = ({
@@ -217,8 +200,8 @@ export default function ExpensesTable() {
   const { startLoading, stopLoading } = useLoading();
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth() + 1); // Mês atual (1-12)
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
-  const [expenses, setExpenses] = useState<ExpenseItem[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
+  const [expenses, setExpenses] = useState<IExpenseItem[]>([]);
+  const [categories, setCategories] = useState<ICategory[]>([]);
   const [isTableLoading, setIsTableLoading] = useState(true);
   const [sorting, setSorting] = useState<SortingState>([
     { id: "date", desc: true },
@@ -228,7 +211,7 @@ export default function ExpensesTable() {
   const [showAnalysis, setShowAnalysis] = useState(false);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingExpense, setEditingExpense] = useState<ExpenseItem | null>(
+  const [editingExpense, setEditingExpense] = useState<IExpenseItem | null>(
     null
   );
 
@@ -256,7 +239,6 @@ export default function ExpensesTable() {
     currentYearJs + 1,
   ];
 
-  // Tradução dos métodos de pagamento para português
   const translateMethod = (method?: string): string => {
     if (!method) return "Desconhecido";
 
@@ -288,7 +270,6 @@ export default function ExpensesTable() {
     fetchCategories();
   }, []);
 
-  // Carregar transações
   useEffect(() => {
     const fetchTransactions = async () => {
       setIsTableLoading(true);
@@ -329,7 +310,7 @@ export default function ExpensesTable() {
 
   const balance = totalIncome + totalExpenses;
 
-  const openEditModal = (expense: ExpenseItem) => {
+  const openEditModal = (expense: IExpenseItem) => {
     setEditingExpense(expense);
     setIsModalOpen(true);
   };
@@ -351,7 +332,6 @@ export default function ExpensesTable() {
 
     startLoading();
     try {
-      // Enviar atualização para a API e obter a transação atualizada
       const updatedTransaction = await transactionService.updateTransaction(
         id,
         {
@@ -360,7 +340,6 @@ export default function ExpensesTable() {
         }
       );
 
-      // Atualizar o estado local com os dados retornados pela API
       setExpenses((prevExpenses) =>
         prevExpenses.map((expense) =>
           expense.id === id ? updatedTransaction : expense
@@ -379,7 +358,6 @@ export default function ExpensesTable() {
     }
   };
 
-  // Gerar dados de análise por método de pagamento
   const paymentMethodAnalysis = useMemo(() => {
     const expensesOnly = expenses.filter(
       (expense) => expense.amount < 0 && expense.description !== "Aplicação RDB"
@@ -389,7 +367,6 @@ export default function ExpensesTable() {
       expensesOnly.reduce((sum, expense) => sum + expense.amount, 0)
     );
 
-    // Agrupamos por método de pagamento
     const methodGroups: Record<string, { total: number; count: number }> = {};
 
     expensesOnly.forEach((expense) => {
@@ -401,7 +378,6 @@ export default function ExpensesTable() {
       methodGroups[method].count += 1;
     });
 
-    // Convertemos para o formato de saída
     return Object.entries(methodGroups)
       .map(([method, data]) => ({
         method: translateMethod(method),
@@ -413,7 +389,6 @@ export default function ExpensesTable() {
       .sort((a, b) => b.total - a.total);
   }, [expenses]);
 
-  // Gerar dados de análise por categoria
   const categoryAnalysis = useMemo(() => {
     const expensesOnly = expenses.filter(
       (expense) => expense.amount < 0 && expense.description !== "Aplicação RDB"
@@ -423,7 +398,6 @@ export default function ExpensesTable() {
       expensesOnly.reduce((sum, expense) => sum + expense.amount, 0)
     );
 
-    // Agrupamos por categoria
     const categoryGroups: Record<
       string,
       {
@@ -451,7 +425,6 @@ export default function ExpensesTable() {
       categoryGroups[categoryId].count += 1;
     });
 
-    // Convertemos para o formato de saída
     return Object.entries(categoryGroups)
       .map(([id, data]) => ({
         id,
@@ -465,7 +438,7 @@ export default function ExpensesTable() {
       .sort((a, b) => b.total - a.total);
   }, [expenses]);
 
-  const columnHelper = createColumnHelper<ExpenseItem>();
+  const columnHelper = createColumnHelper<IExpenseItem>();
 
   const columns = useMemo(
     () => [
@@ -656,7 +629,6 @@ export default function ExpensesTable() {
             <span>Visualizar dashboard completo</span>
           </Link>
         </div>
-        {/* Tabela de transações */}
         <div className="bg-gray-800 rounded-lg overflow-hidden shadow-lg">
           <div className="overflow-x-auto">
             <table className="w-full">

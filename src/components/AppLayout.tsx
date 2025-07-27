@@ -6,11 +6,11 @@ import { FiMenu, FiX } from "react-icons/fi";
 import Sidebar from "./Sidebar";
 import ProtectedRoute from "./ProtectedRoute";
 
-interface AppLayoutProps {
+interface IAppLayoutProps {
   children: React.ReactNode;
 }
 
-const AppLayout = ({ children }: AppLayoutProps) => {
+const AppLayout = ({ children }: IAppLayoutProps) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const { user } = useAuth();
@@ -42,7 +42,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
             <div
               className="fixed inset-0 bg-black bg-opacity-50 z-10"
               onClick={() => setIsMobileMenuOpen(false)}
-            ></div>
+            />
             <Sidebar isMobile={true} />
           </>
         )}

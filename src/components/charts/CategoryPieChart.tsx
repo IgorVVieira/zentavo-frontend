@@ -113,7 +113,7 @@ const CategoryPieChart: React.FC<ICategoryPieChartProps> = ({
           label={renderCustomizedLabel}
           outerRadius={100}
           fill="#8884d8"
-          dataKey="value" // Mudou de "total" para "value"
+          dataKey="value"
           nameKey="name"
           isAnimationActive={true}
         >
@@ -127,6 +127,7 @@ const CategoryPieChart: React.FC<ICategoryPieChartProps> = ({
             backgroundColor: "#fff",
             borderColor: "#374151",
             color: "#fff",
+            borderRadius: "8px",
           }}
           labelStyle={{ color: "#fff" }}
         />

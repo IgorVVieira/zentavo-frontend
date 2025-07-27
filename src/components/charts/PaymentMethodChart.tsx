@@ -7,25 +7,24 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  Legend,
   ResponsiveContainer,
   Cell,
 } from "recharts";
 
-interface PaymentMethodData {
+interface IPaymentMethodData {
   method: string;
   total: number;
   count: number;
   percentage: number;
 }
 
-interface PaymentMethodChartProps {
-  data: PaymentMethodData[];
+interface IPaymentMethodChartProps {
+  data: IPaymentMethodData[];
 }
 
 const COLORS = ["#8884d8", "#82ca9d", "#ffc658", "#ff8042", "#0088FE"];
 
-const PaymentMethodChart: React.FC<PaymentMethodChartProps> = ({ data }) => {
+const PaymentMethodChart: React.FC<IPaymentMethodChartProps> = ({ data }) => {
   return (
     <ResponsiveContainer width="100%" height={300}>
       <BarChart
@@ -47,23 +46,17 @@ const PaymentMethodChart: React.FC<PaymentMethodChartProps> = ({ data }) => {
           textAnchor="end"
           height={60}
         />
-        <YAxis
-          stroke="#ccc"
-          fontSize={12}
-          width={60}
-        />
+        <YAxis stroke="#ccc" fontSize={12} width={60} />
         <Tooltip
-          formatter={(value: number, name: string) => [
-            formatMoney(value),
-            "Total",
-          ]}
+          formatter={(value: number) => [formatMoney(value), "Total"]}
           contentStyle={{
-            backgroundColor: "#1f2937",
+            backgroundColor: "#fff",
             borderColor: "#374151",
-            color: "#F8F8F2",
+            color: "#374151",
             fontSize: "12px",
+            borderRadius: "8px",
           }}
-          labelStyle={{ color: "#F8F8F2" }}
+          labelStyle={{ color: "#374151" }}
         />
         <Bar dataKey="total" name="Valor Gasto" radius={[3, 3, 0, 0]}>
           {data.map((entry, index) => (

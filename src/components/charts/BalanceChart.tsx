@@ -13,7 +13,7 @@ import {
   ReferenceLine,
 } from "recharts";
 
-interface BalanceChartProps {
+interface IBalanceChartProps {
   data: {
     month: string;
     income: number;
@@ -22,7 +22,7 @@ interface BalanceChartProps {
   }[];
 }
 
-const BalanceChart = ({ data }: BalanceChartProps) => {
+const BalanceChart = ({ data }: IBalanceChartProps) => {
   return (
     <ResponsiveContainer width="100%" height="100%">
       <BarChart
@@ -43,9 +43,9 @@ const BalanceChart = ({ data }: BalanceChartProps) => {
         />
         <Legend />
         <ReferenceLine y={0} stroke="#888" />
-        <Bar dataKey="income" name="Receitas" fill="#10B981" /> {/* Green */}
-        <Bar dataKey="expenses" name="Despesas" fill="#EF4444" /> {/* Red */}
-        <Bar dataKey="balance" name="Saldo" fill="#8B5CF6" /> {/* Purple */}
+        <Bar dataKey="income" name="Receitas" fill="#10B981" />
+        <Bar dataKey="expenses" name="Despesas" fill="#EF4444" />
+        <Bar dataKey="balance" name="Saldo" fill="#8B5CF6" />
       </BarChart>
     </ResponsiveContainer>
   );

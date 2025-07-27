@@ -3,14 +3,14 @@
 import React, { createContext, useContext, useState, ReactNode } from "react";
 import Loading from "@/components/Loading";
 
-interface LoadingContextType {
+interface ILoadingContextType {
   isLoading: boolean;
   startLoading: () => void;
   stopLoading: () => void;
   setLoadingText: (text: string) => void;
 }
 
-const LoadingContext = createContext<LoadingContextType | null>(null);
+const LoadingContext = createContext<ILoadingContextType | null>(null);
 
 export function useLoading() {
   const context = useContext(LoadingContext);

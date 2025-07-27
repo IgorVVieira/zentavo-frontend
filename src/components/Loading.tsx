@@ -4,14 +4,14 @@ import React from "react";
 import { motion } from "framer-motion";
 import { useLoading } from "@/contexts/LoadingContext";
 
-interface LoadingProps {
+interface ILoadingProps {
   fullScreen?: boolean;
   text?: string;
   size?: "small" | "medium" | "large";
   show?: boolean;
 }
 
-const Loading: React.FC<LoadingProps> = ({
+const Loading: React.FC<ILoadingProps> = ({
   fullScreen = false,
   text = "Carregando...",
   size = "medium",
@@ -19,12 +19,10 @@ const Loading: React.FC<LoadingProps> = ({
 }) => {
   const { isLoading: contextLoading } = useLoading();
 
-  // Se show for fornecido, use-o. Caso contrário, use o estado do contexto
   const isVisible = show !== undefined ? show : contextLoading;
 
   if (!isVisible) return null;
 
-  // Tamanhos baseados no parâmetro size
   const getSizeClasses = () => {
     switch (size) {
       case "small":
@@ -38,7 +36,6 @@ const Loading: React.FC<LoadingProps> = ({
 
   const sizeClasses = getSizeClasses();
 
-  // Se for tela cheia, o loading fica centralizado em toda a tela
   if (fullScreen) {
     return (
       <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-80 z-50">
@@ -54,7 +51,6 @@ const Loading: React.FC<LoadingProps> = ({
     );
   }
 
-  // Versão para componentes, sem tela cheia
   return (
     <div className="flex flex-col items-center justify-center py-8 w-full">
       <motion.div

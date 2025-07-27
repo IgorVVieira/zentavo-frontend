@@ -2,7 +2,7 @@ import { API_URL } from "@/constants/env";
 import authService from "./authService";
 import axios from "axios";
 
-export interface Category {
+export interface ICategory {
   id: string;
   name: string;
   color: string;
@@ -23,7 +23,7 @@ export interface CategoryDto extends CreateCategoryDto {
 }
 
 class CategoryService {
-  async getCategories(): Promise<Category[]> {
+  async getCategories(): Promise<ICategory[]> {
     try {
       const token = authService.getToken();
       if (!token) {
@@ -63,7 +63,7 @@ class CategoryService {
     }
   }
 
-  async createCategory(name: string, color: string): Promise<Category> {
+  async createCategory(name: string, color: string): Promise<ICategory> {
     try {
       const token = authService.getToken();
       if (!token) {
@@ -141,7 +141,7 @@ class CategoryService {
   async updateCategory(
     id: string,
     data: { name?: string; color?: string }
-  ): Promise<Category> {
+  ): Promise<ICategory> {
     try {
       const token = authService.getToken();
       if (!token) {

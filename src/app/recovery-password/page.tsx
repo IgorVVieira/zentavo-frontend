@@ -24,10 +24,8 @@ export default function RecuperarSenha() {
     startLoading();
 
     try {
-      // Implementação da chamada para recuperar senha
       await authService.requestPasswordReset(email);
 
-      // Como o serviço ainda não está implementado, estamos simulando uma resposta de sucesso
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
       setSuccess(true);
@@ -145,7 +143,6 @@ export default function RecuperarSenha() {
           </div>
         </div>
 
-        {/* Rodapé */}
         <div className="mt-8 text-center text-gray-500 text-xs">
           <p>
             &copy; {new Date().getFullYear()} Zentavo. Todos os direitos

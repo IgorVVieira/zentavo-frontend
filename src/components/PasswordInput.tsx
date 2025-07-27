@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 
-interface PasswordInputProps {
+interface IPasswordInputProps {
   id: string;
   value: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -11,7 +11,7 @@ interface PasswordInputProps {
   autoFocus?: boolean;
 }
 
-const PasswordInput: React.FC<PasswordInputProps> = ({
+const PasswordInput: React.FC<IPasswordInputProps> = ({
   id,
   value,
   onChange,
