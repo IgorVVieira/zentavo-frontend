@@ -299,10 +299,44 @@ button:disabled,
   flex-direction: column;
 }
 
-/* Layout responsivo */
+/* Layout responsivo melhorado */
+@media (max-width: 640px) {
+  .container {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+  
+  main {
+    padding: 1rem;
+  }
+  
+  .card {
+    padding: 0.75rem;
+  }
+  
+  /* Melhoria para tabelas em mobile */
+  table {
+    font-size: 0.75rem;
+  }
+  
+  th, td {
+    padding: 0.5rem 0.75rem;
+  }
+}
+
+@media (min-width: 640px) and (max-width: 767px) {
+  .container {
+    max-width: 640px;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
 @media (min-width: 768px) {
   .container {
     max-width: 768px;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
   }
 }
 
@@ -315,5 +349,53 @@ button:disabled,
 @media (min-width: 1280px) {
   .container {
     max-width: 1280px;
+  }
+}
+
+/* Melhorias adicionais para responsividade */
+@media (max-width: 768px) {
+  /* Ajustes para headers móveis */
+  h1 {
+    font-size: 1.5rem;
+  }
+  
+  h2 {
+    font-size: 1.25rem;
+  }
+  
+  h3 {
+    font-size: 1.125rem;
+  }
+  
+  /* Ajustes para botões em mobile */
+  button, .btn {
+    padding: 0.625rem 1rem;
+    font-size: 0.875rem;
+  }
+  
+  /* Melhoria para inputs em mobile */
+  input, select, textarea {
+    padding: 0.75rem;
+    font-size: 1rem; /* Previne zoom em iOS */
+  }
+}
+
+/* Utilitário para overflow responsivo */
+.overflow-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Classe para esconder elementos em mobile */
+@media (max-width: 640px) {
+  .hidden-mobile {
+    display: none !important;
+  }
+}
+
+/* Classe para mostrar apenas em mobile */
+@media (min-width: 641px) {
+  .mobile-only {
+    display: none !important;
   }
 }

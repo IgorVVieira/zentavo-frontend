@@ -68,10 +68,11 @@ const Sidebar = ({ isMobile = false, className = "" }: SidebarProps) => {
       className={`
         bg-gray-800 relative
         flex flex-col
-        ${isMobile ? "fixed z-20 shadow-xl" : ""}
+        ${isMobile ? "fixed z-20 shadow-xl h-full w-64 max-w-xs" : ""}
         flex-shrink-0 overflow-hidden
         ${className}
       `}
+      style={isMobile ? { height: "100vh" } : {}}
     >
       {/* Botão de colapso - visível apenas quando expandido */}
       {!isCollapsed && (

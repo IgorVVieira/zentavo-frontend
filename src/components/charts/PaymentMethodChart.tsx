@@ -32,28 +32,40 @@ const PaymentMethodChart: React.FC<PaymentMethodChartProps> = ({ data }) => {
         data={data}
         margin={{
           top: 20,
-          right: 30,
-          left: 20,
-          bottom: 5,
+          right: 15,
+          left: 15,
+          bottom: 20,
         }}
       >
         <CartesianGrid strokeDasharray="3 3" stroke="#444" />
-        <XAxis dataKey="method" stroke="#ccc" />
-        <YAxis stroke="#ccc" />
+        <XAxis
+          dataKey="method"
+          stroke="#ccc"
+          fontSize={12}
+          interval={0}
+          angle={-45}
+          textAnchor="end"
+          height={60}
+        />
+        <YAxis
+          stroke="#ccc"
+          fontSize={12}
+          width={60}
+        />
         <Tooltip
           formatter={(value: number, name: string) => [
             formatMoney(value),
             "Total",
           ]}
           contentStyle={{
-            backgroundColor: "#F8F8F2",
+            backgroundColor: "#1f2937",
             borderColor: "#374151",
             color: "#F8F8F2",
+            fontSize: "12px",
           }}
-          labelStyle={{ color: "#374151" }}
+          labelStyle={{ color: "#F8F8F2" }}
         />
-        <Legend />
-        <Bar dataKey="total" name="Valor Gasto" radius={[5, 5, 0, 0]}>
+        <Bar dataKey="total" name="Valor Gasto" radius={[3, 3, 0, 0]}>
           {data.map((entry, index) => (
             <Cell
               key={`cell-${index}`}
