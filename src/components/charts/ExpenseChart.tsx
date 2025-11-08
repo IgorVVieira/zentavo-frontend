@@ -1,13 +1,6 @@
 "use client";
 
-import {
-  PieChart,
-  Pie,
-  Cell,
-  ResponsiveContainer,
-  Legend,
-  Tooltip,
-} from "recharts";
+import ReactECharts from "echarts-for-react";
 
 interface IExpenseChartProps {
   data: {
@@ -18,45 +11,73 @@ interface IExpenseChartProps {
 }
 
 const ExpenseChart = ({ data }: IExpenseChartProps) => {
-  return (
-    <ResponsiveContainer width="100%" height="100%">
-      <PieChart>
-        <Pie
-          data={data}
-          cx="50%"
-          cy="50%"
-          labelLine={false}
-          outerRadius={80}
-          fill="#8884d8"
-          dataKey="value"
-          isAnimationActive={true}
-          label={({ name, percent }) =>
-            `${name}: ${(percent * 100).toFixed(0)}%`
-          }
-        >
-          {data.map((entry, index) => (
-            <Cell key={`cell-${index}`} fill={entry.color} />
-          ))}
-        </Pie>
-        <Tooltip
-          formatter={(value: number) => [`R$ ${value.toFixed(2)}`, "Valor"]}
-          labelFormatter={(name) => `Categoria: ${name}`}
-          contentStyle={{
-            backgroundColor: "#333",
-            borderColor: "#888",
-            color: "#fff",
-          }}
-          itemStyle={{
-            color: "#00ff00",
-          }}
-          labelStyle={{
-            color: "#ff9900",
-          }}
-        />
-        <Legend />
-      </PieChart>
-    </ResponsiveContainer>
-  );
+  const option = {
+    tooltip: {
+      trigger: "item",
+      formatter: function (params: any) {
+        if (!params) return "";
+        const name = params.name || "";
+        const value = params.value || 0;
+        return `Categoria: ${name}<br/>Valor: R$ ${value.toFixed(2)}`;
+      },
+      backgroundColor: "#333",
+      borderColor: "#888",
+      borderWidth: 1,
+      textStyle: {
+        color: "#fff",
+        fontSize: 12,
+      },
+      borderRadius: 8,
+      padding: [8, 12],
+      confine: true,
+      extraCssText: "box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);",
+    },
+    legend: {
+      orient: "vertical",
+      left: "left",
+      textStyle: {
+        color: "#fff",
+      },
+      data: data.map((item) => item.name),
+      formatter: (name: string) => {
+        return name;
+      },
+    },
+    series: [
+      {
+        name: "Despesas",
+        type: "pie",
+        radius: "65%",
+        center: ["50%", "50%"],
+        data: data.map((item) => ({
+          value: item.value,
+          name: item.name,
+          itemStyle: {
+            color: item.color,
+          },
+        })),
+        label: {
+          show: true,
+          formatter: (params: any) => {
+            return `${params.name}: ${params.percent.toFixed(0)}%`;
+          },
+          color: "#fff",
+        },
+        labelLine: {
+          show: false,
+        },
+        emphasis: {
+          itemStyle: {
+            shadowBlur: 10,
+            shadowOffsetX: 0,
+            shadowColor: "rgba(0, 0, 0, 0.5)",
+          },
+        },
+      },
+    ],
+  };
+
+  return <ReactECharts option={option} style={{ height: "100%", width: "100%" }} />;
 };
 
 export default ExpenseChart;

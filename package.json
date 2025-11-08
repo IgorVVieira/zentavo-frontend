@@ -11,6 +11,7 @@
   "dependencies": {
     "@tanstack/react-table": "^8.21.2",
     "axios": "^1.10.0",
+    "echarts-for-react": "^3.0.5",
     "framer-motion": "^12.6.2",
     "luxon": "^3.6.1",
     "next": "15.2.4",
@@ -22,8 +23,7 @@
     "react-modal": "^3.16.3",
     "react-pro-sidebar": "^1.1.0",
     "react-select": "^5.10.1",
-    "react-toastify": "^11.0.5",
-    "recharts": "^2.15.1"
+    "react-toastify": "^11.0.5"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

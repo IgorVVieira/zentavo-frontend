@@ -1,16 +1,6 @@
 // src/components/charts/ExpenseTrendChart.tsx
 import React from "react";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-  ReferenceLine,
-} from "recharts";
+import ReactECharts from "echarts-for-react";
 
 interface TrendData {
   date: string;
@@ -28,52 +18,100 @@ const ExpenseTrendChart: React.FC<ExpenseTrendChartProps> = ({ data }) => {
       ? data.reduce((sum, item) => sum + item.value, 0) / data.length
       : 0;
 
-  return (
-    <ResponsiveContainer width="100%" height={300}>
-      <LineChart
-        data={data}
-        margin={{
-          top: 5,
-          right: 30,
-          left: 20,
-          bottom: 5,
-        }}
-      >
-        <CartesianGrid strokeDasharray="3 3" stroke="#444" />
-        <XAxis dataKey="date" stroke="#ccc" />
-        <YAxis stroke="#ccc" />
-        <Tooltip
-          formatter={(value: number) => [`R$ ${value.toFixed(2)}`, "Valor"]}
-          contentStyle={{
-            backgroundColor: "#1f2937",
-            borderColor: "#374151",
-            color: "#fff",
-          }}
-          labelStyle={{ color: "#fff" }}
-        />
-        <Legend />
-        <ReferenceLine
-          y={average}
-          stroke="#8884d8"
-          strokeDasharray="3 3"
-          label={{
-            value: `Média: R$ ${average.toFixed(2)}`,
-            position: "insideBottomRight",
-            fill: "#8884d8",
+  const option = {
+    grid: {
+      top: 5,
+      right: 30,
+      left: 20,
+      bottom: 5,
+    },
+    xAxis: {
+      type: "category",
+      data: data.map((item) => item.date),
+      axisLabel: {
+        color: "#ccc",
+      },
+      axisLine: {
+        lineStyle: {
+          color: "#444",
+        },
+      },
+    },
+    yAxis: {
+      type: "value",
+      axisLabel: {
+        color: "#ccc",
+        formatter: (value: number) => `R$ ${value.toFixed(2)}`,
+      },
+      axisLine: {
+        lineStyle: {
+          color: "#444",
+        },
+      },
+      splitLine: {
+        lineStyle: {
+          color: "#444",
+          type: "dashed",
+        },
+      },
+    },
+    tooltip: {
+      trigger: "axis",
+      formatter: (params: any) => {
+        const param = params[0];
+        return `${param.name}<br/>Valor: R$ ${param.value.toFixed(2)}`;
+      },
+      backgroundColor: "#1f2937",
+      borderColor: "#374151",
+      textStyle: {
+        color: "#fff",
+      },
+    },
+    legend: {
+      data: ["Despesa diária"],
+      textStyle: {
+        color: "#fff",
+      },
+    },
+    series: [
+      {
+        name: "Despesa diária",
+        type: "line",
+        smooth: true,
+        data: data.map((item) => item.value),
+        itemStyle: {
+          color: "#ff8042",
+        },
+        lineStyle: {
+          color: "#ff8042",
+          width: 2,
+        },
+        symbol: "circle",
+        symbolSize: 8,
+        markLine: {
+          data: [
+            {
+              yAxis: average,
+              label: {
+                formatter: `Média: R$ ${average.toFixed(2)}`,
+                position: "insideEndBottom",
+              },
+            },
+          ],
+          lineStyle: {
+            color: "#8884d8",
+            type: "dashed",
+          },
+          label: {
+            color: "#8884d8",
             fontSize: 12,
-          }}
-        />
-        <Line
-          type="monotone"
-          dataKey="value"
-          name="Despesa diária"
-          stroke="#ff8042"
-          activeDot={{ r: 8 }}
-          strokeWidth={2}
-        />
-      </LineChart>
-    </ResponsiveContainer>
-  );
+          },
+        },
+      },
+    ],
+  };
+
+  return <ReactECharts option={option} style={{ height: "300px", width: "100%" }} />;
 };
 
 export default ExpenseTrendChart;

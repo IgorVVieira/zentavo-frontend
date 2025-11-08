@@ -230,31 +230,6 @@ export default function ImportCSV() {
               }
             `}</style>
           </div>
-
-          <div
-            style={{
-              backgroundColor: "#1f2937",
-              padding: "20px",
-              borderRadius: "4px",
-            }}
-          >
-            <h2
-              style={{
-                fontSize: "18px",
-                fontWeight: "bold",
-                marginBottom: "15px",
-              }}
-            >
-              Como exportar seu extrato do Nubank
-            </h2>
-            <ol style={{ paddingLeft: "20px", lineHeight: "1.6" }}>
-              <li>Acesse sua conta no aplicativo ou site do Nubank</li>
-              <li>Vá para a seção Faturas ou Histórico</li>
-              <li>Procure a opção Exportar extrato ou Baixar CSV</li>
-              <li>Selecione o período desejado e faça o download</li>
-              <li>Importe o arquivo CSV baixado nesta página</li>
-            </ol>
-          </div>
         </div>
       )}
     </div>

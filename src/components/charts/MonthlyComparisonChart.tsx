@@ -1,15 +1,6 @@
 import { formatMoney } from "@/utils/format-money";
 import React from "react";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from "recharts";
+import ReactECharts from "echarts-for-react";
 
 interface IMonthlyData {
   month: string;
@@ -43,35 +34,86 @@ const MonthlyComparisonChart: React.FC<IMonthlyComparisonChartProps> = ({
     );
   }
 
-  return (
-    <ResponsiveContainer width="100%" height={300}>
-      <BarChart
-        data={data}
-        margin={{
-          top: 20,
-          right: 30,
-          left: 20,
-          bottom: 5,
-        }}
-      >
-        <CartesianGrid strokeDasharray="3 3" stroke="#444" />
-        <XAxis dataKey="month" stroke="#ccc" />
-        <YAxis stroke="#ccc" />
-        <Tooltip
-          formatter={(value: number) => [formatMoney(value), ""]}
-          contentStyle={{
-            backgroundColor: "#1f2937",
-            borderColor: "#374151",
-            color: "#fff",
-            borderRadius: "8px",
-          }}
-        />
-        <Legend />
-        <Bar dataKey="income" name="Receitas" fill="#10B981" />
-        <Bar dataKey="expenses" name="Despesas" fill="#EF4444" />
-      </BarChart>
-    </ResponsiveContainer>
-  );
+  const option = {
+    grid: {
+      top: 20,
+      right: 30,
+      left: 20,
+      bottom: 5,
+    },
+    xAxis: {
+      type: "category",
+      data: data.map((item) => item.month),
+      axisLabel: {
+        color: "#ccc",
+      },
+      axisLine: {
+        lineStyle: {
+          color: "#444",
+        },
+      },
+    },
+    yAxis: {
+      type: "value",
+      axisLabel: {
+        color: "#ccc",
+        formatter: (value: number) => formatMoney(value),
+      },
+      axisLine: {
+        lineStyle: {
+          color: "#444",
+        },
+      },
+      splitLine: {
+        lineStyle: {
+          color: "#444",
+          type: "dashed",
+        },
+      },
+    },
+    tooltip: {
+      trigger: "axis",
+      backgroundColor: "#1f2937",
+      borderColor: "#374151",
+      textStyle: {
+        color: "#fff",
+      },
+      borderRadius: 8,
+      formatter: (params: any) => {
+        let result = `${params[0].name}<br/>`;
+        params.forEach((param: any) => {
+          result += `${param.marker}${param.seriesName}: ${formatMoney(param.value)}<br/>`;
+        });
+        return result;
+      },
+    },
+    legend: {
+      data: ["Receitas", "Despesas"],
+      textStyle: {
+        color: "#fff",
+      },
+    },
+    series: [
+      {
+        name: "Receitas",
+        type: "bar",
+        data: data.map((item) => item.income),
+        itemStyle: {
+          color: "#10B981",
+        },
+      },
+      {
+        name: "Despesas",
+        type: "bar",
+        data: data.map((item) => item.expenses),
+        itemStyle: {
+          color: "#EF4444",
+        },
+      },
+    ],
+  };
+
+  return <ReactECharts option={option} style={{ height: "300px", width: "100%" }} />;
 };
 
 export default MonthlyComparisonChart;

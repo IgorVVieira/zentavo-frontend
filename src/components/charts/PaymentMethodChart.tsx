@@ -1,15 +1,6 @@
 import { formatMoney } from "@/utils/format-money";
 import React from "react";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  Cell,
-} from "recharts";
+import ReactECharts from "echarts-for-react";
 
 interface IPaymentMethodData {
   method: string;
@@ -25,51 +16,80 @@ interface IPaymentMethodChartProps {
 const COLORS = ["#8884d8", "#82ca9d", "#ffc658", "#ff8042", "#0088FE"];
 
 const PaymentMethodChart: React.FC<IPaymentMethodChartProps> = ({ data }) => {
-  return (
-    <ResponsiveContainer width="100%" height={300}>
-      <BarChart
-        data={data}
-        margin={{
-          top: 20,
-          right: 15,
-          left: 15,
-          bottom: 20,
-        }}
-      >
-        <CartesianGrid strokeDasharray="3 3" stroke="#444" />
-        <XAxis
-          dataKey="method"
-          stroke="#ccc"
-          fontSize={12}
-          interval={0}
-          angle={-45}
-          textAnchor="end"
-          height={60}
-        />
-        <YAxis stroke="#ccc" fontSize={12} width={60} />
-        <Tooltip
-          formatter={(value: number) => [formatMoney(value), "Total"]}
-          contentStyle={{
-            backgroundColor: "#fff",
-            borderColor: "#374151",
-            color: "#374151",
-            fontSize: "12px",
-            borderRadius: "8px",
-          }}
-          labelStyle={{ color: "#374151" }}
-        />
-        <Bar dataKey="total" name="Valor Gasto" radius={[3, 3, 0, 0]}>
-          {data.map((entry, index) => (
-            <Cell
-              key={`cell-${index}`}
-              fill={COLORS[index % COLORS.length]}
-              opacity={0.9}
-            />
-          ))}
-        </Bar>
-      </BarChart>
-    </ResponsiveContainer>
-  );
+  const option = {
+    grid: {
+      top: 20,
+      right: 15,
+      left: 15,
+      bottom: 60,
+    },
+    xAxis: {
+      type: "category",
+      data: data.map((item) => item.method),
+      axisLabel: {
+        color: "#ccc",
+        fontSize: 12,
+        rotate: -45,
+        interval: 0,
+      },
+      axisLine: {
+        lineStyle: {
+          color: "#444",
+        },
+      },
+    },
+    yAxis: {
+      type: "value",
+      axisLabel: {
+        color: "#ccc",
+        fontSize: 12,
+        formatter: (value: number) => formatMoney(value),
+      },
+      axisLine: {
+        lineStyle: {
+          color: "#444",
+        },
+      },
+      splitLine: {
+        lineStyle: {
+          color: "#444",
+          type: "dashed",
+        },
+      },
+    },
+    tooltip: {
+      trigger: "axis",
+      backgroundColor: "#fff",
+      borderColor: "#374151",
+      textStyle: {
+        color: "#374151",
+        fontSize: 12,
+      },
+      formatter: (params: any) => {
+        const param = params[0];
+        return `${param.name}<br/>${formatMoney(param.value)}`;
+      },
+    },
+    series: [
+      {
+        name: "Valor Gasto",
+        type: "bar",
+        data: data.map((item, index) => ({
+          value: item.total,
+          itemStyle: {
+            color: COLORS[index % COLORS.length],
+            opacity: 0.9,
+          },
+        })),
+        barWidth: "60%",
+        label: {
+          show: false,
+        },
+      },
+    ],
+  };
+
+  return <ReactECharts option={option} style={{ height: "300px", width: "100%" }} />;
 };
 
 export default PaymentMethodChart;

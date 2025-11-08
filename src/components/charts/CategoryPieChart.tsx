@@ -1,13 +1,6 @@
 import { formatMoney } from "@/utils/format-money";
 import React from "react";
-import {
-  PieChart,
-  Pie,
-  Cell,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from "recharts";
+import ReactECharts from "echarts-for-react";
 
 interface ICategoryData {
   id: string;
@@ -22,7 +15,6 @@ interface ICategoryPieChartProps {
   loading?: boolean;
 }
 
-const RADIAN = Math.PI / 180;
 const DEFAULT_COLORS = [
   "#EF4444", // Vermelho
   "#F97316", // Laranja
@@ -43,36 +35,6 @@ const DEFAULT_COLORS = [
   "#F43F5E", // Rosa Escuro
   "#6B7280", // Cinza
 ];
-
-const renderCustomizedLabel = ({
-  cx,
-  cy,
-  midAngle,
-  innerRadius,
-  outerRadius,
-  percent,
-  index,
-}: any) => {
-  if (percent < 0.05) return null;
-
-  const radius = innerRadius + (outerRadius - innerRadius) * 0.6;
-  const x = cx + radius * Math.cos(-midAngle * RADIAN);
-  const y = cy + radius * Math.sin(-midAngle * RADIAN);
-
-  return (
-    <text
-      x={x}
-      y={y}
-      fill="#fff"
-      textAnchor={x > cx ? "start" : "end"}
-      dominantBaseline="central"
-      fontSize={12}
-      fontWeight="bold"
-    >
-      {`${(percent * 100).toFixed(0)}%`}
-    </text>
-  );
-};
 
 const CategoryPieChart: React.FC<ICategoryPieChartProps> = ({
   data,
@@ -102,46 +64,84 @@ const CategoryPieChart: React.FC<ICategoryPieChartProps> = ({
     color: item.color || DEFAULT_COLORS[index % DEFAULT_COLORS.length],
   }));
 
-  return (
-    <ResponsiveContainer width="100%" height={300}>
-      <PieChart>
-        <Pie
-          data={processedData}
-          cx="50%"
-          cy="50%"
-          labelLine={false}
-          label={renderCustomizedLabel}
-          outerRadius={100}
-          fill="#8884d8"
-          dataKey="value"
-          nameKey="name"
-          isAnimationActive={true}
-        >
-          {processedData.map((entry, index) => (
-            <Cell key={`cell-${index}`} fill={entry.color} />
-          ))}
-        </Pie>
-        <Tooltip
-          formatter={(value: number) => [formatMoney(value), "Valor"]}
-          contentStyle={{
-            backgroundColor: "#fff",
-            borderColor: "#374151",
-            color: "#fff",
-            borderRadius: "8px",
-          }}
-          labelStyle={{ color: "#fff" }}
-        />
-        <Legend
-          layout="vertical"
-          align="right"
-          verticalAlign="middle"
-          formatter={(value, entry: any, index) => (
-            <span style={{ color: "#fff" }}>{value}</span>
-          )}
-        />
-      </PieChart>
-    </ResponsiveContainer>
-  );
+  const option = {
+    tooltip: {
+      trigger: "item",
+      formatter: function (params: any) {
+        if (!params) return "";
+        const name = params.name || "";
+        const value = params.value || 0;
+        return `${name}<br/>Valor: ${formatMoney(value)}`;
+      },
+      backgroundColor: "#1f2937",
+      borderColor: "#374151",
+      borderWidth: 1,
+      textStyle: {
+        color: "#fff",
+        fontSize: 12,
+      },
+      borderRadius: 8,
+      padding: [8, 12],
+      confine: true,
+      extraCssText: "box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);",
+    },
+    legend: {
+      orient: "vertical",
+      right: 10,
+      top: "center",
+      textStyle: {
+        color: "#fff",
+      },
+      data: processedData.map((item) => item.name),
+      formatter: (name: string) => {
+        const item = processedData.find((d) => d.name === name);
+        return item ? name : "";
+      },
+    },
+    series: [
+      {
+        name: "Categorias",
+        type: "pie",
+        radius: ["40%", "70%"],
+        center: ["40%", "50%"],
+        avoidLabelOverlap: false,
+        itemStyle: {
+          borderRadius: 0,
+          borderColor: "#1f2937",
+          borderWidth: 2,
+        },
+        label: {
+          show: true,
+          formatter: (params: any) => {
+            if (params.percent < 5) return "";
+            return `${params.percent.toFixed(0)}%`;
+          },
+          color: "#fff",
+          fontSize: 12,
+          fontWeight: "bold",
+        },
+        labelLine: {
+          show: false,
+        },
+        emphasis: {
+          label: {
+            show: true,
+            fontSize: 14,
+            fontWeight: "bold",
+          },
+        },
+        data: processedData.map((item) => ({
+          value: item.value,
+          name: item.name,
+          itemStyle: {
+            color: item.color,
+          },
+        })),
+      },
+    ],
+  };
+
+  return <ReactECharts option={option} style={{ height: "300px", width: "100%" }} />;
 };
 
 export default CategoryPieChart;

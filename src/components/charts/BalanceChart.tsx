@@ -1,17 +1,7 @@
 "use client";
 
 import { formatMoney } from "@/utils/format-money";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-  ReferenceLine,
-} from "recharts";
+import ReactECharts from "echarts-for-react";
 
 interface IBalanceChartProps {
   data: {
@@ -23,32 +13,93 @@ interface IBalanceChartProps {
 }
 
 const BalanceChart = ({ data }: IBalanceChartProps) => {
-  return (
-    <ResponsiveContainer width="100%" height="100%">
-      <BarChart
-        data={data}
-        margin={{
-          top: 5,
-          right: 30,
-          left: 20,
-          bottom: 5,
-        }}
-      >
-        <CartesianGrid strokeDasharray="3 3" stroke="#444" />
-        <XAxis dataKey="month" stroke="#888" />
-        <YAxis stroke="#888" />
-        <Tooltip
-          formatter={(value: number) => [formatMoney(value), ""]}
-          contentStyle={{ backgroundColor: "#2D3748", borderColor: "#4A5568" }}
-        />
-        <Legend />
-        <ReferenceLine y={0} stroke="#888" />
-        <Bar dataKey="income" name="Receitas" fill="#10B981" />
-        <Bar dataKey="expenses" name="Despesas" fill="#EF4444" />
-        <Bar dataKey="balance" name="Saldo" fill="#8B5CF6" />
-      </BarChart>
-    </ResponsiveContainer>
-  );
+  const option = {
+    grid: {
+      top: 5,
+      right: 30,
+      left: 20,
+      bottom: 5,
+    },
+    xAxis: {
+      type: "category",
+      data: data.map((item) => item.month),
+      axisLabel: {
+        color: "#888",
+      },
+      axisLine: {
+        lineStyle: {
+          color: "#444",
+        },
+      },
+    },
+    yAxis: {
+      type: "value",
+      axisLabel: {
+        color: "#888",
+        formatter: (value: number) => formatMoney(value),
+      },
+      axisLine: {
+        lineStyle: {
+          color: "#444",
+        },
+      },
+      splitLine: {
+        lineStyle: {
+          color: "#444",
+          type: "dashed",
+        },
+      },
+    },
+    tooltip: {
+      trigger: "axis",
+      backgroundColor: "#2D3748",
+      borderColor: "#4A5568",
+      textStyle: {
+        color: "#fff",
+      },
+      formatter: (params: any) => {
+        let result = `${params[0].name}<br/>`;
+        params.forEach((param: any) => {
+          result += `${param.marker}${param.seriesName}: ${formatMoney(param.value)}<br/>`;
+        });
+        return result;
+      },
+    },
+    legend: {
+      data: ["Receitas", "Despesas", "Saldo"],
+      textStyle: {
+        color: "#fff",
+      },
+    },
+    series: [
+      {
+        name: "Receitas",
+        type: "bar",
+        data: data.map((item) => item.income),
+        itemStyle: {
+          color: "#10B981",
+        },
+      },
+      {
+        name: "Despesas",
+        type: "bar",
+        data: data.map((item) => item.expenses),
+        itemStyle: {
+          color: "#EF4444",
+        },
+      },
+      {
+        name: "Saldo",
+        type: "bar",
+        data: data.map((item) => item.balance),
+        itemStyle: {
+          color: "#8B5CF6",
+        },
+      },
+    ],
+  };
+
+  return <ReactECharts option={option} style={{ height: "100%", width: "100%" }} />;
 };
 
 export default BalanceChart;
