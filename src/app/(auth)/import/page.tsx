@@ -8,7 +8,7 @@ import { showToast } from "@/components/ToastNotificatons";
 import { useLoading } from "@/contexts/LoadingContext";
 import Loading from "@/components/Loading";
 
-export default function ImportCSV() {
+export default function ImportOFX() {
   const router = useRouter();
   const { user } = useAuth();
   const { startLoading, stopLoading } = useLoading();
@@ -24,8 +24,8 @@ export default function ImportCSV() {
     if (e.target.files && e.target.files.length > 0) {
       const selectedFile = e.target.files[0];
 
-      if (!selectedFile.name.toLowerCase().endsWith(".csv")) {
-        setError("O arquivo deve ser do tipo CSV.");
+      if (!selectedFile.name.toLowerCase().endsWith(".ofx")) {
+        setError("O arquivo deve ser do tipo OFX.");
         return;
       }
 
@@ -36,7 +36,7 @@ export default function ImportCSV() {
 
   const importFile = async () => {
     if (!file) {
-      setError("Por favor, selecione um arquivo CSV.");
+      setError("Por favor, selecione um arquivo OFX.");
       return;
     }
 
@@ -45,7 +45,7 @@ export default function ImportCSV() {
     startLoading();
 
     try {
-      await transactionService.importCSV(file);
+      await transactionService.importOFX(file);
 
       showToast("Arquivo importado com sucesso!", "success");
       setSuccess(true);
@@ -73,7 +73,7 @@ export default function ImportCSV() {
       <h1
         style={{ fontSize: "24px", fontWeight: "bold", marginBottom: "20px" }}
       >
-        Importar Extrato CSV
+        Importar Extrato OFX
       </h1>
 
       {success ? (
@@ -160,13 +160,13 @@ export default function ImportCSV() {
                   fontWeight: "bold",
                 }}
               >
-                Arquivo CSV
+                Arquivo OFX
               </label>
               <input
                 type="file"
                 ref={fileInputRef}
                 onChange={handleFileChange}
-                accept=".csv"
+                accept=".ofx"
                 style={{
                   display: "block",
                   width: "100%",

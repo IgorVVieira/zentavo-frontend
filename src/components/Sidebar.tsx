@@ -29,7 +29,7 @@ const Sidebar = ({ isMobile = false, className = "" }: ISidebarProps) => {
     { name: "Dashboard", icon: <FiPieChart />, path: "/dashboard" },
     { name: "Gastos Mensais", icon: <FiDollarSign />, path: "/expenses" },
     { name: "Categorias", icon: <FiTag />, path: "/categories" },
-    { name: "Importar CSV", icon: <FiUploadCloud />, path: "/import" },
+    { name: "Importar OFX", icon: <FiUploadCloud />, path: "/import" },
   ];
 
   const bottomMenuItems = [

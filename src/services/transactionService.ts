@@ -170,7 +170,7 @@ class TransactionService {
     }
   }
 
-  async importCSV(file: File): Promise<any> {
+  async importOFX(file: File): Promise<any> {
     try {
       const token = authService.getToken();
       if (!token) {
