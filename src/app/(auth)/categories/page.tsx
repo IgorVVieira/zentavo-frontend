@@ -11,10 +11,154 @@ import {
   FiSearch,
   FiArrowUp,
   FiArrowDown,
+  FiEdit,
+  FiX,
 } from "react-icons/fi";
 import ToastNotifications, { showToast } from "@/components/ToastNotificatons";
 import categoryService, { ICategory } from "@/services/categoryService";
 import Loading from "@/components/Loading";
+import Modal from "react-modal";
+
+if (typeof window !== "undefined") {
+  const nextRoot = document.getElementById("__next");
+  if (nextRoot) {
+    Modal.setAppElement("#__next");
+  } else {
+    Modal.setAppElement("body");
+  }
+}
+
+const customModalStyles = {
+  content: {
+    top: "50%",
+    left: "50%",
+    right: "auto",
+    bottom: "auto",
+    marginRight: "-50%",
+    transform: "translate(-50%, -50%)",
+    backgroundColor: "#1f2937", // bg-gray-800
+    borderRadius: "0.5rem",
+    border: "1px solid #374151", // border-gray-700
+    padding: "1.5rem",
+    maxWidth: "500px",
+    width: "100%",
+  },
+  overlay: {
+    backgroundColor: "rgba(0, 0, 0, 0.75)",
+    zIndex: 1000,
+  },
+};
+
+interface EditCategoryModalProps {
+  isOpen: boolean;
+  category: ICategory | null;
+  onClose: () => void;
+  onSave: (id: string, updates: { name: string; color: string }) => void;
+}
+
+const EditCategoryModal = ({
+  isOpen,
+  category,
+  onClose,
+  onSave,
+}: EditCategoryModalProps) => {
+  const [name, setName] = useState("");
+  const [color, setColor] = useState("");
+
+  useEffect(() => {
+    if (category) {
+      setName(category.name);
+      setColor(category.color);
+    }
+  }, [category]);
+
+  if (!category) return null;
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSave(category.id, { name, color });
+  };
+
+  return (
+    <Modal
+      isOpen={isOpen}
+      onRequestClose={onClose}
+      style={customModalStyles}
+      contentLabel="Editar Categoria"
+    >
+      <div className="text-white">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-xl font-semibold">Editar Categoria</h2>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-white transition-colors"
+          >
+            <FiX size={24} />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">
+              Nome
+            </label>
+            <input
+              autoFocus
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="w-full bg-gray-700 text-white px-3 py-2 rounded-lg border border-gray-600 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              placeholder="Nome da categoria"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">
+              Cor
+            </label>
+            <div className="flex items-center gap-3">
+              <input
+                type="color"
+                value={color}
+                onChange={(e) => setColor(e.target.value)}
+                className="w-12 h-10 rounded cursor-pointer border-0"
+                style={{
+                  background: "transparent",
+                }}
+              />
+              <div className="flex-1 bg-gray-700 rounded-lg border border-gray-600 px-4 py-2">
+                <div className="flex items-center">
+                  <div
+                    className="w-6 h-6 rounded-full mr-3"
+                    style={{ backgroundColor: color }}
+                  ></div>
+                  <span className="font-mono text-sm">{color.toUpperCase()}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex justify-end space-x-3 pt-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              className="px-4 py-2 ml-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
+            >
+              Salvar Alterações
+            </button>
+          </div>
+        </form>
+      </div>
+    </Modal>
+  );
+};
 
 const predefinedColors = [
   "#EF4444", // Vermelho
@@ -48,6 +192,11 @@ export default function CategoriesPage() {
 
   const [newCategoryName, setNewCategoryName] = useState("");
   const [selectedColor, setSelectedColor] = useState(predefinedColors[0]);
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingCategory, setEditingCategory] = useState<ICategory | null>(
+    null
+  );
 
   const fetchCategories = async () => {
     setIsLoading(true);
@@ -160,9 +309,78 @@ export default function CategoriesPage() {
     }
   };
 
+  const openEditModal = (category: ICategory) => {
+    setEditingCategory(category);
+    setIsModalOpen(true);
+  };
+
+  const closeEditModal = () => {
+    setIsModalOpen(false);
+    setEditingCategory(null);
+  };
+
+  const handleSave = async (
+    id: string,
+    updates: { name: string; color: string }
+  ) => {
+    const category = categories.find((c) => c.id === id);
+    if (!category) {
+      closeEditModal();
+      return;
+    }
+
+    // Validação: verificar se o nome já existe em outra categoria
+    const nameExists = categories.some(
+      (cat) =>
+        cat.id !== id &&
+        cat.name.toLowerCase() === updates.name.toLowerCase().trim()
+    );
+
+    if (nameExists) {
+      showToast("Já existe uma categoria com este nome", "error");
+      return;
+    }
+
+    if (!updates.name.trim()) {
+      showToast("O nome da categoria é obrigatório", "error");
+      return;
+    }
+
+    startLoading();
+    try {
+      const updatedCategory = await categoryService.updateCategory(id, {
+        name: updates.name.trim(),
+        color: updates.color,
+      });
+
+      setCategories((prevCategories) =>
+        prevCategories.map((cat) =>
+          cat.id === id ? updatedCategory : cat
+        )
+      );
+
+      showToast("Categoria atualizada com sucesso!", "success");
+      closeEditModal();
+    } catch (error: any) {
+      showToast(
+        error.message || "Erro ao atualizar categoria. Tente novamente.",
+        "error"
+      );
+    } finally {
+      stopLoading();
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-900 text-white">
       <ToastNotifications />
+
+      <EditCategoryModal
+        isOpen={isModalOpen}
+        category={editingCategory}
+        onClose={closeEditModal}
+        onSave={handleSave}
+      />
 
       <main className="container mx-auto px-4 py-6">
         <motion.div
@@ -303,7 +521,7 @@ export default function CategoriesPage() {
                           ))}
                       </div>
                     </th>
-                    <th className="px-6 py-4 font-medium text-right w-24">
+                    <th className="px-6 py-4 font-medium text-right w-32">
                       Ações
                     </th>
                   </tr>
@@ -340,14 +558,24 @@ export default function CategoriesPage() {
                           </div>
                         </td>
                         <td className="px-6 py-4 text-right">
-                          <motion.button
-                            whileHover={{ scale: 1.2 }}
-                            onClick={() => handleDelete(category.id)}
-                            className="text-red-400 hover:text-red-300 p-1.5 hover:bg-red-900/30 rounded-lg"
-                            title="Excluir"
-                          >
-                            <FiTrash2 size={18} />
-                          </motion.button>
+                          <div className="flex justify-end gap-2">
+                            <motion.button
+                              whileHover={{ scale: 1.2 }}
+                              onClick={() => openEditModal(category)}
+                              className="text-purple-400 hover:text-purple-300 p-1.5 hover:bg-purple-900/30 rounded-lg"
+                              title="Editar"
+                            >
+                              <FiEdit size={18} />
+                            </motion.button>
+                            <motion.button
+                              whileHover={{ scale: 1.2 }}
+                              onClick={() => handleDelete(category.id)}
+                              className="text-red-400 hover:text-red-300 p-1.5 hover:bg-red-900/30 rounded-lg"
+                              title="Excluir"
+                            >
+                              <FiTrash2 size={18} />
+                            </motion.button>
+                          </div>
                         </td>
                       </motion.tr>
                     ))

@@ -140,7 +140,7 @@ class CategoryService {
 
   async updateCategory(
     id: string,
-    data: { name?: string; color?: string }
+    data: { name: string; color: string }
   ): Promise<ICategory> {
     try {
       const token = authService.getToken();
@@ -150,13 +150,13 @@ class CategoryService {
         );
       }
 
-      const response = await fetch(`${API_URL}//categories/${id}`, {
-        method: "PATCH",
+      const response = await fetch(`${API_URL}/categories/${id}`, {
+        method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify({ ...data, id }),
       });
 
       if (!response.ok) {
