@@ -56,20 +56,19 @@ class AuthService {
     password: string
   ): Promise<IUser> {
     try {
-      const response = await fetch(`${API_URL}/users/create`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password }),
-      });
+      const { data } = await axios.post<{ user: IUser }>(
+        `${API_URL}/users/create`,
+        { name, email, password },
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      );
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Falha no cadastro");
-      }
-
-      const data = await response.json();
       return data.user;
     } catch (error: any) {
+      if (axios.isAxiosError(error) && error.response) {
+        throw new Error(error.response.data?.message || "Falha no cadastro");
+      }
       throw new Error(error.message || "Erro ao registrar usuário");
     }
   }
@@ -83,25 +82,13 @@ class AuthService {
         senha: password,
       };
 
-      const response = await fetch(`${API_URL}/auth/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      let responseData;
-      try {
-        responseData = await response.json();
-      } catch (e) {
-        console.error("Erro ao parsear resposta JSON:", e);
-        responseData = {};
-      }
-
-      if (!response.ok) {
-        throw new Error(
-          responseData.message || responseData.error || "Falha na autenticação"
-        );
-      }
+      const { data: responseData } = await axios.post(
+        `${API_URL}/auth/login`,
+        payload,
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      );
 
       const token =
         responseData.token ||
@@ -131,6 +118,12 @@ class AuthService {
       };
     } catch (error: any) {
       console.error("Erro de autenticação:", error);
+      if (axios.isAxiosError(error) && error.response) {
+        const errorData = error.response.data;
+        throw new Error(
+          errorData?.message || errorData?.error || "Falha na autenticação"
+        );
+      }
       throw new Error(error.message || "Erro ao fazer login");
     }
   }
@@ -206,8 +199,8 @@ class AuthService {
 
   async fetchWithAuthAndErrorHandling(
     url: string,
-    options: RequestInit = {}
-  ): Promise<Response> {
+    options: any = {}
+  ): Promise<any> {
     const token = this.getToken();
     if (!token || !this.isTokenValid()) {
       this.logout();
@@ -223,23 +216,23 @@ class AuthService {
     };
 
     try {
-      const response = await fetch(url, {
+      const response = await axios({
+        url,
         ...options,
         headers,
       });
 
-      if (response.status === 401 || response.status === 403) {
-        console.warn("Authentication failed, logging out user");
-        this.logout();
-        if (typeof window !== "undefined") {
-          window.location.href = "/login";
-        }
-        throw new Error("Sessão expirada. Redirecionando para login...");
-      }
-
       return response;
-    } catch (error) {
-      if (error instanceof TypeError && error.message.includes("fetch")) {
+    } catch (error: any) {
+      if (axios.isAxiosError(error)) {
+        if (error.response?.status === 401 || error.response?.status === 403) {
+          console.warn("Authentication failed, logging out user");
+          this.logout();
+          if (typeof window !== "undefined") {
+            window.location.href = "/login";
+          }
+          throw new Error("Sessão expirada. Redirecionando para login...");
+        }
         if (!this.isTokenValid()) {
           this.logout();
           if (typeof window !== "undefined") {
@@ -251,10 +244,7 @@ class AuthService {
     }
   }
 
-  async fetchWithAuth(
-    url: string,
-    options: RequestInit = {}
-  ): Promise<Response> {
+  async fetchWithAuth(url: string, options: any = {}): Promise<any> {
     return this.fetchWithAuthAndErrorHandling(url, options);
   }
 
@@ -273,26 +263,27 @@ class AuthService {
         throw new Error("Não autenticado");
       }
 
-      const response = await fetch(`${API_URL}/users/profile`, {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ name }),
-      });
+      const { data: userData } = await axios.put(
+        `${API_URL}/users/profile`,
+        { name },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Falha ao atualizar perfil");
-      }
-
-      const userData = await response.json();
       this.setUser(userData);
 
       return userData;
     } catch (error: any) {
       console.error("Erro ao atualizar perfil:", error);
+      if (axios.isAxiosError(error) && error.response) {
+        throw new Error(
+          error.response.data?.message || "Falha ao atualizar perfil"
+        );
+      }
       throw new Error(error.message || "Erro ao atualizar o perfil");
     }
   }
@@ -307,23 +298,25 @@ class AuthService {
         throw new Error("Não autenticado");
       }
 
-      const response = await fetch(`${API_URL}/users/change-password`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ currentPassword, newPassword }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Falha ao alterar senha");
-      }
+      await axios.post(
+        `${API_URL}/users/change-password`,
+        { currentPassword, newPassword },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       return true;
     } catch (error: any) {
       console.error("Erro ao alterar senha:", error);
+      if (axios.isAxiosError(error) && error.response) {
+        throw new Error(
+          error.response.data?.message || "Falha ao alterar senha"
+        );
+      }
       throw new Error(error.message || "Erro ao alterar a senha");
     }
   }
@@ -335,22 +328,21 @@ class AuthService {
         throw new Error("Não autenticado");
       }
 
-      const response = await fetch(`${API_URL}/users/stats`, {
-        method: "GET",
+      const { data } = await axios.get(`${API_URL}/users/stats`, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Falha ao obter estatísticas");
-      }
-
-      return await response.json();
+      return data;
     } catch (error: any) {
       console.error("Erro ao obter estatísticas:", error);
+      if (axios.isAxiosError(error) && error.response) {
+        throw new Error(
+          error.response.data?.message || "Falha ao obter estatísticas"
+        );
+      }
       throw new Error(error.message || "Erro ao obter estatísticas do usuário");
     }
   }
@@ -361,22 +353,23 @@ class AuthService {
         throw new Error("Email inválido");
       }
 
-      const response = await fetch(`${API_URL}/auth/forgot-password`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(
-          errorData.message || "Falha ao solicitar recuperação de senha"
-        );
-      }
+      await axios.post(
+        `${API_URL}/auth/forgot-password`,
+        { email },
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      );
 
       return true;
     } catch (error: any) {
       console.error("Erro ao solicitar recuperação de senha:", error);
+      if (axios.isAxiosError(error) && error.response) {
+        throw new Error(
+          error.response.data?.message ||
+            "Falha ao solicitar recuperação de senha"
+        );
+      }
       throw new Error(
         error.message || "Erro ao processar solicitação de recuperação de senha"
       );
@@ -433,20 +426,22 @@ class AuthService {
 
   async resendActivationCode(userId: string): Promise<boolean> {
     try {
-      const response = await fetch(`${API_URL}/users/resend-activation`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Falha ao reenviar código");
-      }
+      await axios.post(
+        `${API_URL}/users/resend-activation`,
+        { userId },
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      );
 
       return true;
     } catch (error: any) {
       console.error(error);
+      if (axios.isAxiosError(error) && error.response) {
+        throw new Error(
+          error.response.data?.message || "Falha ao reenviar código"
+        );
+      }
       throw new Error(error.message || "Erro ao reenviar código de ativação");
     }
   }

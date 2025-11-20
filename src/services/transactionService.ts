@@ -216,28 +216,16 @@ class TransactionService {
         );
       }
 
-      const response = await fetch(`${API_URL}/transactions/${month}/${year}`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!response.ok) {
-        let errorMsg = "Falha ao buscar transações.";
-
-        try {
-          const errorData = await response.json();
-          errorMsg = errorData.message || errorMsg;
-        } catch (e) {
-          console.error("Erro ao processar resposta de erro:", e);
+      const { data } = await axios.get<IExpenseItem[]>(
+        `${API_URL}/transactions/${month}/${year}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
         }
+      );
 
-        throw new Error(errorMsg);
-      }
-
-      const data = await response.json();
       const transactions = data || [];
 
       return transactions.map((transaction: any) => ({
@@ -256,6 +244,11 @@ class TransactionService {
       }));
     } catch (error: any) {
       console.error("Erro ao buscar transações:", error);
+      if (axios.isAxiosError(error) && error.response) {
+        throw new Error(
+          error.response.data?.message || "Falha ao buscar transações."
+        );
+      }
       throw error;
     }
   }
@@ -278,29 +271,16 @@ class TransactionService {
         categoryId: updates.categoryId,
       };
 
-      const response = await fetch(`${API_URL}/transactions/${id}`, {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(updateDto),
-      });
-
-      if (!response.ok) {
-        let errorMsg = "Falha ao atualizar transação.";
-
-        try {
-          const errorData = await response.json();
-          errorMsg = errorData.message || errorMsg;
-        } catch (e) {
-          console.error("Erro ao processar resposta de erro:", e);
+      const { data: responseData } = await axios.put(
+        `${API_URL}/transactions/${id}`,
+        updateDto,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
         }
-
-        throw new Error(errorMsg);
-      }
-
-      const responseData = await response.json();
+      );
 
       return {
         id: responseData.id,
@@ -318,6 +298,11 @@ class TransactionService {
       };
     } catch (error: any) {
       console.error("Erro ao atualizar transação:", error);
+      if (axios.isAxiosError(error) && error.response) {
+        throw new Error(
+          error.response.data?.message || "Falha ao atualizar transação."
+        );
+      }
       throw error;
     }
   }

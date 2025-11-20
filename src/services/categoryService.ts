@@ -32,33 +32,23 @@ class CategoryService {
         );
       }
 
-      const response = await fetch(`${API_URL}/categories`, {
-        method: "GET",
+      const { data } = await axios.get<ICategory[]>(`${API_URL}/categories`, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
       });
 
-      if (!response.ok) {
-        let errorMsg = "Falha ao buscar categorias.";
-
-        try {
-          const errorData = await response.json();
-          errorMsg = errorData.message || errorMsg;
-        } catch (e) {
-          console.error("Erro ao processar resposta de erro:", e);
-        }
-
-        throw new Error(errorMsg);
-      }
-
-      const data = await response.json();
       return data || [];
     } catch (error: any) {
       authService.handleAuthError(error);
 
       console.error("Erro ao buscar categorias:", error);
+      if (axios.isAxiosError(error) && error.response) {
+        throw new Error(
+          error.response.data?.message || "Falha ao buscar categorias."
+        );
+      }
       throw error;
     }
   }
@@ -83,33 +73,27 @@ class CategoryService {
         color,
       };
 
-      const response = await fetch(`${API_URL}/categories`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(categoryData),
-      });
-
-      if (!response.ok) {
-        let errorMsg = "Falha ao criar categoria.";
-
-        try {
-          const errorData = await response.json();
-          errorMsg = errorData.message || errorMsg;
-        } catch (e) {
-          console.error("Erro ao processar resposta de erro:", e);
+      const { data } = await axios.post<ICategory>(
+        `${API_URL}/categories`,
+        categoryData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
         }
+      );
 
-        throw new Error(errorMsg);
-      }
-
-      return await response.json();
+      return data;
     } catch (error: any) {
       authService.handleAuthError(error);
 
       console.error("Erro ao criar categoria:", error);
+      if (axios.isAxiosError(error) && error.response) {
+        throw new Error(
+          error.response.data?.message || "Falha ao criar categoria."
+        );
+      }
       throw error;
     }
   }
@@ -150,33 +134,27 @@ class CategoryService {
         );
       }
 
-      const response = await fetch(`${API_URL}/categories/${id}`, {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ ...data, id }),
-      });
-
-      if (!response.ok) {
-        let errorMsg = "Falha ao atualizar categoria.";
-
-        try {
-          const errorData = await response.json();
-          errorMsg = errorData.message || errorMsg;
-        } catch (e) {
-          console.error("Erro ao processar resposta de erro:", e);
+      const { data: responseData } = await axios.put<ICategory>(
+        `${API_URL}/categories/${id}`,
+        { ...data, id },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
         }
+      );
 
-        throw new Error(errorMsg);
-      }
-
-      return await response.json();
+      return responseData;
     } catch (error: any) {
       authService.handleAuthError(error);
 
       console.error("Erro ao atualizar categoria:", error);
+      if (axios.isAxiosError(error) && error.response) {
+        throw new Error(
+          error.response.data?.message || "Falha ao atualizar categoria."
+        );
+      }
       throw error;
     }
   }
