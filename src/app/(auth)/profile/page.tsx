@@ -43,7 +43,7 @@ export default function ProfilePage() {
     transactionsCount: 145,
     categoriesCount: 8,
     lastLogin: new Date(
-      Date.now() - 2 * 24 * 60 * 60 * 1000
+      Date.now() - 2 * 24 * 60 * 60 * 1000,
     ).toLocaleDateString("pt-BR"), // 2 dias atrás
   });
 
@@ -164,7 +164,7 @@ export default function ProfilePage() {
                 {!isEditingProfile && (
                   <button
                     onClick={() => setIsEditingProfile(true)}
-                    className="ml-auto text-purple-400 hover:text-purple-300 p-1.5 hover:bg-purple-900/30 rounded-lg"
+                    className="ml-auto text-purple-400 hover:text-purple-300 p-1.5 hover:bg-purple-900/30 rounded-lg btn-transparent"
                     title="Editar perfil"
                   >
                     <FiEdit size={18} />
@@ -259,7 +259,7 @@ export default function ProfilePage() {
                 {!isChangingPassword && (
                   <button
                     onClick={() => setIsChangingPassword(true)}
-                    className="ml-auto text-purple-400 hover:text-purple-300 p-1.5 hover:bg-purple-900/30 rounded-lg"
+                    className="ml-auto text-purple-400 hover:text-purple-300 p-1.5 hover:bg-purple-900/30 rounded-lg btn-transparent"
                     title="Alterar senha"
                   >
                     <FiEdit size={18} />

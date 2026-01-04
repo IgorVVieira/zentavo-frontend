@@ -47,9 +47,9 @@ const customModalStyles = {
     bottom: "auto",
     marginRight: "-50%",
     transform: "translate(-50%, -50%)",
-    backgroundColor: "#1f2937", // bg-gray-800
+    backgroundColor: "#1a1a1a", // bg-gray-900
     borderRadius: "0.5rem",
-    border: "1px solid #374151", // border-gray-700
+    border: "1px solid #252525", // border-gray-850
     padding: "1.5rem",
     maxWidth: "500px",
     width: "100%",
@@ -73,7 +73,7 @@ interface EditModalProps {
   onClose: () => void;
   onSave: (
     id: string,
-    updates: { description: string; categoryId: string }
+    updates: { description: string; categoryId: string },
   ) => void;
   categories: ICategory[];
 }
@@ -116,7 +116,7 @@ const EditTransactionModal = ({
           <h2 className="text-xl font-semibold">Editar Transação</h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-white transition-colors"
+            className="text-gray-400 hover:text-white transition-colors btn-transparent"
           >
             <FiX size={24} />
           </button>
@@ -132,7 +132,7 @@ const EditTransactionModal = ({
               type="text"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full bg-gray-700 text-white px-3 py-2 rounded-lg border border-gray-600 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              className="w-full bg-gray-850 text-white px-3 py-2 rounded-lg border border-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="Descrição da transação"
             />
           </div>
@@ -144,9 +144,8 @@ const EditTransactionModal = ({
             <select
               value={categoryId}
               onChange={(e) => setCategoryId(e.target.value)}
-              className="w-full bg-gray-700 text-white px-3 py-2 rounded-lg border border-gray-600 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              className="w-full bg-gray-850 text-white px-3 py-2 rounded-lg border border-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
-              <option value="">-- Selecione uma categoria --</option>
               {categories.map((category) => (
                 <option key={category.id} value={category.id}>
                   {category.name}
@@ -165,7 +164,7 @@ const EditTransactionModal = ({
                     expense.category.color ||
                     "#6B7280",
                 }}
-              ></div>
+              />
               <span className="text-gray-300">
                 {selectedCategory
                   ? selectedCategory.name
@@ -178,13 +177,13 @@ const EditTransactionModal = ({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors"
+              className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
             >
               Cancelar
             </button>
             <button
               type="submit"
-              className="px-4 py-2 ml-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
+              className="px-4 py-2 ml-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
             >
               Salvar Alterações
             </button>
@@ -212,7 +211,7 @@ export default function ExpensesTable() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingExpense, setEditingExpense] = useState<IExpenseItem | null>(
-    null
+    null,
   );
 
   const months = [
@@ -277,7 +276,7 @@ export default function ExpensesTable() {
       try {
         const data = await transactionService.getMonthlyTransactions(
           currentMonth,
-          currentYear
+          currentYear,
         );
         setExpenses(data);
       } catch (error: any) {
@@ -304,7 +303,8 @@ export default function ExpensesTable() {
 
   const totalExpenses = expenses
     .filter(
-      (expense) => expense.amount < 0 && expense.description !== "Aplicação RDB"
+      (expense) =>
+        expense.amount < 0 && expense.description !== "Aplicação RDB",
     )
     .reduce((sum, expense) => sum + expense.amount, 0);
 
@@ -322,7 +322,7 @@ export default function ExpensesTable() {
 
   const handleSave = async (
     id: string,
-    updates: { description: string; categoryId: string }
+    updates: { description: string; categoryId: string },
   ) => {
     const expense = expenses.find((e) => e.id === id);
     if (!expense) {
@@ -337,20 +337,20 @@ export default function ExpensesTable() {
         {
           description: updates.description,
           categoryId: updates.categoryId || null,
-        }
+        },
       );
 
       setExpenses((prevExpenses) =>
         prevExpenses.map((expense) =>
-          expense.id === id ? updatedTransaction : expense
-        )
+          expense.id === id ? updatedTransaction : expense,
+        ),
       );
 
       showToast("Transação atualizada com sucesso!", "success");
     } catch (error: any) {
       showToast(
         error.message || "Erro ao atualizar transação. Tente novamente.",
-        "error"
+        "error",
       );
     } finally {
       closeEditModal();
@@ -360,11 +360,12 @@ export default function ExpensesTable() {
 
   const paymentMethodAnalysis = useMemo(() => {
     const expensesOnly = expenses.filter(
-      (expense) => expense.amount < 0 && expense.description !== "Aplicação RDB"
+      (expense) =>
+        expense.amount < 0 && expense.description !== "Aplicação RDB",
     );
 
     const totalExpenseAmount = Math.abs(
-      expensesOnly.reduce((sum, expense) => sum + expense.amount, 0)
+      expensesOnly.reduce((sum, expense) => sum + expense.amount, 0),
     );
 
     const methodGroups: Record<string, { total: number; count: number }> = {};
@@ -391,11 +392,12 @@ export default function ExpensesTable() {
 
   const categoryAnalysis = useMemo(() => {
     const expensesOnly = expenses.filter(
-      (expense) => expense.amount < 0 && expense.description !== "Aplicação RDB"
+      (expense) =>
+        expense.amount < 0 && expense.description !== "Aplicação RDB",
     );
 
     const totalExpenseAmount = Math.abs(
-      expensesOnly.reduce((sum, expense) => sum + expense.amount, 0)
+      expensesOnly.reduce((sum, expense) => sum + expense.amount, 0),
     );
 
     const categoryGroups: Record<
@@ -516,7 +518,7 @@ export default function ExpensesTable() {
             <div className="flex justify-center">
               <button
                 onClick={() => openEditModal(expense)}
-                className="p-2 bg-purple-600/20 text-purple-400 rounded-full hover:bg-purple-600/40 transition-colors"
+                className="p-2 bg-purple-600/20 text-purple-400 rounded-full hover:bg-purple-600/40 transition-colors btn-transparent"
                 title="Editar transação"
               >
                 <FiEdit size={16} />
@@ -526,7 +528,7 @@ export default function ExpensesTable() {
         },
       }),
     ],
-    [categories]
+    [categories],
   );
 
   const table = useReactTable({
@@ -652,7 +654,7 @@ export default function ExpensesTable() {
                         <div className="flex items-center">
                           {flexRender(
                             header.column.columnDef.header,
-                            header.getContext()
+                            header.getContext(),
                           )}
                           {{
                             asc: <FiArrowUp className="ml-2 text-purple-400" />,
@@ -693,7 +695,7 @@ export default function ExpensesTable() {
                         <td key={cell.id} className="px-4 py-2">
                           {flexRender(
                             cell.column.columnDef.cell,
-                            cell.getContext()
+                            cell.getContext(),
                           )}
                         </td>
                       ))}

@@ -36,9 +36,9 @@ const customModalStyles = {
     bottom: "auto",
     marginRight: "-50%",
     transform: "translate(-50%, -50%)",
-    backgroundColor: "#1f2937", // bg-gray-800
+    backgroundColor: "#1a1a1a", // bg-gray-900
     borderRadius: "0.5rem",
-    border: "1px solid #374151", // border-gray-700
+    border: "1px solid #252525", // border-gray-850
     padding: "1.5rem",
     maxWidth: "500px",
     width: "100%",
@@ -91,7 +91,7 @@ const EditCategoryModal = ({
           <h2 className="text-xl font-semibold">Editar Categoria</h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-white transition-colors"
+            className="text-gray-400 hover:text-white transition-colors btn-transparent"
           >
             <FiX size={24} />
           </button>
@@ -107,7 +107,7 @@ const EditCategoryModal = ({
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full bg-gray-700 text-white px-3 py-2 rounded-lg border border-gray-600 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              className="w-full bg-gray-850 text-white px-3 py-2 rounded-lg border border-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="Nome da categoria"
               required
             />
@@ -127,13 +127,15 @@ const EditCategoryModal = ({
                   background: "transparent",
                 }}
               />
-              <div className="flex-1 bg-gray-700 rounded-lg border border-gray-600 px-4 py-2">
+              <div className="flex-1 bg-gray-850 rounded-lg border border-gray-700 px-4 py-2">
                 <div className="flex items-center">
                   <div
                     className="w-6 h-6 rounded-full mr-3"
                     style={{ backgroundColor: color }}
-                  ></div>
-                  <span className="font-mono text-sm">{color.toUpperCase()}</span>
+                  />
+                  <span className="font-mono text-sm">
+                    {color.toUpperCase()}
+                  </span>
                 </div>
               </div>
             </div>
@@ -143,13 +145,13 @@ const EditCategoryModal = ({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors"
+              className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
             >
               Cancelar
             </button>
             <button
               type="submit"
-              className="px-4 py-2 ml-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
+              className="px-4 py-2 ml-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
             >
               Salvar Alterações
             </button>
@@ -195,7 +197,7 @@ export default function CategoriesPage() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<ICategory | null>(
-    null
+    null,
   );
 
   const fetchCategories = async () => {
@@ -231,7 +233,7 @@ export default function CategoriesPage() {
 
       const newCategory = await categoryService.createCategory(
         name.trim(),
-        color
+        color,
       );
 
       setCategories((prevCategories) => [...prevCategories, newCategory]);
@@ -252,7 +254,7 @@ export default function CategoriesPage() {
       await categoryService.deleteCategory(id);
 
       setCategories((prevCategories) =>
-        prevCategories.filter((cat) => cat.id !== id)
+        prevCategories.filter((cat) => cat.id !== id),
       );
 
       showToast("Categoria excluída com sucesso", "success");
@@ -270,7 +272,7 @@ export default function CategoriesPage() {
   }, []);
 
   const filteredCategories = categories.filter((category) =>
-    category.name.toLowerCase().includes(searchQuery.toLowerCase())
+    category.name.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   const sortedCategories = [...filteredCategories].sort((a, b) => {
@@ -321,7 +323,7 @@ export default function CategoriesPage() {
 
   const handleSave = async (
     id: string,
-    updates: { name: string; color: string }
+    updates: { name: string; color: string },
   ) => {
     const category = categories.find((c) => c.id === id);
     if (!category) {
@@ -333,7 +335,7 @@ export default function CategoriesPage() {
     const nameExists = categories.some(
       (cat) =>
         cat.id !== id &&
-        cat.name.toLowerCase() === updates.name.toLowerCase().trim()
+        cat.name.toLowerCase() === updates.name.toLowerCase().trim(),
     );
 
     if (nameExists) {
@@ -354,9 +356,7 @@ export default function CategoriesPage() {
       });
 
       setCategories((prevCategories) =>
-        prevCategories.map((cat) =>
-          cat.id === id ? updatedCategory : cat
-        )
+        prevCategories.map((cat) => (cat.id === id ? updatedCategory : cat)),
       );
 
       showToast("Categoria atualizada com sucesso!", "success");
@@ -364,7 +364,7 @@ export default function CategoriesPage() {
     } catch (error: any) {
       showToast(
         error.message || "Erro ao atualizar categoria. Tente novamente.",
-        "error"
+        "error",
       );
     } finally {
       stopLoading();
@@ -562,7 +562,7 @@ export default function CategoriesPage() {
                             <motion.button
                               whileHover={{ scale: 1.2 }}
                               onClick={() => openEditModal(category)}
-                              className="text-purple-400 hover:text-purple-300 p-1.5 hover:bg-purple-900/30 rounded-lg"
+                              className="text-purple-400 hover:text-purple-300 p-1.5 hover:bg-purple-900/30 rounded-lg btn-transparent"
                               title="Editar"
                             >
                               <FiEdit size={18} />
@@ -570,7 +570,7 @@ export default function CategoriesPage() {
                             <motion.button
                               whileHover={{ scale: 1.2 }}
                               onClick={() => handleDelete(category.id)}
-                              className="text-red-400 hover:text-red-300 p-1.5 hover:bg-red-900/30 rounded-lg"
+                              className="text-red-400 hover:text-red-300 p-1.5 hover:bg-red-900/30 rounded-lg btn-transparent"
                               title="Excluir"
                             >
                               <FiTrash2 size={18} />

@@ -30,11 +30,10 @@ const Sidebar = ({ isMobile = false, className = "" }: ISidebarProps) => {
     { name: "Gastos Mensais", icon: <FiDollarSign />, path: "/expenses" },
     { name: "Categorias", icon: <FiTag />, path: "/categories" },
     { name: "Importar OFX", icon: <FiUploadCloud />, path: "/import" },
-  ];
-
-  const bottomMenuItems = [
     { name: "Meu Perfil", icon: <FiUser />, path: "/profile" },
   ];
+
+  const bottomMenuItems: typeof menuItems = [];
 
   const isActiveLink = (path: string) => pathname === path;
 
@@ -122,7 +121,7 @@ const Sidebar = ({ isMobile = false, className = "" }: ISidebarProps) => {
             href={item.path}
             className={`
               flex items-center py-3 my-1
-              ${isCollapsed ? "justify-center px-2" : "px-3"} 
+              ${isCollapsed ? "justify-center px-2" : "px-3"}
               ${
                 isActiveLink(item.path)
                   ? "bg-purple-600/20 text-purple-300 border-l-4 border-purple-500"
@@ -159,52 +158,15 @@ const Sidebar = ({ isMobile = false, className = "" }: ISidebarProps) => {
           isCollapsed ? "px-4" : "px-6"
         }`}
       >
-        {bottomMenuItems.map((item) => (
-          <Link
-            key={item.path}
-            href={item.path}
-            className={`
-              flex items-center py-3 my-1
-              ${isCollapsed ? "justify-center px-2" : "px-3"} 
-              ${
-                isActiveLink(item.path)
-                  ? "bg-purple-600/20 text-purple-300 border-l-4 border-purple-500"
-                  : "text-gray-300 hover:bg-gray-700/50 hover:text-purple-300 border-l-4 border-transparent"
-              }
-              rounded-lg font-medium transition-all duration-200
-            `}
-            title={isCollapsed ? item.name : ""}
-          >
-            <motion.span
-              whileHover={{ scale: 1.2 }}
-              className={`${isCollapsed ? "text-xl" : "mr-3"}`}
-            >
-              {item.icon}
-            </motion.span>
-            <AnimatePresence>
-              {!isCollapsed && (
-                <motion.span
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -10 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  {item.name}
-                </motion.span>
-              )}
-            </AnimatePresence>
-          </Link>
-        ))}
-
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={logout}
           className={`
             flex items-center py-3 w-full my-1
-            ${isCollapsed ? "justify-center px-2" : "px-3"} 
+            ${isCollapsed ? "justify-center px-2" : "px-3"}
             text-gray-300 hover:bg-red-600/20 hover:text-red-400 border-l-4 border-transparent hover:border-red-500
-            rounded-lg font-medium transition-all duration-200
+            rounded-lg font-medium transition-all duration-200 btn-transparent
           `}
           title={isCollapsed ? "Sair" : ""}
         >
