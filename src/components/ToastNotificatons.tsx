@@ -3,20 +3,28 @@
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-export type NotificationType = "success" | "error" | "info" | "warning";
+export enum NotificationType {
+  SUCCESS = "success",
+  ERROR = "error",
+  INFO = "info",
+  WARNING = "warning",
+}
 
-export const showToast = (message: string, type: NotificationType = "info") => {
+export const showToast = (
+  message: string,
+  type: NotificationType = NotificationType.INFO,
+) => {
   switch (type) {
-    case "success":
+    case NotificationType.SUCCESS:
       toast.success(message);
       break;
-    case "error":
+    case NotificationType.ERROR:
       toast.error(message);
       break;
-    case "warning":
+    case NotificationType.WARNING:
       toast.warning(message);
       break;
-    case "info":
+    case NotificationType.INFO:
     default:
       toast.info(message);
       break;

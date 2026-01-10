@@ -4,7 +4,7 @@ import { useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import authService from "@/services/authService";
-import { showToast } from "@/components/ToastNotificatons";
+import { showToast, NotificationType } from "@/components/ToastNotificatons";
 import { useLoading } from "@/contexts/LoadingContext";
 import PasswordInput from "@/components/PasswordInput";
 import Loading from "@/components/Loading";
@@ -42,12 +42,12 @@ export default function Register() {
     try {
       await authService.register(nome, email, senha);
 
-      showToast("Cadastro realizado com sucesso!", "success");
+      showToast("Cadastro realizado com sucesso!", NotificationType.SUCCESS);
 
       router.push("/login?cadastro=sucesso");
     } catch (err: any) {
       setError(
-        err.message || "Erro ao tentar realizar o cadastro. Tente novamente."
+        err.message || "Erro ao tentar realizar o cadastro. Tente novamente.",
       );
     } finally {
       setIsLoading(false);
@@ -178,7 +178,6 @@ export default function Register() {
           </div>
         </div>
 
-        {/* Rodapé */}
         <div className="mt-8 text-center text-gray-500 text-xs">
           <p>
             &copy; {new Date().getFullYear()} Zentavo. Todos os direitos

@@ -3,7 +3,7 @@
 import { useState, FormEvent, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { showToast } from "@/components/ToastNotificatons";
+import { showToast, NotificationType } from "@/components/ToastNotificatons";
 import { useLoading } from "@/contexts/LoadingContext";
 import authService from "@/services/authService";
 import Loading from "@/components/Loading";
@@ -64,7 +64,7 @@ export default function VerifyAccountForm() {
       await authService.activateAccount(cleanToken, userId);
 
       setSuccess(true);
-      showToast("Conta ativada com sucesso!", "success");
+      showToast("Conta ativada com sucesso!", NotificationType.SUCCESS);
     } catch (err: any) {
       console.error("Erro ao verificar conta:", err);
       setError(err.message || "Código inválido ou expirado. Tente novamente.");
@@ -85,11 +85,14 @@ export default function VerifyAccountForm() {
 
     try {
       await authService.resendActivationCode(userId);
-      showToast("Novo código enviado para seu email!", "success");
+      showToast(
+        "Novo código enviado para seu email!",
+        NotificationType.SUCCESS,
+      );
     } catch (err: any) {
       console.error("Erro ao reenviar código:", err);
       setError(
-        err.message || "Não foi possível reenviar o código. Tente novamente."
+        err.message || "Não foi possível reenviar o código. Tente novamente.",
       );
     } finally {
       setIsResending(false);

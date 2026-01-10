@@ -21,7 +21,10 @@ import {
   FiX,
   FiPieChart,
 } from "react-icons/fi";
-import ToastNotifications, { showToast } from "@/components/ToastNotificatons";
+import ToastNotifications, {
+  showToast,
+  NotificationType,
+} from "@/components/ToastNotificatons";
 import transactionService, {
   IExpenseItem,
   TransactionMethod,
@@ -280,7 +283,10 @@ export default function ExpensesTable() {
         );
         setExpenses(data);
       } catch (error: any) {
-        showToast(error.message || "Erro ao carregar as transações", "error");
+        showToast(
+          error.message || "Erro ao carregar as transações",
+          NotificationType.ERROR,
+        );
         setExpenses([]);
       } finally {
         setIsTableLoading(false);
@@ -346,11 +352,11 @@ export default function ExpensesTable() {
         ),
       );
 
-      showToast("Transação atualizada com sucesso!", "success");
+      showToast("Transação atualizada com sucesso!", NotificationType.SUCCESS);
     } catch (error: any) {
       showToast(
         error.message || "Erro ao atualizar transação. Tente novamente.",
-        "error",
+        NotificationType.ERROR,
       );
     } finally {
       closeEditModal();

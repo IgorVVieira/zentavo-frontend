@@ -9,7 +9,10 @@ import {
   FiTrendingUp,
   FiCalendar,
 } from "react-icons/fi";
-import ToastNotifications, { showToast } from "@/components/ToastNotificatons";
+import ToastNotifications, {
+  showToast,
+  NotificationType,
+} from "@/components/ToastNotificatons";
 import transactionService, {
   TransactionMethod,
   TransactionType,
@@ -29,7 +32,7 @@ export default function DashboardPage() {
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
 
   const [methodsData, setMethodsData] = useState<ITransactionsByMethodDto[]>(
-    []
+    [],
   );
   const [expenseCategoriesData, setExpenseCategoriesData] = useState<
     ITransactionsByCategoryDto[]
@@ -90,14 +93,14 @@ export default function DashboardPage() {
       try {
         const data = await transactionService.getTransactionsByMethod(
           currentMonth,
-          currentYear
+          currentYear,
         );
 
         setMethodsData(data);
       } catch (error: any) {
         showToast(
           "Ocorreu um erro ao carregar dados de métodos de pagamento.",
-          "warning"
+          NotificationType.WARNING,
         );
       } finally {
         setIsMethodsLoading(false);
@@ -117,14 +120,14 @@ export default function DashboardPage() {
         const data = await transactionService.getTransactionsByCategory(
           currentMonth,
           currentYear,
-          TransactionType.CASH_OUT
+          TransactionType.CASH_OUT,
         );
 
         setExpenseCategoriesData(data);
       } catch (error: any) {
         showToast(
           "Ocorreu um erro ao carregar dados de categorias de gastos.",
-          "warning"
+          NotificationType.WARNING,
         );
       } finally {
         setIsExpenseCategoryLoading(false);
@@ -142,14 +145,14 @@ export default function DashboardPage() {
         const data = await transactionService.getTransactionsByCategory(
           currentMonth,
           currentYear,
-          TransactionType.CASH_IN
+          TransactionType.CASH_IN,
         );
 
         setIncomeCategoriesData(data);
       } catch (error: any) {
         showToast(
           "Ocorreu um erro ao carregar dados de categorias de receita.",
-          "warning"
+          NotificationType.WARNING,
         );
       } finally {
         setIsIncomeCategoryLoading(false);
@@ -170,7 +173,7 @@ export default function DashboardPage() {
       } catch (error: any) {
         showToast(
           "Ocorreu um erro ao carregar dados dos últimos 6 meses.",
-          "warning"
+          NotificationType.WARNING,
         );
       } finally {
         setIsSixMonthsLoading(false);
@@ -356,7 +359,10 @@ export default function DashboardPage() {
                     <button
                       className="mt-4 px-4 py-2 bg-purple-600 rounded-lg text-white hover:bg-purple-700 transition-colors"
                       onClick={() =>
-                        showToast("Função será implementada em breve", "info")
+                        showToast(
+                          "Função será implementada em breve",
+                          NotificationType.INFO,
+                        )
                       }
                     >
                       Carregar dados

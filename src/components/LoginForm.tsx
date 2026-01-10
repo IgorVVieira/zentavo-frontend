@@ -4,7 +4,7 @@ import { useState, FormEvent, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
-import { showToast } from "@/components/ToastNotificatons";
+import { showToast, NotificationType } from "@/components/ToastNotificatons";
 import { useLoading } from "@/contexts/LoadingContext";
 import PasswordInput from "@/components/PasswordInput";
 
@@ -40,11 +40,11 @@ export default function LoginForm() {
       const success = await login(email, password);
 
       if (success) {
-        showToast("Login realizado com sucesso!", "success");
+        showToast("Login realizado com sucesso!", NotificationType.SUCCESS);
         router.push("/expenses");
       } else {
         setError(
-          "Email ou senha incorretos. Por favor, verifique suas credenciais."
+          "Email ou senha incorretos. Por favor, verifique suas credenciais.",
         );
       }
     } catch (err: any) {

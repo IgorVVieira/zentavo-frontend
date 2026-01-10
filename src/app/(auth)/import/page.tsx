@@ -4,7 +4,7 @@ import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import transactionService from "@/services/transactionService";
-import { showToast } from "@/components/ToastNotificatons";
+import { showToast, NotificationType } from "@/components/ToastNotificatons";
 import { useLoading } from "@/contexts/LoadingContext";
 import Loading from "@/components/Loading";
 
@@ -21,7 +21,7 @@ export default function ImportOFX() {
   const [success, setSuccess] = useState(false);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
+    if (e.target?.files?.length) {
       const selectedFile = e.target.files[0];
 
       if (!selectedFile.name.toLowerCase().endsWith(".ofx")) {
@@ -47,12 +47,15 @@ export default function ImportOFX() {
     try {
       await transactionService.importOFX(file);
 
-      showToast("Arquivo importado com sucesso!", "success");
+      showToast("Importação do arquivo em andamento...");
       setSuccess(true);
     } catch (error: any) {
       console.error("Erro na importação:", error);
       setError(error.message || "Ocorreu um erro ao importar o arquivo.");
-      showToast(error.message || "Erro ao importar arquivo", "error");
+      showToast(
+        error.message || "Erro ao importar arquivo",
+        NotificationType.ERROR,
+      );
     } finally {
       setIsLoading(false);
       stopLoading();
@@ -78,6 +81,7 @@ export default function ImportOFX() {
 
       {success ? (
         <div
+          className="bg-blue-500"
           style={{
             backgroundColor: "#064e3b",
             color: "white",
@@ -93,10 +97,12 @@ export default function ImportOFX() {
               marginBottom: "10px",
             }}
           >
-            Importação concluída com sucesso!
+            Importação em processamento!
           </h2>
           <p style={{ marginBottom: "15px" }}>
-            Os dados do seu extrato foram importados e processados.
+            Os dados do seu extrato estão sendo processados na fila de tarefas.
+            Acesse a tela de "Gastos mensais" para visualizar os dados
+            importados.
           </p>
           <div>
             <button

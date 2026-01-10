@@ -14,7 +14,10 @@ import {
   FiEdit,
   FiX,
 } from "react-icons/fi";
-import ToastNotifications, { showToast } from "@/components/ToastNotificatons";
+import ToastNotifications, {
+  showToast,
+  NotificationType,
+} from "@/components/ToastNotificatons";
 import categoryService, { ICategory } from "@/services/categoryService";
 import Loading from "@/components/Loading";
 import Modal from "react-modal";
@@ -141,7 +144,7 @@ const EditCategoryModal = ({
             </div>
           </div>
 
-          <div className="flex justify-end space-x-3 pt-2">
+          <div className="flex justify-end space-x-3 pt-2 mt-8">
             <button
               type="button"
               onClick={onClose}
@@ -207,7 +210,10 @@ export default function CategoriesPage() {
       const fetchedCategories = await categoryService.getCategories();
       setCategories(fetchedCategories);
     } catch (error: any) {
-      showToast(error.message || "Erro ao carregar categorias", "error");
+      showToast(
+        error.message || "Erro ao carregar categorias",
+        NotificationType.ERROR,
+      );
     } finally {
       setIsLoading(false);
       stopLoading();
@@ -218,7 +224,7 @@ export default function CategoriesPage() {
     startLoading();
     try {
       if (!name.trim()) {
-        showToast("O nome da categoria é obrigatório", "error");
+        showToast("O nome da categoria é obrigatório", NotificationType.ERROR);
         stopLoading();
         return false;
       }
@@ -226,7 +232,10 @@ export default function CategoriesPage() {
       if (
         categories.some((cat) => cat.name.toLowerCase() === name.toLowerCase())
       ) {
-        showToast("Já existe uma categoria com este nome", "error");
+        showToast(
+          "Já existe uma categoria com este nome",
+          NotificationType.ERROR,
+        );
         stopLoading();
         return false;
       }
@@ -238,10 +247,13 @@ export default function CategoriesPage() {
 
       setCategories((prevCategories) => [...prevCategories, newCategory]);
 
-      showToast("Categoria criada com sucesso", "success");
+      showToast("Categoria criada com sucesso", NotificationType.SUCCESS);
       return true;
     } catch (error: any) {
-      showToast(error.message || "Erro ao criar categoria", "error");
+      showToast(
+        error.message || "Erro ao criar categoria",
+        NotificationType.ERROR,
+      );
       return false;
     } finally {
       stopLoading();
@@ -257,10 +269,13 @@ export default function CategoriesPage() {
         prevCategories.filter((cat) => cat.id !== id),
       );
 
-      showToast("Categoria excluída com sucesso", "success");
+      showToast("Categoria excluída com sucesso", NotificationType.SUCCESS);
       return true;
     } catch (error: any) {
-      showToast(error.message || "Erro ao excluir categoria", "error");
+      showToast(
+        error.message || "Erro ao excluir categoria",
+        NotificationType.ERROR,
+      );
       return false;
     } finally {
       stopLoading();
@@ -339,12 +354,15 @@ export default function CategoriesPage() {
     );
 
     if (nameExists) {
-      showToast("Já existe uma categoria com este nome", "error");
+      showToast(
+        "Já existe uma categoria com este nome",
+        NotificationType.ERROR,
+      );
       return;
     }
 
     if (!updates.name.trim()) {
-      showToast("O nome da categoria é obrigatório", "error");
+      showToast("O nome da categoria é obrigatório", NotificationType.ERROR);
       return;
     }
 
@@ -359,12 +377,12 @@ export default function CategoriesPage() {
         prevCategories.map((cat) => (cat.id === id ? updatedCategory : cat)),
       );
 
-      showToast("Categoria atualizada com sucesso!", "success");
+      showToast("Categoria atualizada com sucesso!", NotificationType.SUCCESS);
       closeEditModal();
     } catch (error: any) {
       showToast(
         error.message || "Erro ao atualizar categoria. Tente novamente.",
-        "error",
+        NotificationType.ERROR,
       );
     } finally {
       stopLoading();

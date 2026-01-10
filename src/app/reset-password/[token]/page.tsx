@@ -3,7 +3,7 @@
 import { useState, FormEvent, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
-import { showToast } from "@/components/ToastNotificatons";
+import { showToast, NotificationType } from "@/components/ToastNotificatons";
 import { useLoading } from "@/contexts/LoadingContext";
 import ToastNotifications from "@/components/ToastNotificatons";
 import authService from "@/services/authService";
@@ -59,10 +59,10 @@ export default function RedefinirSenha() {
       await authService.resetPassword(token, senha);
 
       setSuccess(true);
-      showToast("Senha redefinida com sucesso!", "success");
+      showToast("Senha redefinida com sucesso!", NotificationType.SUCCESS);
     } catch (err: any) {
       setError(
-        err.message || "Não foi possível redefinir sua senha. Tente novamente."
+        err.message || "Não foi possível redefinir sua senha. Tente novamente.",
       );
     } finally {
       setIsLoading(false);

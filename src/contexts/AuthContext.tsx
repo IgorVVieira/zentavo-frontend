@@ -9,7 +9,7 @@ import React, {
 } from "react";
 import { useRouter } from "next/navigation";
 import authService, { IUser } from "@/services/authService";
-import { showToast } from "@/components/ToastNotificatons";
+import { showToast, NotificationType } from "@/components/ToastNotificatons";
 import { useLoading } from "./LoadingContext";
 
 interface IAuthContextType {
@@ -76,7 +76,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return false;
       }
     } catch (error: any) {
-      showToast(error.message || "Erro ao fazer login", "error");
+      showToast(error.message || "Erro ao fazer login", NotificationType.ERROR);
       return false;
     } finally {
       setIsLoading(false);

@@ -15,7 +15,10 @@ import {
   FiRefreshCw,
 } from "react-icons/fi";
 import { motion } from "framer-motion";
-import ToastNotifications, { showToast } from "@/components/ToastNotificatons";
+import ToastNotifications, {
+  showToast,
+  NotificationType,
+} from "@/components/ToastNotificatons";
 import PasswordInput from "@/components/PasswordInput";
 import authService from "@/services/authService";
 
@@ -66,10 +69,13 @@ export default function ProfilePage() {
       // Simulação de atualização bem-sucedida
       await new Promise((resolve) => setTimeout(resolve, 800));
 
-      showToast("Perfil atualizado com sucesso!", "success");
+      showToast("Perfil atualizado com sucesso!", NotificationType.SUCCESS);
       setIsEditingProfile(false);
     } catch (error: any) {
-      showToast(error.message || "Falha ao atualizar o perfil", "error");
+      showToast(
+        error.message || "Falha ao atualizar o perfil",
+        NotificationType.ERROR,
+      );
     } finally {
       stopLoading();
     }
@@ -99,7 +105,7 @@ export default function ProfilePage() {
       // Simulação de atualização bem-sucedida
       await new Promise((resolve) => setTimeout(resolve, 800));
 
-      showToast("Senha alterada com sucesso!", "success");
+      showToast("Senha alterada com sucesso!", NotificationType.SUCCESS);
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
