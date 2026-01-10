@@ -3,7 +3,7 @@
 import { useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { showToast } from "@/components/ToastNotificatons";
+import { showToast, NotificationType } from "@/components/ToastNotificatons";
 import { useLoading } from "@/contexts/LoadingContext";
 import ToastNotifications from "@/components/ToastNotificatons";
 import authService from "@/services/authService";
@@ -31,12 +31,12 @@ export default function RecuperarSenha() {
       setSuccess(true);
       showToast(
         "Instruções de recuperação enviadas para seu email!",
-        "success"
+        NotificationType.SUCCESS,
       );
     } catch (err: any) {
       setError(
         err.message ||
-          "Não foi possível processar sua solicitação. Tente novamente."
+          "Não foi possível processar sua solicitação. Tente novamente.",
       );
     } finally {
       setIsLoading(false);
