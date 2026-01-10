@@ -93,7 +93,7 @@ const Sidebar = ({ isMobile = false, className = "" }: ISidebarProps) => {
       >
         <motion.div
           whileHover={{ scale: 1.1 }}
-          className="h-10 w-10 rounded-full bg-purple-600 flex items-center justify-center shadow-md cursor-pointer"
+          className="h-10 w-10 rounded-full bg-purple-600 flex items-center justify-center shadow-md cursor-pointer mb-4 mr-2"
           onClick={() => isCollapsed && setIsCollapsed(false)}
           title={isCollapsed ? "Expandir menu" : ""}
         >
