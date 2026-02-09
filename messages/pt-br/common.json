@@ -1,0 +1,95 @@
+{
+  "metadata": {
+    "title": "ZenCash",
+    "description": "ZenCash - Sistema de gestão financeira"
+  },
+  "nav": {
+    "menu": "Menu",
+    "management": "Gestão",
+    "dashboard": "Dashboard",
+    "categories": "Categorias",
+    "transactions": "Transações",
+    "importOFX": "Importar OFX",
+    "profile": "Meu perfil",
+    "logout": "Sair",
+    "collapseMenu": "Recolher menu",
+    "expandMenu": "Expandir menu",
+    "collapseMenuAria": "Recolher menu de navegação",
+    "expandMenuAria": "Expandir menu de navegação"
+  },
+  "auth": {
+    "signIn": "Entrar",
+    "signUp": "Criar conta",
+    "email": "E-mail",
+    "password": "Senha",
+    "name": "Nome completo",
+    "emailPlaceholder": "seu@email.com",
+    "passwordPlaceholder": "••••••",
+    "namePlaceholder": "Seu nome",
+    "rememberMe": "Lembrar de mim",
+    "forgotPassword": "Esqueceu sua senha?",
+    "or": "ou",
+    "signInWithGoogle": "Entrar com Google",
+    "signUpWithGoogle": "Cadastrar com Google",
+    "noAccount": "Não tem uma conta?",
+    "hasAccount": "Já tem uma conta?",
+    "register": "Cadastre-se",
+    "signInLink": "Entrar",
+    "submit": "Cadastrar"
+  },
+  "validation": {
+    "emailRequired": "Por favor, insira um e-mail válido.",
+    "passwordMin": "A senha deve ter pelo menos 6 caracteres.",
+    "nameRequired": "O nome é obrigatório.",
+    "descriptionRequired": "A descrição é obrigatória.",
+    "categoryNameRequired": "O nome é obrigatório.",
+    "categoryColorRequired": "A cor é obrigatória."
+  },
+  "errors": {
+    "wrongCredentials": "E-mail ou senha incorretos.",
+    "loginError": "Erro ao fazer login. Tente novamente.",
+    "connectionError": "Erro de conexão. Verifique sua internet e tente novamente.",
+    "connectionErrorShort": "Erro de conexão. Verifique sua internet.",
+    "connectionRetry": "Erro de conexão. Tente novamente.",
+    "sessionExpired": "Sessão expirada. Faça login novamente.",
+    "emailExists": "Este e-mail já está cadastrado.",
+    "createAccountError": "Erro ao criar conta. Tente novamente.",
+    "loadError": "Erro ao carregar {entity}.",
+    "saveError": "Erro ao salvar {entity}.",
+    "deleteError": "Erro ao excluir {entity}.",
+    "notFound": "{entity} não encontrado(a).",
+    "profileNotFound": "Perfil não encontrado.",
+    "forgotPasswordError": "Erro ao enviar e-mail. Tente novamente."
+  },
+  "actions": {
+    "create": "Criar",
+    "save": "Salvar",
+    "delete": "Excluir",
+    "cancel": "Cancelar",
+    "back": "Voltar",
+    "continue": "Continuar",
+    "refresh": "Atualizar dados",
+    "import": "Importar",
+    "edit": "Editar",
+    "export": "Exportar"
+  },
+  "types": {
+    "cashIn": "Entrada",
+    "cashOut": "Saída",
+    "none": "Nenhum"
+  },
+  "methods": {
+    "PIX": "PIX",
+    "DEBIT": "Débito",
+    "TRANSFER": "Transferência",
+    "CARD_PAYMENT": "Cartão",
+    "CASH_BACK": "Cashback"
+  },
+  "forgotPassword": {
+    "title": "Redefinir senha",
+    "description": "Insira o e-mail da sua conta e enviaremos um link para redefinir sua senha.",
+    "successDefault": "Link de recuperação enviado com sucesso!",
+    "emailLabel": "E-mail",
+    "emailPlaceholder": "E-mail"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "summary": "Summary",
+  "cashIn": "Income",
+  "cashOut": "Expenses",
+  "balance": "Balance",
+  "byCategory": "By category",
+  "cashOutByCategory": "Expenses by category",
+  "cashInByCategory": "Income by category",
+  "last6months": "Last 6 months",
+  "last6monthsBalance": "Cumulative balance over the last 6 months",
+  "paymentMethods": "Payment methods",
+  "paymentMethodsDescription": "Total amount by payment method this month",
+  "noData": "No data available.",
+  "total": "Total",
+  "loadError": "Failed to load monthly transactions.",
+  "noCategory": "Uncategorized"
+}

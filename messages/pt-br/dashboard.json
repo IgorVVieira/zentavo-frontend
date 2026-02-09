@@ -1,0 +1,17 @@
+{
+  "summary": "Resumo",
+  "cashIn": "Entradas",
+  "cashOut": "Saídas",
+  "balance": "Saldo",
+  "byCategory": "Por categoria",
+  "cashOutByCategory": "Saídas por categoria",
+  "cashInByCategory": "Entradas por categoria",
+  "last6months": "Últimos 6 meses",
+  "last6monthsBalance": "Saldo acumulado dos últimos 6 meses",
+  "paymentMethods": "Métodos de pagamento",
+  "paymentMethodsDescription": "Total movimentado por método de pagamento no mês",
+  "noData": "Nenhum dado disponível.",
+  "total": "Total",
+  "loadError": "Erro ao carregar transações do mês.",
+  "noCategory": "Sem categoria"
+}

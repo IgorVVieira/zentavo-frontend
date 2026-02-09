@@ -1,0 +1,19 @@
+{
+  "title": "Categories",
+  "color": "Color",
+  "name": "Name",
+  "type": "Type",
+  "createdAt": "Created at",
+  "actions": "Actions",
+  "newCategory": "New category",
+  "editCategory": "Edit category",
+  "noRows": "No categories found",
+  "deleteTitle": "Delete category",
+  "deleteConfirm": "Are you sure you want to delete the category <bold>{name}</bold>? This action cannot be undone.",
+  "deleteSuccess": "Category deleted successfully!",
+  "createSuccess": "Category created successfully!",
+  "updateSuccess": "Category updated successfully!",
+  "notFound": "Category not found.",
+  "loadError": "Failed to load category.",
+  "noneType": "None"
+}

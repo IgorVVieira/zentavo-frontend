@@ -1,0 +1,17 @@
+{
+  "title": "Transactions",
+  "description": "Description",
+  "type": "Type",
+  "amount": "Amount",
+  "method": "Method",
+  "category": "Category",
+  "date": "Date",
+  "actions": "Actions",
+  "editTransaction": "Edit transaction",
+  "noRows": "No transactions found",
+  "notFound": "Transaction not found.",
+  "loadError": "Failed to load transaction.",
+  "descriptionRequired": "Description is required.",
+  "updateSuccess": "Transaction updated successfully!",
+  "noneCategory": "None"
+}

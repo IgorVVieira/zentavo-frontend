@@ -1,0 +1,19 @@
+{
+  "title": "Categorias",
+  "color": "Cor",
+  "name": "Nome",
+  "type": "Tipo",
+  "createdAt": "Criado em",
+  "actions": "Ações",
+  "newCategory": "Nova categoria",
+  "editCategory": "Editar categoria",
+  "noRows": "Nenhuma categoria encontrada",
+  "deleteTitle": "Excluir categoria",
+  "deleteConfirm": "Tem certeza que deseja excluir a categoria <bold>{name}</bold>? Esta ação não pode ser desfeita.",
+  "deleteSuccess": "Categoria excluída com sucesso!",
+  "createSuccess": "Categoria criada com sucesso!",
+  "updateSuccess": "Categoria atualizada com sucesso!",
+  "notFound": "Categoria não encontrada.",
+  "loadError": "Erro ao carregar categoria.",
+  "noneType": "Nenhum"
+}

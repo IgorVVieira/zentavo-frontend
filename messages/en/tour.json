@@ -1,0 +1,78 @@
+{
+  "next": "Next",
+  "prev": "Previous",
+  "done": "Finish",
+  "skip": "Skip tour",
+  "dashboard": {
+    "welcome": {
+      "title": "Welcome to ZenCash!",
+      "description": "This is your financial dashboard. Let's take a quick tour of the features."
+    },
+    "stats": {
+      "title": "Financial Summary",
+      "description": "Here you can see your income, expenses, and balance for the selected month."
+    },
+    "monthPicker": {
+      "title": "Filter by Month",
+      "description": "Use this selector to navigate between months and view data from previous periods."
+    },
+    "charts": {
+      "title": "Charts & Analytics",
+      "description": "Visualize your expenses by category, payment method, and the last 6 months trend."
+    },
+    "import": {
+      "title": "Import Statement",
+      "description": "Click here to import your bank statement in OFX format."
+    }
+  },
+  "categories": {
+    "welcome": {
+      "title": "Categories",
+      "description": "Manage your categories to better organize your financial transactions."
+    },
+    "create": {
+      "title": "Create Category",
+      "description": "Click here to create a new category with name, color, and type (income or expense)."
+    },
+    "grid": {
+      "title": "Categories List",
+      "description": "Here you see all your categories. Click the action icons to edit or delete."
+    }
+  },
+  "transactions": {
+    "welcome": {
+      "title": "Transactions",
+      "description": "View and manage all your financial transactions."
+    },
+    "filter": {
+      "title": "Filter by Period",
+      "description": "Select month and year to filter the displayed transactions."
+    },
+    "import": {
+      "title": "Import Statement",
+      "description": "Click here to import new transactions from your bank statement."
+    },
+    "grid": {
+      "title": "Transactions List",
+      "description": "See your transactions with description, amount, category, and date. Click to edit."
+    }
+  },
+  "import": {
+    "welcome": {
+      "title": "Import OFX Statement",
+      "description": "Import your transactions automatically from your bank statement."
+    },
+    "info": {
+      "title": "OFX Format",
+      "description": "The OFX file is exported from your bank's online banking."
+    },
+    "dropzone": {
+      "title": "Upload Area",
+      "description": "Click or drag your OFX file here to upload."
+    },
+    "steps": {
+      "title": "How It Works",
+      "description": "Follow these steps to successfully import your statement."
+    }
+  }
+}

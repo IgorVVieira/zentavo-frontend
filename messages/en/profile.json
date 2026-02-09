@@ -1,0 +1,14 @@
+{
+  "title": "My profile",
+  "accountInfo": "Account information",
+  "name": "Name",
+  "email": "Email",
+  "memberSince": "Member since",
+  "lastUpdate": "Last update",
+  "loadError": "Failed to load profile.",
+  "notFound": "Profile not found.",
+  "settings": "Settings",
+  "restartTour": "Introduction tour",
+  "restartTourDescription": "View the ZenCash welcome tour again",
+  "restartTourButton": "Restart tour"
+}

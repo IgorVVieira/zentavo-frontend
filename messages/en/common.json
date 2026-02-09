@@ -1,0 +1,95 @@
+{
+  "metadata": {
+    "title": "ZenCash",
+    "description": "ZenCash - Financial management system"
+  },
+  "nav": {
+    "menu": "Menu",
+    "management": "Management",
+    "dashboard": "Dashboard",
+    "categories": "Categories",
+    "transactions": "Transactions",
+    "importOFX": "Import OFX",
+    "profile": "My profile",
+    "logout": "Sign out",
+    "collapseMenu": "Collapse menu",
+    "expandMenu": "Expand menu",
+    "collapseMenuAria": "Collapse navigation menu",
+    "expandMenuAria": "Expand navigation menu"
+  },
+  "auth": {
+    "signIn": "Sign in",
+    "signUp": "Create account",
+    "email": "Email",
+    "password": "Password",
+    "name": "Full name",
+    "emailPlaceholder": "your@email.com",
+    "passwordPlaceholder": "••••••",
+    "namePlaceholder": "Your name",
+    "rememberMe": "Remember me",
+    "forgotPassword": "Forgot your password?",
+    "or": "or",
+    "signInWithGoogle": "Sign in with Google",
+    "signUpWithGoogle": "Sign up with Google",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?",
+    "register": "Sign up",
+    "signInLink": "Sign in",
+    "submit": "Sign up"
+  },
+  "validation": {
+    "emailRequired": "Please enter a valid email.",
+    "passwordMin": "Password must be at least 6 characters.",
+    "nameRequired": "Name is required.",
+    "descriptionRequired": "Description is required.",
+    "categoryNameRequired": "Name is required.",
+    "categoryColorRequired": "Color is required."
+  },
+  "errors": {
+    "wrongCredentials": "Incorrect email or password.",
+    "loginError": "Login failed. Please try again.",
+    "connectionError": "Connection error. Check your internet and try again.",
+    "connectionErrorShort": "Connection error. Check your internet.",
+    "connectionRetry": "Connection error. Please try again.",
+    "sessionExpired": "Session expired. Please sign in again.",
+    "emailExists": "This email is already registered.",
+    "createAccountError": "Failed to create account. Please try again.",
+    "loadError": "Failed to load {entity}.",
+    "saveError": "Failed to save {entity}.",
+    "deleteError": "Failed to delete {entity}.",
+    "notFound": "{entity} not found.",
+    "profileNotFound": "Profile not found.",
+    "forgotPasswordError": "Failed to send email. Please try again."
+  },
+  "actions": {
+    "create": "Create",
+    "save": "Save",
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "back": "Back",
+    "continue": "Continue",
+    "refresh": "Refresh data",
+    "import": "Import",
+    "edit": "Edit",
+    "export": "Export"
+  },
+  "types": {
+    "cashIn": "Income",
+    "cashOut": "Expense",
+    "none": "None"
+  },
+  "methods": {
+    "PIX": "PIX",
+    "DEBIT": "Debit",
+    "TRANSFER": "Transfer",
+    "CARD_PAYMENT": "Card",
+    "CASH_BACK": "Cashback"
+  },
+  "forgotPassword": {
+    "title": "Reset password",
+    "description": "Enter your account email and we'll send you a link to reset your password.",
+    "successDefault": "Recovery link sent successfully!",
+    "emailLabel": "Email",
+    "emailPlaceholder": "Email"
+  }
+}

@@ -1,0 +1,78 @@
+{
+  "next": "Próximo",
+  "prev": "Anterior",
+  "done": "Finalizar",
+  "skip": "Pular tour",
+  "dashboard": {
+    "welcome": {
+      "title": "Bem-vindo ao ZenCash!",
+      "description": "Este é o seu painel financeiro. Vamos fazer um tour rápido pelas funcionalidades."
+    },
+    "stats": {
+      "title": "Resumo Financeiro",
+      "description": "Aqui você vê suas entradas, saídas e saldo do mês selecionado."
+    },
+    "monthPicker": {
+      "title": "Filtrar por Mês",
+      "description": "Use este seletor para navegar entre os meses e ver seus dados de períodos anteriores."
+    },
+    "charts": {
+      "title": "Gráficos e Análises",
+      "description": "Visualize seus gastos por categoria, método de pagamento e a evolução dos últimos 6 meses."
+    },
+    "import": {
+      "title": "Importar Extrato",
+      "description": "Clique aqui para importar seu extrato bancário em formato OFX."
+    }
+  },
+  "categories": {
+    "welcome": {
+      "title": "Categorias",
+      "description": "Gerencie suas categorias para organizar melhor suas transações financeiras."
+    },
+    "create": {
+      "title": "Criar Categoria",
+      "description": "Clique aqui para criar uma nova categoria com nome, cor e tipo (entrada ou saída)."
+    },
+    "grid": {
+      "title": "Lista de Categorias",
+      "description": "Aqui você vê todas as suas categorias. Clique nos ícones de ação para editar ou excluir."
+    }
+  },
+  "transactions": {
+    "welcome": {
+      "title": "Transações",
+      "description": "Visualize e gerencie todas as suas transações financeiras."
+    },
+    "filter": {
+      "title": "Filtrar por Período",
+      "description": "Selecione o mês e ano para filtrar as transações exibidas."
+    },
+    "import": {
+      "title": "Importar Extrato",
+      "description": "Clique aqui para importar novas transações do seu extrato bancário."
+    },
+    "grid": {
+      "title": "Lista de Transações",
+      "description": "Veja suas transações com descrição, valor, categoria e data. Clique para editar."
+    }
+  },
+  "import": {
+    "welcome": {
+      "title": "Importar Extrato OFX",
+      "description": "Importe suas transações automaticamente a partir do extrato bancário."
+    },
+    "info": {
+      "title": "Formato OFX",
+      "description": "O arquivo OFX é exportado pelo seu banco no internet banking."
+    },
+    "dropzone": {
+      "title": "Área de Upload",
+      "description": "Clique ou arraste seu arquivo OFX aqui para fazer o upload."
+    },
+    "steps": {
+      "title": "Como Funciona",
+      "description": "Siga estes passos para importar seu extrato com sucesso."
+    }
+  }
+}

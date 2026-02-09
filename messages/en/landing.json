@@ -1,0 +1,82 @@
+{
+  "hero": {
+    "titleStart": "Stay zen managing",
+    "titleHighlight": "your money",
+    "subtitle": "Import your bank statement, categorize and see where every penny goes.",
+    "cta": "Start for free",
+    "ctaSecondary": "I already have an account"
+  },
+  "sections": {
+    "dashboard": {
+      "label": "Dashboard",
+      "title": "Your finances in a single panel",
+      "description": "Income, expenses, balance, monthly trends and spending by category — all visible at once."
+    },
+    "transactions": {
+      "label": "Transactions",
+      "title": "All transactions organized",
+      "description": "Filter by month, sort by amount or date, edit categories and export data. Quick search, pagination and colored income/expense chips."
+    },
+    "import": {
+      "label": "OFX Import",
+      "title": "Any bank, one click",
+      "description": "Export the OFX from your bank and upload it. Works with any institution that offers OFX."
+    },
+    "categories": {
+      "label": "Categories",
+      "title": "Organize your way",
+      "description": "Create categories with colors, classify as income or expense and watch the charts adapt automatically."
+    }
+  },
+  "preview": {
+    "cashIn": "Income",
+    "cashOut": "Expenses",
+    "balance": "Balance",
+    "last6months": "Last 6 months",
+    "expensesByCategory": "Expenses by category",
+    "description": "Description",
+    "type": "Type",
+    "method": "Method",
+    "amount": "Amount",
+    "category": "Category",
+    "color": "Color",
+    "name": "Name",
+    "importStatement": "Import statement",
+    "selectOFX": "Select a .ofx file",
+    "importBtn": "Import",
+    "andOthers": "and more..."
+  },
+  "pricing": {
+    "title": "Plans",
+    "subtitle": "Start for free. Upgrade whenever you want.",
+    "recommended": "Recommended",
+    "perMonth": "/mo",
+    "free": {
+      "title": "Free",
+      "price": "0",
+      "features": [
+        "Unlimited use for 7 days",
+        "Unlimited OFX statement imports",
+        "Full dashboard with charts",
+        "Custom categories",
+        "Light and dark theme"
+      ],
+      "cta": "Start for free"
+    },
+    "pro": {
+      "title": "Pro",
+      "price": "15",
+      "features": [
+        "Everything in Free, no time limit",
+        "Unlimited OFX statement imports",
+        "Complete transaction history",
+        "Priority support",
+        "Early access to new features"
+      ],
+      "cta": "Subscribe Pro"
+    }
+  },
+  "footer": {
+    "tagline": "Stay zen managing your money."
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "title": "Transações",
+  "description": "Descrição",
+  "type": "Tipo",
+  "amount": "Valor",
+  "method": "Método",
+  "category": "Categoria",
+  "date": "Data",
+  "actions": "Ações",
+  "editTransaction": "Editar transação",
+  "noRows": "Nenhuma transação encontrada",
+  "notFound": "Transação não encontrada.",
+  "loadError": "Erro ao carregar transação.",
+  "descriptionRequired": "A descrição é obrigatória.",
+  "updateSuccess": "Transação atualizada com sucesso!",
+  "noneCategory": "Nenhuma"
+}

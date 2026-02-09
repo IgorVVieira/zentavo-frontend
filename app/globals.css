@@ -1,0 +1,116 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Driver.js Tour Styles */
+.driver-popover {
+  background-color: var(--background) !important;
+  color: var(--foreground) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2) !important;
+  min-width: 320px !important;
+  max-width: 400px !important;
+}
+
+.driver-popover-title {
+  font-size: 1.125rem !important;
+  font-weight: 600 !important;
+}
+
+.driver-popover-description {
+  font-size: 0.875rem !important;
+  color: inherit !important;
+  opacity: 0.8;
+}
+
+.driver-popover-progress-text {
+  font-size: 0.75rem !important;
+  opacity: 0.6;
+}
+
+.driver-popover-prev-btn,
+.driver-popover-next-btn {
+  border-radius: 8px !important;
+  padding: 8px 16px !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+  text-transform: none !important;
+}
+
+.driver-popover-next-btn {
+  background-color: #1976d2 !important;
+  color: white !important;
+  border: none !important;
+}
+
+.driver-popover-next-btn:hover {
+  background-color: #1565c0 !important;
+}
+
+.driver-popover-prev-btn {
+  background-color: transparent !important;
+  color: var(--foreground) !important;
+  border: 1px solid rgba(128, 128, 128, 0.3) !important;
+}
+
+.driver-popover-prev-btn:hover {
+  background-color: rgba(128, 128, 128, 0.1) !important;
+}
+
+.driver-popover-skip-btn {
+  border-radius: 8px !important;
+  padding: 8px 16px !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+  text-transform: none !important;
+  background-color: transparent !important;
+  color: var(--foreground) !important;
+  opacity: 0.6 !important;
+  border: none !important;
+  cursor: pointer !important;
+  margin-right: auto !important;
+}
+
+.driver-popover-skip-btn:hover {
+  opacity: 1 !important;
+  background-color: rgba(128, 128, 128, 0.1) !important;
+}
+
+.driver-popover-close-btn {
+  color: var(--foreground) !important;
+  opacity: 0.6;
+}
+
+.driver-popover-close-btn:hover {
+  opacity: 1;
+}
+
+.driver-popover-arrow-side-left.driver-popover-arrow,
+.driver-popover-arrow-side-right.driver-popover-arrow,
+.driver-popover-arrow-side-top.driver-popover-arrow,
+.driver-popover-arrow-side-bottom.driver-popover-arrow {
+  border-color: var(--background) !important;
+}
