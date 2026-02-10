@@ -48,21 +48,9 @@
   },
   "pricing": {
     "title": "Planos",
-    "subtitle": "Comece grátis. Faça upgrade quando quiser.",
+    "subtitle": "Assine e tenha acesso completo.",
     "recommended": "Recomendado",
     "perMonth": "/mês",
-    "free": {
-      "title": "Free",
-      "price": "0",
-      "features": [
-        "Uso ilimitado por 7 dias",
-        "Importação ilimitada de extratos OFX",
-        "Dashboard completo com gráficos",
-        "Categorias personalizadas",
-        "Tema claro e escuro"
-      ],
-      "cta": "Começar grátis"
-    },
     "pro": {
       "title": "Pro",
       "price": "15",

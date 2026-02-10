@@ -16,9 +16,11 @@ import Alert from '@mui/material/Alert';
 import CircularProgress from '@mui/material/CircularProgress';
 import { styled } from '@mui/material/styles';
 import { useRouter } from '@/i18n/navigation';
+import { useSearchParams } from 'next/navigation';
 import AppTheme from '../../shared-theme/AppTheme';
 import ColorModeSelect from '../../shared-theme/ColorModeSelect';
-import { createUser } from '../../lib/auth';
+import { createUser, login } from '../../lib/auth';
+import { createPaymentLink } from '../../lib/payments';
 import { GoogleIcon } from '../login/components/CustomIcons';
 import CoinLogo from '../../components/CoinLogo';
 import { useTranslations } from 'next-intl';
@@ -68,6 +70,8 @@ const SignUpContainer = styled(Stack)(({ theme }) => ({
 
 export default function RegisterPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const productId = searchParams.get('productId');
   const t = useTranslations('common');
   const [nameError, setNameError] = React.useState(false);
   const [nameErrorMessage, setNameErrorMessage] = React.useState('');
@@ -131,6 +135,16 @@ export default function RegisterPage() {
 
     try {
       await createUser({ name, email, password });
+
+      if (productId) {
+        const authResponse = await login({ email, password });
+        localStorage.setItem('zencash_token', authResponse.token);
+
+        const paymentLink = await createPaymentLink(productId);
+        window.location.href = paymentLink.url;
+        return;
+      }
+
       router.push('/login');
     } catch (error: unknown) {
       if (error && typeof error === 'object' && 'response' in error) {

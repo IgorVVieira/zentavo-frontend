@@ -91,5 +91,10 @@
     "successDefault": "Link de recuperação enviado com sucesso!",
     "emailLabel": "E-mail",
     "emailPlaceholder": "E-mail"
+  },
+  "paymentSuccess": {
+    "title": "Obrigado pelo seu pagamento!",
+    "description": "Seu acesso será liberado assim que o pagamento for confirmado.",
+    "cta": "Ir para o login"
   }
 }

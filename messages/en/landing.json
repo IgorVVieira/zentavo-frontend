@@ -48,21 +48,9 @@
   },
   "pricing": {
     "title": "Plans",
-    "subtitle": "Start for free. Upgrade whenever you want.",
+    "subtitle": "Subscribe and get full access.",
     "recommended": "Recommended",
     "perMonth": "/mo",
-    "free": {
-      "title": "Free",
-      "price": "0",
-      "features": [
-        "Unlimited use for 7 days",
-        "Unlimited OFX statement imports",
-        "Full dashboard with charts",
-        "Custom categories",
-        "Light and dark theme"
-      ],
-      "cta": "Start for free"
-    },
     "pro": {
       "title": "Pro",
       "price": "15",

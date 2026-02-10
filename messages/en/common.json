@@ -91,5 +91,10 @@
     "successDefault": "Recovery link sent successfully!",
     "emailLabel": "Email",
     "emailPlaceholder": "Email"
+  },
+  "paymentSuccess": {
+    "title": "Thank you for your payment!",
+    "description": "Your access will be unlocked as soon as the payment is confirmed.",
+    "cta": "Go to login"
   }
 }
