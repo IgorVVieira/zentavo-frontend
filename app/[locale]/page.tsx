@@ -6,6 +6,7 @@ import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Chip from '@mui/material/Chip';
+import CircularProgress from '@mui/material/CircularProgress';
 import Container from '@mui/material/Container';
 import CssBaseline from '@mui/material/CssBaseline';
 import Divider from '@mui/material/Divider';
@@ -23,6 +24,7 @@ import { BarChart } from '@mui/x-charts/BarChart';
 import { PieChart } from '@mui/x-charts/PieChart';
 import { SparkLineChart } from '@mui/x-charts/SparkLineChart';
 import { areaElementClasses } from '@mui/x-charts/LineChart';
+import { listProducts, Product } from '../lib/products';
 
 // ---------------------------------------------------------------------------
 // Styled
@@ -339,24 +341,15 @@ function CategoriesPreview() {
 export default function LandingPage() {
   const t = useTranslations('landing');
   const tc = useTranslations('common');
+  const [products, setProducts] = React.useState<Product[]>([]);
+  const [loadingProducts, setLoadingProducts] = React.useState(true);
 
-  const tiers = [
-    {
-      title: t('pricing.free.title'),
-      price: t('pricing.free.price'),
-      features: t.raw('pricing.free.features') as string[],
-      buttonText: t('pricing.free.cta'),
-      buttonVariant: 'outlined' as const,
-    },
-    {
-      title: t('pricing.pro.title'),
-      price: t('pricing.pro.price'),
-      features: t.raw('pricing.pro.features') as string[],
-      buttonText: t('pricing.pro.cta'),
-      buttonVariant: 'contained' as const,
-      recommended: true,
-    },
-  ];
+  React.useEffect(() => {
+    listProducts()
+      .then(setProducts)
+      .catch(() => setProducts([]))
+      .finally(() => setLoadingProducts(false));
+  }, []);
 
   return (
     <AppTheme>
@@ -518,56 +511,59 @@ export default function LandingPage() {
           >
             {t('pricing.subtitle')}
           </Typography>
-          <Stack direction={{ xs: 'column', md: 'row' }} spacing={3} sx={{ maxWidth: 700, mx: 'auto' }}>
-            {tiers.map((tier) => (
-              <Card
-                key={tier.title}
-                variant="outlined"
-                sx={{
-                  p: 4,
-                  flex: 1,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  position: 'relative',
-                  ...(tier.recommended && { borderColor: 'primary.main', borderWidth: 2 }),
-                }}
-              >
-                {tier.recommended && (
+          {loadingProducts ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+              <CircularProgress />
+            </Box>
+          ) : (
+            <Stack direction={{ xs: 'column', md: 'row' }} spacing={3} sx={{ maxWidth: 400, mx: 'auto' }}>
+              {products.map((product) => (
+                <Card
+                  key={product.id}
+                  variant="outlined"
+                  sx={{
+                    p: 4,
+                    flex: 1,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    position: 'relative',
+                    borderColor: 'primary.main',
+                    borderWidth: 2,
+                  }}
+                >
                   <Chip
                     label={t('pricing.recommended')}
                     color="primary"
                     size="small"
                     sx={{ position: 'absolute', top: 16, right: 16 }}
                   />
-                )}
-                <Typography variant="h5" fontWeight={600} sx={{ mb: 1 }}>
-                  {tier.title}
-                </Typography>
-                <Box sx={{ display: 'flex', alignItems: 'baseline', mb: 3 }}>
-                  <Typography variant="h3" fontWeight={700}>
-                    R${tier.price}
+                  <Typography variant="h5" fontWeight={600} sx={{ mb: 1 }}>
+                    {t('pricing.pro.title')}
                   </Typography>
-                  {tier.price !== '0' && (
+                  <Box sx={{ display: 'flex', alignItems: 'baseline', mb: 3 }}>
+                    <Typography variant="h3" fontWeight={700}>
+                      R${product.price.toFixed(2).replace('.', ',')}
+                    </Typography>
                     <Typography variant="subtitle1" color="text.secondary" sx={{ ml: 0.5 }}>
                       {t('pricing.perMonth')}
                     </Typography>
-                  )}
-                </Box>
-                <Divider sx={{ mb: 3 }} />
-                <Stack spacing={1.5} sx={{ mb: 4, flex: 1 }}>
-                  {tier.features.map((f) => (
-                    <Stack key={f} direction="row" spacing={1} alignItems="center">
-                      <CheckCircleRoundedIcon sx={{ fontSize: 20, color: 'success.main' }} />
-                      <Typography variant="body2">{f}</Typography>
-                    </Stack>
-                  ))}
-                </Stack>
-                <Button variant={tier.buttonVariant} size="large" fullWidth href="/register">
-                  {tier.buttonText}
-                </Button>
-              </Card>
-            ))}
-          </Stack>
+                  </Box>
+                  <Divider sx={{ mb: 3 }} />
+                  <Stack spacing={1.5} sx={{ mb: 4, flex: 1 }}>
+                    {(t.raw('pricing.pro.features') as string[]).map((f) => (
+                      <Stack key={f} direction="row" spacing={1} alignItems="center">
+                        <CheckCircleRoundedIcon sx={{ fontSize: 20, color: 'success.main' }} />
+                        <Typography variant="body2">{f}</Typography>
+                      </Stack>
+                    ))}
+                  </Stack>
+                  <Button variant="contained" size="large" fullWidth href={`/register?productId=${product.id}`}>
+                    {t('pricing.pro.cta')}
+                  </Button>
+                </Card>
+              ))}
+            </Stack>
+          )}
         </Container>
 
         {/* Footer */}
