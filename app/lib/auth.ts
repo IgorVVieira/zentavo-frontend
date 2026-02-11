@@ -17,6 +17,8 @@ export async function login(data: LoginRequest): Promise<AuthResponse> {
 interface CreateUserRequest {
   name: string;
   email: string;
+  taxIdentifier: string;
+  cellphone: string;
   password: string;
 }
 

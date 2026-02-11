@@ -7,6 +7,8 @@ import CssBaseline from '@mui/material/CssBaseline';
 import Divider from '@mui/material/Divider';
 import FormLabel from '@mui/material/FormLabel';
 import FormControl from '@mui/material/FormControl';
+import IconButton from '@mui/material/IconButton';
+import InputAdornment from '@mui/material/InputAdornment';
 import Link from '@mui/material/Link';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
@@ -14,9 +16,10 @@ import Stack from '@mui/material/Stack';
 import MuiCard from '@mui/material/Card';
 import Alert from '@mui/material/Alert';
 import CircularProgress from '@mui/material/CircularProgress';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { styled } from '@mui/material/styles';
-import { useRouter } from '@/i18n/navigation';
-import { useSearchParams } from 'next/navigation';
+
 import AppTheme from '../../shared-theme/AppTheme';
 import ColorModeSelect from '../../shared-theme/ColorModeSelect';
 import { createUser, login } from '../../lib/auth';
@@ -68,15 +71,40 @@ const SignUpContainer = styled(Stack)(({ theme }) => ({
   },
 }));
 
+function maskCpfCnpj(value: string): string {
+  const digits = value.replace(/\D/g, '');
+  if (digits.length <= 11) {
+    return digits
+      .replace(/(\d{3})(\d)/, '$1.$2')
+      .replace(/(\d{3})(\d)/, '$1.$2')
+      .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+  }
+  return digits
+    .slice(0, 14)
+    .replace(/(\d{2})(\d)/, '$1.$2')
+    .replace(/(\d{3})(\d)/, '$1.$2')
+    .replace(/(\d{3})(\d)/, '$1/$2')
+    .replace(/(\d{4})(\d{1,2})$/, '$1-$2');
+}
+
+function maskPhone(value: string): string {
+  const digits = value.replace(/\D/g, '').slice(0, 11);
+  if (digits.length <= 2) return digits;
+  if (digits.length <= 7) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
+  return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
+}
+
 export default function RegisterPage() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const productId = searchParams.get('productId');
   const t = useTranslations('common');
+  const [showPassword, setShowPassword] = React.useState(false);
   const [nameError, setNameError] = React.useState(false);
   const [nameErrorMessage, setNameErrorMessage] = React.useState('');
   const [emailError, setEmailError] = React.useState(false);
   const [emailErrorMessage, setEmailErrorMessage] = React.useState('');
+  const [taxIdentifierError, setTaxIdentifierError] = React.useState(false);
+  const [taxIdentifierErrorMessage, setTaxIdentifierErrorMessage] = React.useState('');
+  const [cellphoneError, setCellphoneError] = React.useState(false);
+  const [cellphoneErrorMessage, setCellphoneErrorMessage] = React.useState('');
   const [passwordError, setPasswordError] = React.useState(false);
   const [passwordErrorMessage, setPasswordErrorMessage] = React.useState('');
   const [loading, setLoading] = React.useState(false);
@@ -85,13 +113,15 @@ export default function RegisterPage() {
   const validateInputs = () => {
     const name = document.getElementById('name') as HTMLInputElement;
     const email = document.getElementById('email') as HTMLInputElement;
+    const taxIdentifier = document.getElementById('taxIdentifier') as HTMLInputElement;
+    const cellphone = document.getElementById('cellphone') as HTMLInputElement;
     const password = document.getElementById('password') as HTMLInputElement;
 
     let isValid = true;
 
     if (!name.value || name.value.length < 1) {
       setNameError(true);
-      setNameErrorMessage('O nome e obrigatorio.');
+      setNameErrorMessage(t('validation.nameRequired'));
       isValid = false;
     } else {
       setNameError(false);
@@ -105,6 +135,24 @@ export default function RegisterPage() {
     } else {
       setEmailError(false);
       setEmailErrorMessage('');
+    }
+
+    if (!taxIdentifier.value || taxIdentifier.value.trim().length < 1) {
+      setTaxIdentifierError(true);
+      setTaxIdentifierErrorMessage(t('validation.taxIdentifierRequired'));
+      isValid = false;
+    } else {
+      setTaxIdentifierError(false);
+      setTaxIdentifierErrorMessage('');
+    }
+
+    if (!cellphone.value || cellphone.value.trim().length < 1) {
+      setCellphoneError(true);
+      setCellphoneErrorMessage(t('validation.cellphoneRequired'));
+      isValid = false;
+    } else {
+      setCellphoneError(false);
+      setCellphoneErrorMessage('');
     }
 
     if (!password.value || password.value.length < 6) {
@@ -131,21 +179,18 @@ export default function RegisterPage() {
     const data = new FormData(event.currentTarget);
     const name = data.get('name') as string;
     const email = data.get('email') as string;
+    const taxIdentifier = (data.get('taxIdentifier') as string).replace(/\D/g, '');
+    const cellphone = (data.get('cellphone') as string).replace(/\D/g, '');
     const password = data.get('password') as string;
 
     try {
-      await createUser({ name, email, password });
+      await createUser({ name, email, taxIdentifier, cellphone, password });
 
-      if (productId) {
-        const authResponse = await login({ email, password });
-        localStorage.setItem('zencash_token', authResponse.token);
+      const authResponse = await login({ email, password });
+      localStorage.setItem('zencash_token', authResponse.token);
 
-        const paymentLink = await createPaymentLink(productId);
-        window.location.href = paymentLink.url;
-        return;
-      }
-
-      router.push('/login');
+      const paymentLink = await createPaymentLink();
+      window.location.href = paymentLink.url;
     } catch (error: unknown) {
       if (error && typeof error === 'object' && 'response' in error) {
         const axiosError = error as { response?: { status?: number; data?: { message?: string } } };
@@ -222,19 +267,78 @@ export default function RegisterPage() {
               />
             </FormControl>
             <FormControl>
+              <FormLabel htmlFor="taxIdentifier">{t('auth.taxIdentifier')}</FormLabel>
+              <TextField
+                required
+                fullWidth
+                id="taxIdentifier"
+                placeholder={t('auth.taxIdentifierPlaceholder')}
+                name="taxIdentifier"
+                autoComplete="off"
+                variant="outlined"
+                error={taxIdentifierError}
+                helperText={taxIdentifierErrorMessage}
+                color={taxIdentifierError ? 'error' : 'primary'}
+                inputProps={{ maxLength: 18, inputMode: 'numeric' }}
+                onChange={(e) => {
+                  e.target.value = maskCpfCnpj(e.target.value);
+                }}
+              />
+            </FormControl>
+            <FormControl>
+              <FormLabel htmlFor="cellphone">{t('auth.cellphone')}</FormLabel>
+              <TextField
+                required
+                fullWidth
+                id="cellphone"
+                placeholder={t('auth.cellphonePlaceholder')}
+                name="cellphone"
+                autoComplete="tel"
+                variant="outlined"
+                error={cellphoneError}
+                helperText={cellphoneErrorMessage}
+                color={cellphoneError ? 'error' : 'primary'}
+                inputProps={{ maxLength: 15, inputMode: 'numeric' }}
+                onChange={(e) => {
+                  e.target.value = maskPhone(e.target.value);
+                }}
+              />
+            </FormControl>
+            <FormControl>
               <FormLabel htmlFor="password">{t('auth.password')}</FormLabel>
               <TextField
                 required
                 fullWidth
                 name="password"
                 placeholder="••••••"
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 id="password"
                 autoComplete="new-password"
                 variant="outlined"
                 error={passwordError}
                 helperText={passwordErrorMessage}
                 color={passwordError ? 'error' : 'primary'}
+                slotProps={{
+                  input: {
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          aria-label="toggle password visibility"
+                          onClick={() => setShowPassword((prev) => !prev)}
+                          edge="end"
+                          size="small"
+                          sx={{
+                            border: 'none',
+                            backgroundColor: 'transparent',
+                            '&:hover': { backgroundColor: 'transparent', border: 'none' },
+                          }}
+                        >
+                          {showPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  },
+                }}
               />
             </FormControl>
             {apiError && (

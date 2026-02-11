@@ -557,7 +557,7 @@ export default function LandingPage() {
                       </Stack>
                     ))}
                   </Stack>
-                  <Button variant="contained" size="large" fullWidth href={`/register?productId=${product.id}`}>
+                  <Button variant="contained" size="large" fullWidth href="/register?pay=true">
                     {t('pricing.pro.cta')}
                   </Button>
                 </Card>

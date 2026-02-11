@@ -16,12 +16,14 @@ import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { importOFX } from '../../lib/transactions';
 import { useToast } from '../../components/ToastProvider';
 import OnboardingTour from '../../components/OnboardingTour';
+import { useSubscription } from '../../lib/subscription-context';
 import { useTranslations } from 'next-intl';
 
 export default function ImportPage() {
   const { showToast } = useToast();
   const t = useTranslations('import');
   const tc = useTranslations('common');
+  const { hasSubscription } = useSubscription();
   const [file, setFile] = React.useState<File | null>(null);
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState('');
@@ -96,11 +98,12 @@ export default function ImportPage() {
                 borderRadius: 2,
                 p: 4,
                 textAlign: 'center',
-                cursor: 'pointer',
+                cursor: hasSubscription ? 'pointer' : 'default',
                 transition: 'border-color 0.2s',
-                '&:hover': { borderColor: 'primary.main' },
+                '&:hover': hasSubscription ? { borderColor: 'primary.main' } : undefined,
+                ...(!hasSubscription ? { opacity: 0.4, pointerEvents: 'none' } : {}),
               }}
-              onClick={() => inputRef.current?.click()}
+              onClick={() => hasSubscription && inputRef.current?.click()}
             >
               <input
                 ref={inputRef}
@@ -108,6 +111,7 @@ export default function ImportPage() {
                 accept=".ofx"
                 onChange={handleFileChange}
                 hidden
+                disabled={!hasSubscription}
               />
               {file ? (
                 <Stack alignItems="center" spacing={1}>
@@ -142,8 +146,9 @@ export default function ImportPage() {
               size="large"
               startIcon={loading ? <CircularProgress size={20} color="inherit" /> : <CloudUploadIcon />}
               onClick={handleSubmit}
-              disabled={loading || !file}
+              disabled={loading || !file || !hasSubscription}
               fullWidth
+              sx={!hasSubscription ? { opacity: 0.4, pointerEvents: 'none' } : undefined}
             >
               {loading ? t('uploading') : t('importBtn')}
             </Button>

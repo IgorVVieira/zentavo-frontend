@@ -23,6 +23,7 @@ import {
 } from '../../lib/dashboard';
 import MonthYearPicker from '../../components/MonthYearPicker';
 import OnboardingTour from '../../components/OnboardingTour';
+import { useSubscription } from '../../lib/subscription-context';
 import { useTranslations, useLocale } from 'next-intl';
 
 function getDaysInMonth(month: number, year: number) {
@@ -38,6 +39,7 @@ function getDaysInMonth(month: number, year: number) {
 export default function DashboardPage() {
   const t = useTranslations('dashboard');
   const locale = useLocale();
+  const { hasSubscription } = useSubscription();
 
   function formatCurrency(value: number): string {
     const loc = locale === 'pt-br' ? 'pt-BR' : 'en-US';
@@ -207,6 +209,7 @@ export default function DashboardPage() {
             month={currentMonth}
             year={currentYear}
             onChange={handleMonthYearChange}
+            disabled={!hasSubscription}
           />
         </Box>
       </Box>

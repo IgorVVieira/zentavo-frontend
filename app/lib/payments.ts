@@ -4,7 +4,7 @@ interface PaymentLinkResponse {
   url: string;
 }
 
-export async function createPaymentLink(productId: string): Promise<PaymentLinkResponse> {
-  const response = await api.post<PaymentLinkResponse>('/api/payments/link', { productId });
+export async function createPaymentLink(): Promise<PaymentLinkResponse> {
+  const response = await api.post<PaymentLinkResponse>('/api/payments/link');
   return response.data;
 }

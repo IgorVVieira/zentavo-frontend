@@ -27,6 +27,7 @@ import {
   type Transaction,
 } from '../../lib/transactions';
 import OnboardingTour from '../../components/OnboardingTour';
+import { useSubscription } from '../../lib/subscription-context';
 import { useTranslations, useLocale } from 'next-intl';
 import { useDataGridLocale } from '@/app/lib/i18n/useDataGridLocale';
 
@@ -37,6 +38,7 @@ export default function TransactionsPage() {
   const tc = useTranslations('common');
   const locale = useLocale();
   const localeText = useDataGridLocale();
+  const { hasSubscription } = useSubscription();
   const now = new Date();
 
   const [month, setMonth] = React.useState(now.getMonth() + 1);
@@ -155,23 +157,27 @@ export default function TransactionsPage() {
         width: 120,
         valueGetter: (value: string) => value && new Date(value),
       },
-      {
-        field: 'actions',
-        type: 'actions',
-        headerName: t('actions'),
-        width: 80,
-        align: 'right',
-        getActions: ({ row }) => [
-          <GridActionsCellItem
-            key="edit"
-            icon={<EditIcon />}
-            label={tc('actions.edit')}
-            onClick={handleRowEdit(row)}
-          />,
-        ],
-      },
+      ...(hasSubscription
+        ? [
+            {
+              field: 'actions',
+              type: 'actions' as const,
+              headerName: t('actions'),
+              width: 80,
+              align: 'right' as const,
+              getActions: ({ row }: { row: Transaction }) => [
+                <GridActionsCellItem
+                  key="edit"
+                  icon={<EditIcon />}
+                  label={tc('actions.edit')}
+                  onClick={handleRowEdit(row)}
+                />,
+              ],
+            },
+          ]
+        : []),
     ],
-    [handleRowEdit, t, tc, locale, methodLabels],
+    [handleRowEdit, t, tc, locale, methodLabels, hasSubscription],
   );
 
   const rows = React.useMemo(
@@ -212,11 +218,18 @@ export default function TransactionsPage() {
                     setMonth(m);
                     setYear(y);
                   }}
+                  disabled={!hasSubscription}
                 />
               </Box>
               <Tooltip title={tc('actions.refresh')} placement="right" enterDelay={1000}>
                 <div>
-                  <IconButton size="small" aria-label={tc('actions.refresh')} onClick={handleRefresh}>
+                  <IconButton
+                    size="small"
+                    aria-label={tc('actions.refresh')}
+                    onClick={handleRefresh}
+                    disabled={!hasSubscription}
+                    sx={!hasSubscription ? { opacity: 0.4 } : undefined}
+                  >
                     <RefreshIcon />
                   </IconButton>
                 </div>
@@ -226,6 +239,8 @@ export default function TransactionsPage() {
                 startIcon={<FileUploadIcon />}
                 onClick={() => router.push('/import')}
                 data-tour="transactions-import"
+                disabled={!hasSubscription}
+                sx={!hasSubscription ? { opacity: 0.4, pointerEvents: 'none' } : undefined}
               >
                 {tc('actions.import')}
               </Button>

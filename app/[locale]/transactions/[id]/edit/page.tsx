@@ -13,12 +13,22 @@ import {
   type UpdateTransactionRequest,
 } from '../../../../lib/transactions';
 import { useTranslations } from 'next-intl';
+import { useSubscription } from '../../../../lib/subscription-context';
+import { useRouter } from '@/i18n/navigation';
 
 export default function EditTransactionPage() {
   const params = useParams();
   const searchParams = useSearchParams();
   const id = params.id as string;
   const t = useTranslations('transactions');
+  const { hasSubscription } = useSubscription();
+  const router = useRouter();
+
+  React.useEffect(() => {
+    if (!hasSubscription) {
+      router.replace('/transactions');
+    }
+  }, [hasSubscription, router]);
 
   const month = Number(searchParams.get('month')) || new Date().getMonth() + 1;
   const year = Number(searchParams.get('year')) || new Date().getFullYear();

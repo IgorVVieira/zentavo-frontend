@@ -46,9 +46,10 @@ interface MonthYearPickerProps {
   month: number;
   year: number;
   onChange: (month: number, year: number) => void;
+  disabled?: boolean;
 }
 
-export default function MonthYearPicker({ month, year, onChange }: MonthYearPickerProps) {
+export default function MonthYearPicker({ month, year, onChange, disabled }: MonthYearPickerProps) {
   const value = React.useMemo(() => dayjs().year(year).month(month - 1), [month, year]);
 
   const handleChange = (newValue: Dayjs | null) => {
@@ -65,6 +66,7 @@ export default function MonthYearPicker({ month, year, onChange }: MonthYearPick
         value={value}
         label={label}
         onChange={handleChange}
+        disabled={disabled}
         slots={{ field: ButtonField }}
         slotProps={{
           nextIconButton: { size: 'small' },

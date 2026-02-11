@@ -13,12 +13,22 @@ import {
   type CreateCategoryRequest,
 } from '../../../../lib/categories';
 import { useTranslations } from 'next-intl';
+import { useSubscription } from '../../../../lib/subscription-context';
+import { useRouter } from '@/i18n/navigation';
 
 export default function EditCategoryPage() {
   const params = useParams();
   const id = params.id as string;
   const t = useTranslations('categories');
   const tc = useTranslations('common');
+  const { hasSubscription } = useSubscription();
+  const router = useRouter();
+
+  React.useEffect(() => {
+    if (!hasSubscription) {
+      router.replace('/categories');
+    }
+  }, [hasSubscription, router]);
 
   const [category, setCategory] = React.useState<Category | null>(null);
   const [loading, setLoading] = React.useState(true);

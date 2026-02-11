@@ -18,7 +18,10 @@ import AccountCircleRoundedIcon from '@mui/icons-material/AccountCircleRounded';
 import EmailRoundedIcon from '@mui/icons-material/EmailRounded';
 import CalendarTodayRoundedIcon from '@mui/icons-material/CalendarTodayRounded';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
+import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import { getMe } from '../../lib/auth';
+import { createPaymentLink } from '../../lib/payments';
+import { useSubscription } from '../../lib/subscription-context';
 import { resetTour } from '../../components/OnboardingTour';
 import { useRouter } from '@/i18n/navigation';
 import { useTranslations, useLocale } from 'next-intl';
@@ -35,13 +38,29 @@ export default function ProfilePage() {
   const t = useTranslations('profile');
   const locale = useLocale();
   const router = useRouter();
+  const { hasSubscription } = useSubscription();
   const [user, setUser] = React.useState<UserProfile | null>(null);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState('');
+  const [renewLoading, setRenewLoading] = React.useState(false);
+  const [renewError, setRenewError] = React.useState('');
 
   const handleRestartTour = () => {
     resetTour();
     router.push('/dashboard');
+  };
+
+  const handleRenewSubscription = async () => {
+    setRenewLoading(true);
+    setRenewError('');
+    try {
+      const paymentLink = await createPaymentLink();
+      window.location.href = paymentLink.url;
+    } catch {
+      setRenewError(t('renewError'));
+    } finally {
+      setRenewLoading(false);
+    }
   };
 
   React.useEffect(() => {
@@ -159,6 +178,53 @@ export default function ProfilePage() {
                 </Stack>
               </CardContent>
             </Card>
+
+            {!hasSubscription && (
+              <Card
+                variant="outlined"
+                sx={{
+                  mt: 3,
+                  borderColor: 'warning.main',
+                  bgcolor: 'warning.50',
+                }}
+              >
+                <CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
+                  <Box sx={{ px: 3, py: 2 }}>
+                    <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                      {t('subscription')}
+                    </Typography>
+                  </Box>
+                  <Divider />
+                  <Stack
+                    direction="row"
+                    sx={{ px: 3, py: 2, gap: 2, alignItems: 'center', justifyContent: 'space-between' }}
+                  >
+                    <Stack direction="row" sx={{ gap: 2, alignItems: 'center' }}>
+                      <WarningAmberIcon sx={{ color: 'warning.main' }} />
+                      <Box>
+                        <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                          {t('subscriptionExpired')}
+                        </Typography>
+                      </Box>
+                    </Stack>
+                    <Button
+                      variant="contained"
+                      color="warning"
+                      size="small"
+                      onClick={handleRenewSubscription}
+                      disabled={renewLoading}
+                    >
+                      {renewLoading ? t('redirecting') : t('renewSubscription')}
+                    </Button>
+                  </Stack>
+                  {renewError && (
+                    <Alert severity="error" sx={{ mx: 3, mb: 2 }}>
+                      {renewError}
+                    </Alert>
+                  )}
+                </CardContent>
+              </Card>
+            )}
 
             <Card variant="outlined" sx={{ mt: 3 }}>
               <CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
