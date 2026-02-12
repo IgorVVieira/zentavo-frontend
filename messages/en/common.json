@@ -35,12 +35,18 @@
     "hasAccount": "Already have an account?",
     "register": "Sign up",
     "signInLink": "Sign in",
-    "submit": "Sign up"
+    "submit": "Sign up",
+    "taxIdentifier": "Tax ID (CPF/CNPJ)",
+    "taxIdentifierPlaceholder": "000.000.000-00",
+    "cellphone": "Phone number",
+    "cellphonePlaceholder": "11999999999"
   },
   "validation": {
     "emailRequired": "Please enter a valid email.",
     "passwordMin": "Password must be at least 6 characters.",
     "nameRequired": "Name is required.",
+    "taxIdentifierRequired": "Tax ID is required.",
+    "cellphoneRequired": "Phone number is required.",
     "descriptionRequired": "Description is required.",
     "categoryNameRequired": "Name is required.",
     "categoryColorRequired": "Color is required."
@@ -91,5 +97,16 @@
     "successDefault": "Recovery link sent successfully!",
     "emailLabel": "Email",
     "emailPlaceholder": "Email"
+  },
+  "subscription": {
+    "expired": "Your subscription has expired",
+    "expiredDescription": "Renew your subscription to get full access to all features.",
+    "renew": "Renew subscription",
+    "redirecting": "Redirecting..."
+  },
+  "paymentSuccess": {
+    "title": "Thank you for your payment!",
+    "description": "Your access will be unlocked as soon as the payment is confirmed.",
+    "cta": "Go to login"
   }
 }

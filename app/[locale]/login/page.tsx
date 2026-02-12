@@ -3,18 +3,20 @@
 import * as React from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-import Checkbox from '@mui/material/Checkbox';
 import CssBaseline from '@mui/material/CssBaseline';
-import FormControlLabel from '@mui/material/FormControlLabel';
 import Divider from '@mui/material/Divider';
 import FormLabel from '@mui/material/FormLabel';
 import FormControl from '@mui/material/FormControl';
+import IconButton from '@mui/material/IconButton';
+import InputAdornment from '@mui/material/InputAdornment';
 import Link from '@mui/material/Link';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
 import MuiCard from '@mui/material/Card';
 import { styled } from '@mui/material/styles';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import ForgotPassword from './components/ForgotPassword';
 import AppTheme from '../../shared-theme/AppTheme';
 import ColorModeSelect from '../../shared-theme/ColorModeSelect';
@@ -77,6 +79,7 @@ export default function LoginPage() {
   const [passwordError, setPasswordError] = React.useState(false);
   const [passwordErrorMessage, setPasswordErrorMessage] = React.useState('');
   const [open, setOpen] = React.useState(false);
+  const [showPassword, setShowPassword] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
   const [apiError, setApiError] = React.useState('');
 
@@ -206,19 +209,36 @@ export default function LoginPage() {
                 helperText={passwordErrorMessage}
                 name="password"
                 placeholder="••••••"
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 id="password"
                 autoComplete="current-password"
                 required
                 fullWidth
                 variant="outlined"
                 color={passwordError ? 'error' : 'primary'}
+                slotProps={{
+                  input: {
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          aria-label="toggle password visibility"
+                          onClick={() => setShowPassword((prev) => !prev)}
+                          edge="end"
+                          size="small"
+                          sx={{
+                            border: 'none',
+                            backgroundColor: 'transparent',
+                            '&:hover': { backgroundColor: 'transparent', border: 'none' },
+                          }}
+                        >
+                          {showPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  },
+                }}
               />
             </FormControl>
-            <FormControlLabel
-              control={<Checkbox value="remember" color="primary" />}
-              label={t('auth.rememberMe')}
-            />
             <ForgotPassword open={open} handleClose={handleClose} />
             {apiError && (
               <Alert severity="error">{apiError}</Alert>

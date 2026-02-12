@@ -48,16 +48,26 @@ export default function TransactionForm({
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState('');
   const [descError, setDescError] = React.useState('');
+  const [categoriesError, setCategoriesError] = React.useState('');
 
   React.useEffect(() => {
+    const controller = new AbortController();
+    setCategoriesError('');
     getCategories()
-      .then((cats) =>
-        setCategories(
-          cats.filter((c) => c.type === null || c.type === transaction.type),
-        ),
-      )
-      .catch(() => {});
-  }, [transaction.type]);
+      .then((cats) => {
+        if (!controller.signal.aborted) {
+          setCategories(
+            cats.filter((c) => c.type === null || c.type === transaction.type),
+          );
+        }
+      })
+      .catch((err) => {
+        if (controller.signal.aborted) return;
+        if (err instanceof Error && err.name === 'CanceledError') return;
+        setCategoriesError(tc('errors.loadError', { entity: 'categorias' }));
+      });
+    return () => controller.abort();
+  }, [transaction.type, tc]);
 
   const validate = (): boolean => {
     let valid = true;
@@ -153,7 +163,7 @@ export default function TransactionForm({
                 />
               </Grid>
               <Grid size={{ xs: 12, sm: 6 }} sx={{ display: 'flex' }}>
-                <FormControl fullWidth>
+                <FormControl fullWidth error={!!categoriesError}>
                   <InputLabel id="category-label">{t('category')}</InputLabel>
                   <Select
                     labelId="category-label"
@@ -182,7 +192,7 @@ export default function TransactionForm({
                       </MenuItem>
                     ))}
                   </Select>
-                  <FormHelperText>{' '}</FormHelperText>
+                  <FormHelperText>{categoriesError || ' '}</FormHelperText>
                 </FormControl>
               </Grid>
             </Grid>

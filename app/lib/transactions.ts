@@ -36,6 +36,15 @@ export async function getTransactionsByMonth(
   return response.data;
 }
 
+export async function getTransactionById(
+  id: string,
+): Promise<Transaction> {
+  const response = await api.get<Transaction>(
+    `/api/transactions/${id}`,
+  );
+  return response.data;
+}
+
 export async function updateTransaction(
   id: string,
   data: UpdateTransactionRequest,

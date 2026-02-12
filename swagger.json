@@ -10,7 +10,7 @@
   },
   "servers": [
     {
-      "url": "http://localhost:3000",
+      "url": "http://localhost:3001",
       "description": "Development server"
     },
     {
@@ -38,6 +38,10 @@
     {
       "name": "Dashboard",
       "description": "Dashboard and analytics endpoints"
+    },
+    {
+      "name": "Payments",
+      "description": "Payment link generation and subscription management"
     }
   ],
   "components": {
@@ -69,8 +73,15 @@
       "AuthResponse": {
         "type": "object",
         "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "User ID",
+            "example": "123e4567-e89b-12d3-a456-426614174000"
+          },
           "token": {
             "type": "string",
+            "description": "JWT token containing user information and hasSubscription flag",
             "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
           }
         }
@@ -78,6 +89,7 @@
       "CreateUserRequest": {
         "type": "object",
         "required": ["name", "email", "password"],
+        "required": ["name", "email", "taxIdentifier", "cellphone", "password"],
         "properties": {
           "name": {
             "type": "string",
@@ -87,6 +99,16 @@
             "type": "string",
             "format": "email",
             "example": "john.doe@example.com"
+          },
+          "taxIdentifier": {
+            "type": "string",
+            "description": "Tax identification number (CPF/CNPJ for Brazil)",
+            "example": "123.456.789-00"
+          },
+          "cellphone": {
+            "type": "string",
+            "description": "Phone number in international format",
+            "example": "+5511999999999"
           },
           "password": {
             "type": "string",
@@ -111,6 +133,16 @@
             "type": "string",
             "format": "email",
             "example": "john.doe@example.com"
+          },
+          "taxIdentifier": {
+            "type": "string",
+            "description": "Tax identification number (CPF/CNPJ for Brazil)",
+            "example": "123.456.789-00"
+          },
+          "cellphone": {
+            "type": "string",
+            "description": "Phone number in international format",
+            "example": "+5511999999999"
           },
           "createdAt": {
             "type": "string",
@@ -358,6 +390,71 @@
             "example": 409
           }
         }
+      },
+      "ForbiddenError": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "User does not have an active subscription"
+          },
+          "statusCode": {
+            "type": "integer",
+            "example": 403
+          }
+        }
+      },
+      "CreatePaymentLinkRequest": {
+        "type": "object",
+        "description": "Request to create a payment link. User ID is extracted from JWT token.",
+        "properties": {}
+      },
+      "PaymentLinkResponse": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "description": "The payment link URL to redirect the user to",
+            "example": "https://pay.abacatepay.com/link/abc123xyz"
+          },
+          "paymentId": {
+            "type": "string",
+            "description": "Unique identifier for the payment",
+            "example": "pay_abc123xyz"
+          },
+          "customerId": {
+            "type": "string",
+            "description": "Customer identifier in the payment system",
+            "example": "cus_abc123xyz"
+          }
+        }
+      },
+      "ProductResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Product unique identifier",
+            "example": "550e8400-e29b-41d4-a716-446655440000"
+          },
+          "name": {
+            "type": "string",
+            "description": "Product name",
+            "example": "Premium Plan"
+          },
+          "description": {
+            "type": "string",
+            "description": "Product description",
+            "example": "Access to all premium features for 30 days"
+          },
+          "price": {
+            "type": "number",
+            "description": "Product price in BRL (converted from cents)",
+            "example": 29.99
+          }
+        }
       }
     }
   },
@@ -379,7 +476,7 @@
         },
         "responses": {
           "200": {
-            "description": "User logged in successfully",
+            "description": "User logged in successfully. Returns user ID and JWT token. Note: The JWT token payload includes a 'hasSubscription' boolean flag indicating if the user has an active subscription.",
             "content": {
               "application/json": {
                 "schema": {
@@ -404,6 +501,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/UnauthorizedError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - User does not have an active subscription",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ForbiddenError"
                 }
               }
             }
@@ -1129,6 +1236,145 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/UnauthorizedError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/products": {
+      "get": {
+        "tags": ["Payments"],
+        "summary": "List all products",
+        "description": "Retrieve a list of all available products for subscription",
+        "responses": {
+          "200": {
+            "description": "Products retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProductResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/payments/link": {
+      "post": {
+        "tags": ["Payments"],
+        "summary": "Create payment link",
+        "description": "Generate a payment link for subscription. The authenticated user ID is extracted from JWT token. No request body required.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Payment link created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaymentLinkResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request body or validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - invalid or missing JWT token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnauthorizedError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Product not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotFoundError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/payments/billing-paid": {
+      "post": {
+        "tags": ["Payments"],
+        "summary": "Webhook for billing paid event",
+        "description": "Webhook endpoint to receive notifications when a billing is paid. This endpoint is called by the payment provider (AbacatePay) when a payment is confirmed.",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "webhookSecret",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Webhook secret to authenticate the payment provider callback"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "description": "Webhook payload from payment provider containing billing information"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Webhook processed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid webhook secret",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Invalid webhook secret"
+                    }
+                  }
                 }
               }
             }

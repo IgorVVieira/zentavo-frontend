@@ -27,6 +27,11 @@ export async function getCategories(): Promise<Category[]> {
   return response.data;
 }
 
+export async function getCategoryById(id: string): Promise<Category> {
+  const response = await api.get<Category>(`/api/categories/${id}`);
+  return response.data;
+}
+
 export async function createCategory(data: CreateCategoryRequest): Promise<Category> {
   const response = await api.post<Category>('/api/categories', data);
   return response.data;

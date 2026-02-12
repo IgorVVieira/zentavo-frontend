@@ -35,12 +35,18 @@
     "hasAccount": "Já tem uma conta?",
     "register": "Cadastre-se",
     "signInLink": "Entrar",
-    "submit": "Cadastrar"
+    "submit": "Cadastrar",
+    "taxIdentifier": "CPF ou CNPJ",
+    "taxIdentifierPlaceholder": "000.000.000-00",
+    "cellphone": "Celular",
+    "cellphonePlaceholder": "11999999999"
   },
   "validation": {
     "emailRequired": "Por favor, insira um e-mail válido.",
     "passwordMin": "A senha deve ter pelo menos 6 caracteres.",
     "nameRequired": "O nome é obrigatório.",
+    "taxIdentifierRequired": "O CPF ou CNPJ é obrigatório.",
+    "cellphoneRequired": "O celular é obrigatório.",
     "descriptionRequired": "A descrição é obrigatória.",
     "categoryNameRequired": "O nome é obrigatório.",
     "categoryColorRequired": "A cor é obrigatória."
@@ -91,5 +97,16 @@
     "successDefault": "Link de recuperação enviado com sucesso!",
     "emailLabel": "E-mail",
     "emailPlaceholder": "E-mail"
+  },
+  "subscription": {
+    "expired": "Sua assinatura expirou",
+    "expiredDescription": "Renove sua assinatura para ter acesso completo a todas as funcionalidades.",
+    "renew": "Renovar assinatura",
+    "redirecting": "Redirecionando..."
+  },
+  "paymentSuccess": {
+    "title": "Obrigado pelo seu pagamento!",
+    "description": "Seu acesso será liberado assim que o pagamento for confirmado.",
+    "cta": "Ir para o login"
   }
 }

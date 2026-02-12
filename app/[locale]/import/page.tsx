@@ -13,19 +13,24 @@ import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import Link from 'next/link';
 import { importOFX } from '../../lib/transactions';
 import { useToast } from '../../components/ToastProvider';
 import OnboardingTour from '../../components/OnboardingTour';
-import { useTranslations } from 'next-intl';
+import { useSubscription } from '../../lib/subscription-context';
+import { useTranslations, useLocale } from 'next-intl';
 
 export default function ImportPage() {
   const { showToast } = useToast();
   const t = useTranslations('import');
   const tc = useTranslations('common');
+  const locale = useLocale();
+  const { hasSubscription } = useSubscription();
   const [file, setFile] = React.useState<File | null>(null);
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState('');
   const [success, setSuccess] = React.useState(false);
+  const [dragging, setDragging] = React.useState(false);
   const inputRef = React.useRef<HTMLInputElement>(null);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -33,6 +38,29 @@ export default function ImportPage() {
     setFile(selected);
     setError('');
     setSuccess(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragging(false);
+    const dropped = e.dataTransfer.files?.[0];
+    if (!dropped) return;
+    if (!dropped.name.toLowerCase().endsWith('.ofx')) {
+      setError(t('invalidFileType'));
+      return;
+    }
+    setFile(dropped);
+    setError('');
+    setSuccess(false);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragging(true);
+  };
+
+  const handleDragLeave = () => {
+    setDragging(false);
   };
 
   const handleSubmit = async () => {
@@ -92,15 +120,19 @@ export default function ImportPage() {
             <Box
               sx={{
                 border: '2px dashed',
-                borderColor: file ? 'primary.main' : 'divider',
+                borderColor: file || dragging ? 'primary.main' : 'divider',
                 borderRadius: 2,
                 p: 4,
                 textAlign: 'center',
-                cursor: 'pointer',
+                cursor: hasSubscription ? 'pointer' : 'default',
                 transition: 'border-color 0.2s',
-                '&:hover': { borderColor: 'primary.main' },
+                '&:hover': hasSubscription ? { borderColor: 'primary.main' } : undefined,
+                ...(!hasSubscription ? { opacity: 0.4, pointerEvents: 'none' } : {}),
               }}
-              onClick={() => inputRef.current?.click()}
+              onClick={() => hasSubscription && inputRef.current?.click()}
+              onDrop={handleDrop}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
             >
               <input
                 ref={inputRef}
@@ -108,6 +140,7 @@ export default function ImportPage() {
                 accept=".ofx"
                 onChange={handleFileChange}
                 hidden
+                disabled={!hasSubscription}
               />
               {file ? (
                 <Stack alignItems="center" spacing={1}>
@@ -137,13 +170,26 @@ export default function ImportPage() {
               </Alert>
             )}
 
+            {success && (
+              <Button
+                component={Link}
+                href={`/${locale}/transactions`}
+                variant="outlined"
+                size="large"
+                fullWidth
+              >
+                {t('goToTransactions')}
+              </Button>
+            )}
+
             <Button
               variant="contained"
               size="large"
               startIcon={loading ? <CircularProgress size={20} color="inherit" /> : <CloudUploadIcon />}
               onClick={handleSubmit}
-              disabled={loading || !file}
+              disabled={loading || !file || !hasSubscription}
               fullWidth
+              sx={!hasSubscription ? { opacity: 0.4, pointerEvents: 'none' } : undefined}
             >
               {loading ? t('uploading') : t('importBtn')}
             </Button>

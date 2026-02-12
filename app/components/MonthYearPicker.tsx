@@ -18,7 +18,10 @@ import {
 dayjs.locale('pt-br');
 
 function ButtonField(props: DatePickerFieldProps) {
-  const { forwardedProps } = useSplitFieldProps(props, 'date');
+  const { id, className, disabled } = props as DatePickerFieldProps & {
+    disabled?: boolean;
+    className?: string;
+  };
   const pickerContext = usePickerContext();
   const handleRef = useForkRef(pickerContext.triggerRef, pickerContext.rootRef);
   const parsedFormat = useParsedFormat();
@@ -29,7 +32,9 @@ function ButtonField(props: DatePickerFieldProps) {
 
   return (
     <Button
-      {...forwardedProps}
+      disabled={disabled}
+      id={id}
+      className={className}
       variant="outlined"
       ref={handleRef}
       size="small"
@@ -46,9 +51,10 @@ interface MonthYearPickerProps {
   month: number;
   year: number;
   onChange: (month: number, year: number) => void;
+  disabled?: boolean;
 }
 
-export default function MonthYearPicker({ month, year, onChange }: MonthYearPickerProps) {
+export default function MonthYearPicker({ month, year, onChange, disabled }: MonthYearPickerProps) {
   const value = React.useMemo(() => dayjs().year(year).month(month - 1), [month, year]);
 
   const handleChange = (newValue: Dayjs | null) => {
@@ -65,6 +71,7 @@ export default function MonthYearPicker({ month, year, onChange }: MonthYearPick
         value={value}
         label={label}
         onChange={handleChange}
+        disabled={disabled}
         slots={{ field: ButtonField }}
         slotProps={{
           nextIconButton: { size: 'small' },

@@ -29,6 +29,7 @@ import {
 } from '../../lib/categories';
 import { useToast } from '../../components/ToastProvider';
 import OnboardingTour from '../../components/OnboardingTour';
+import { useSubscription } from '../../lib/subscription-context';
 import { useTranslations } from 'next-intl';
 import { useDataGridLocale } from '@/app/lib/i18n/useDataGridLocale';
 
@@ -38,6 +39,7 @@ export default function CategoriesPage() {
   const t = useTranslations('categories');
   const tc = useTranslations('common');
   const localeText = useDataGridLocale();
+  const { hasSubscription } = useSubscription();
   const [categories, setCategories] = React.useState<Category[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
@@ -51,13 +53,16 @@ export default function CategoriesPage() {
     CASH_OUT: tc('types.cashOut'),
   };
 
-  const loadCategories = React.useCallback(async () => {
+  const loadCategories = React.useCallback(async (signal?: AbortSignal) => {
     setError(null);
     setLoading(true);
     try {
       const data = await getCategories();
+      if (signal?.aborted) return;
       setCategories(data);
     } catch (err: unknown) {
+      if (signal?.aborted) return;
+      if (err instanceof Error && err.name === 'CanceledError') return;
       if (err && typeof err === 'object' && 'response' in err) {
         const axiosError = err as { response?: { status?: number; data?: { message?: string } } };
         if (axiosError.response?.status === 401) {
@@ -69,12 +74,16 @@ export default function CategoriesPage() {
         setError(tc('errors.connectionErrorShort'));
       }
     } finally {
-      setLoading(false);
+      if (!signal?.aborted) {
+        setLoading(false);
+      }
     }
   }, [tc]);
 
   React.useEffect(() => {
-    loadCategories();
+    const controller = new AbortController();
+    loadCategories(controller.signal);
+    return () => controller.abort();
   }, [loadCategories]);
 
   const handleRefresh = React.useCallback(() => {
@@ -107,7 +116,7 @@ export default function CategoriesPage() {
     setDeleteLoading(true);
     try {
       await deleteCategory(deletingCategory.id);
-      await loadCategories();
+      setCategories(prev => prev.filter(c => c.id !== deletingCategory.id));
       setDeleteOpen(false);
       setDeletingCategory(null);
       showToast({ message: t('deleteSuccess') });
@@ -179,29 +188,33 @@ export default function CategoriesPage() {
         width: 140,
         valueGetter: (value: string) => value && new Date(value),
       },
-      {
-        field: 'actions',
-        type: 'actions',
-        headerName: t('actions'),
-        flex: 0.5,
-        align: 'right',
-        getActions: ({ row }) => [
-          <GridActionsCellItem
-            key="edit"
-            icon={<EditIcon />}
-            label={tc('actions.edit')}
-            onClick={handleRowEdit(row)}
-          />,
-          <GridActionsCellItem
-            key="delete"
-            icon={<DeleteIcon />}
-            label={tc('actions.delete')}
-            onClick={handleRowDelete(row)}
-          />,
-        ],
-      },
+      ...(hasSubscription
+        ? [
+            {
+              field: 'actions',
+              type: 'actions' as const,
+              headerName: t('actions'),
+              flex: 0.5,
+              align: 'right' as const,
+              getActions: ({ row }: { row: Category }) => [
+                <GridActionsCellItem
+                  key="edit"
+                  icon={<EditIcon />}
+                  label={tc('actions.edit')}
+                  onClick={handleRowEdit(row)}
+                />,
+                <GridActionsCellItem
+                  key="delete"
+                  icon={<DeleteIcon />}
+                  label={tc('actions.delete')}
+                  onClick={handleRowDelete(row)}
+                />,
+              ],
+            },
+          ]
+        : []),
     ],
-    [handleRowEdit, handleRowDelete, t, tc, typeLabels],
+    [handleRowEdit, handleRowDelete, t, tc, typeLabels, hasSubscription],
   );
 
   return (
@@ -226,7 +239,13 @@ export default function CategoriesPage() {
             <Stack direction="row" alignItems="center" spacing={1} sx={{ ml: 'auto' }}>
               <Tooltip title={tc('actions.refresh')} placement="right" enterDelay={1000}>
                 <div>
-                  <IconButton size="small" aria-label={tc('actions.refresh')} onClick={handleRefresh}>
+                  <IconButton
+                    size="small"
+                    aria-label={tc('actions.refresh')}
+                    onClick={handleRefresh}
+                    disabled={!hasSubscription}
+                    sx={!hasSubscription ? { opacity: 0.4 } : undefined}
+                  >
                     <RefreshIcon />
                   </IconButton>
                 </div>
@@ -236,6 +255,8 @@ export default function CategoriesPage() {
                 onClick={handleCreateClick}
                 startIcon={<AddIcon />}
                 data-tour="categories-create"
+                disabled={!hasSubscription}
+                sx={!hasSubscription ? { opacity: 0.4, pointerEvents: 'none' } : undefined}
               >
                 {tc('actions.create')}
               </Button>

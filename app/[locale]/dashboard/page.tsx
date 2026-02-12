@@ -23,6 +23,7 @@ import {
 } from '../../lib/dashboard';
 import MonthYearPicker from '../../components/MonthYearPicker';
 import OnboardingTour from '../../components/OnboardingTour';
+import { useSubscription } from '../../lib/subscription-context';
 import { useTranslations, useLocale } from 'next-intl';
 
 function getDaysInMonth(month: number, year: number) {
@@ -38,6 +39,7 @@ function getDaysInMonth(month: number, year: number) {
 export default function DashboardPage() {
   const t = useTranslations('dashboard');
   const locale = useLocale();
+  const { hasSubscription } = useSubscription();
 
   function formatCurrency(value: number): string {
     const loc = locale === 'pt-br' ? 'pt-BR' : 'en-US';
@@ -76,7 +78,15 @@ export default function DashboardPage() {
   const [loadingSixMonths, setLoadingSixMonths] = React.useState(true);
   const [error, setError] = React.useState('');
 
+  const [loadError, setLoadError] = React.useState(() => t('loadError'));
+
   React.useEffect(() => {
+    setLoadError(t('loadError'));
+  }, [t]);
+
+  React.useEffect(() => {
+    const controller = new AbortController();
+
     async function loadAll() {
       setError('');
       setLoadingMonth(true);
@@ -93,68 +103,86 @@ export default function DashboardPage() {
         getLastSixMonths(),
       ]);
 
+      if (controller.signal.aborted) return;
+
       if (results[0].status === 'fulfilled') {
         setMonthTransactions(results[0].value);
       } else {
-        setError(t('loadError'));
+        setError(loadError);
       }
       setLoadingMonth(false);
 
       if (results[1].status === 'fulfilled') {
         setPaymentMethods(results[1].value);
+      } else {
+        setError(loadError);
       }
       setLoadingPayments(false);
 
       if (results[2].status === 'fulfilled') {
         setCategoriesCashOut(results[2].value);
+      } else {
+        setError(loadError);
       }
       setLoadingCatOut(false);
 
       if (results[3].status === 'fulfilled') {
         setCategoriesCashIn(results[3].value);
+      } else {
+        setError(loadError);
       }
       setLoadingCatIn(false);
 
       if (results[4].status === 'fulfilled') {
         setLastSixMonths(results[4].value);
       } else {
-        console.error('Failed to load last six months:', results[4]);
+        setError(loadError);
       }
       setLoadingSixMonths(false);
     }
 
     loadAll();
-  }, [currentMonth, currentYear, t]);
+    return () => controller.abort();
+  }, [currentMonth, currentYear, loadError]);
 
   // Compute stat card data
-  const totalCashIn = monthTransactions
-    .filter((t) => t.type === 'CASH_IN')
-    .reduce((s, t) => s + t.amount, 0);
+  const { totalCashIn, totalCashOut, balance, daysLabels, dailyCashIn, dailyCashOut, dailyBalance } =
+    React.useMemo(() => {
+      const cashIn = monthTransactions
+        .filter((tx) => tx.type === 'CASH_IN')
+        .reduce((s, tx) => s + tx.amount, 0);
 
-  const totalCashOut = monthTransactions
-    .filter((t) => t.type === 'CASH_OUT')
-    .reduce((s, t) => s + t.amount, 0);
+      const cashOut = monthTransactions
+        .filter((tx) => tx.type === 'CASH_OUT')
+        .reduce((s, tx) => s + tx.amount, 0);
 
-  const balance = totalCashIn - totalCashOut;
+      const days = getDaysInMonth(currentMonth, currentYear);
+      const dCashIn = new Array(days.length).fill(0);
+      const dCashOut = new Array(days.length).fill(0);
 
-  const daysLabels = getDaysInMonth(currentMonth, currentYear);
-  const dailyCashIn = new Array(daysLabels.length).fill(0);
-  const dailyCashOut = new Array(daysLabels.length).fill(0);
+      monthTransactions.forEach((tx) => {
+        const day = new Date(tx.date).getDate() - 1;
+        if (day >= 0 && day < days.length) {
+          if (tx.type === 'CASH_IN') {
+            dCashIn[day] += tx.amount;
+          } else {
+            dCashOut[day] += tx.amount;
+          }
+        }
+      });
 
-  monthTransactions.forEach((t) => {
-    const day = new Date(t.date).getDate() - 1;
-    if (day >= 0 && day < daysLabels.length) {
-      if (t.type === 'CASH_IN') {
-        dailyCashIn[day] += t.amount;
-      } else {
-        dailyCashOut[day] += t.amount;
-      }
-    }
-  });
+      const dBalance = days.map((_, i) => dCashIn[i] - dCashOut[i]);
 
-  const dailyBalance = daysLabels.map(
-    (_, i) => dailyCashIn[i] - dailyCashOut[i],
-  );
+      return {
+        totalCashIn: cashIn,
+        totalCashOut: cashOut,
+        balance: cashIn + cashOut,
+        daysLabels: days,
+        dailyCashIn: dCashIn,
+        dailyCashOut: dCashOut,
+        dailyBalance: dBalance,
+      };
+    }, [monthTransactions, currentMonth, currentYear]);
 
   function computeTrend(data: number[]): { trend: 'up' | 'down' | 'neutral'; label: string } {
     const today = new Date().getDate();
@@ -207,6 +235,7 @@ export default function DashboardPage() {
             month={currentMonth}
             year={currentYear}
             onChange={handleMonthYearChange}
+            disabled={!hasSubscription}
           />
         </Box>
       </Box>

@@ -22,25 +22,33 @@ import {
 import RefreshIcon from '@mui/icons-material/Refresh';
 import EditIcon from '@mui/icons-material/Edit';
 import FileUploadIcon from '@mui/icons-material/FileUpload';
+import { useSearchParams } from 'next/navigation';
 import {
   getTransactionsByMonth,
   type Transaction,
 } from '../../lib/transactions';
 import OnboardingTour from '../../components/OnboardingTour';
+import { useSubscription } from '../../lib/subscription-context';
 import { useTranslations, useLocale } from 'next-intl';
 import { useDataGridLocale } from '@/app/lib/i18n/useDataGridLocale';
 
 
 export default function TransactionsPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const t = useTranslations('transactions');
   const tc = useTranslations('common');
   const locale = useLocale();
   const localeText = useDataGridLocale();
+  const { hasSubscription } = useSubscription();
   const now = new Date();
 
-  const [month, setMonth] = React.useState(now.getMonth() + 1);
-  const [year, setYear] = React.useState(now.getFullYear());
+  const [month, setMonth] = React.useState(
+    Number(searchParams.get('month')) || now.getMonth() + 1
+  );
+  const [year, setYear] = React.useState(
+    Number(searchParams.get('year')) || now.getFullYear()
+  );
   const [transactions, setTransactions] = React.useState<Transaction[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
@@ -53,13 +61,16 @@ export default function TransactionsPage() {
     CASH_BACK: tc('methods.CASH_BACK'),
   };
 
-  const loadTransactions = React.useCallback(async () => {
+  const loadTransactions = React.useCallback(async (signal?: AbortSignal) => {
     setError(null);
     setLoading(true);
     try {
       const data = await getTransactionsByMonth(month, year);
+      if (signal?.aborted) return;
       setTransactions(data);
     } catch (err: unknown) {
+      if (signal?.aborted) return;
+      if (err instanceof Error && err.name === 'CanceledError') return;
       if (err && typeof err === 'object' && 'response' in err) {
         const axiosError = err as { response?: { status?: number; data?: { message?: string } } };
         if (axiosError.response?.status === 401) {
@@ -71,12 +82,16 @@ export default function TransactionsPage() {
         setError(tc('errors.connectionErrorShort'));
       }
     } finally {
-      setLoading(false);
+      if (!signal?.aborted) {
+        setLoading(false);
+      }
     }
   }, [month, year, tc]);
 
   React.useEffect(() => {
-    loadTransactions();
+    const controller = new AbortController();
+    loadTransactions(controller.signal);
+    return () => controller.abort();
   }, [loadTransactions]);
 
   const handleRefresh = React.useCallback(() => {
@@ -155,23 +170,27 @@ export default function TransactionsPage() {
         width: 120,
         valueGetter: (value: string) => value && new Date(value),
       },
-      {
-        field: 'actions',
-        type: 'actions',
-        headerName: t('actions'),
-        width: 80,
-        align: 'right',
-        getActions: ({ row }) => [
-          <GridActionsCellItem
-            key="edit"
-            icon={<EditIcon />}
-            label={tc('actions.edit')}
-            onClick={handleRowEdit(row)}
-          />,
-        ],
-      },
+      ...(hasSubscription
+        ? [
+            {
+              field: 'actions',
+              type: 'actions' as const,
+              headerName: t('actions'),
+              width: 80,
+              align: 'right' as const,
+              getActions: ({ row }: { row: Transaction }) => [
+                <GridActionsCellItem
+                  key="edit"
+                  icon={<EditIcon />}
+                  label={tc('actions.edit')}
+                  onClick={handleRowEdit(row)}
+                />,
+              ],
+            },
+          ]
+        : []),
     ],
-    [handleRowEdit, t, tc, locale, methodLabels],
+    [handleRowEdit, t, tc, locale, methodLabels, hasSubscription],
   );
 
   const rows = React.useMemo(
@@ -212,11 +231,18 @@ export default function TransactionsPage() {
                     setMonth(m);
                     setYear(y);
                   }}
+                  disabled={!hasSubscription}
                 />
               </Box>
               <Tooltip title={tc('actions.refresh')} placement="right" enterDelay={1000}>
                 <div>
-                  <IconButton size="small" aria-label={tc('actions.refresh')} onClick={handleRefresh}>
+                  <IconButton
+                    size="small"
+                    aria-label={tc('actions.refresh')}
+                    onClick={handleRefresh}
+                    disabled={!hasSubscription}
+                    sx={!hasSubscription ? { opacity: 0.4 } : undefined}
+                  >
                     <RefreshIcon />
                   </IconButton>
                 </div>
@@ -226,6 +252,8 @@ export default function TransactionsPage() {
                 startIcon={<FileUploadIcon />}
                 onClick={() => router.push('/import')}
                 data-tour="transactions-import"
+                disabled={!hasSubscription}
+                sx={!hasSubscription ? { opacity: 0.4, pointerEvents: 'none' } : undefined}
               >
                 {tc('actions.import')}
               </Button>

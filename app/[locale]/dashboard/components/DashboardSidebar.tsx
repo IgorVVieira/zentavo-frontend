@@ -5,14 +5,22 @@ import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
+import IconButton from '@mui/material/IconButton';
 import List from '@mui/material/List';
 import Toolbar from '@mui/material/Toolbar';
 import CategoryIcon from '@mui/icons-material/Category';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import FileUploadIcon from '@mui/icons-material/FileUpload';
+import WarningAmberIcon from '@mui/icons-material/WarningAmber';
+import Button from '@mui/material/Button';
+import Stack from '@mui/material/Stack';
+import Typography from '@mui/material/Typography';
+import CircularProgress from '@mui/material/CircularProgress';
 import { usePathname } from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
+import { useSubscription } from '../../../lib/subscription-context';
+import { createPaymentLink } from '../../../lib/payments';
 import DashboardSidebarContext from '../context/DashboardSidebarContext';
 import { DRAWER_WIDTH, MINI_DRAWER_WIDTH } from '../constants';
 import DashboardSidebarPageItem from './DashboardSidebarPageItem';
@@ -38,6 +46,18 @@ export default function DashboardSidebar({
   const theme = useTheme();
   const pathname = usePathname();
   const t = useTranslations('common');
+  const { hasSubscription } = useSubscription();
+  const [renewLoading, setRenewLoading] = React.useState(false);
+
+  const handleRenewSubscription = React.useCallback(async () => {
+    setRenewLoading(true);
+    try {
+      const paymentLink = await createPaymentLink();
+      window.location.href = paymentLink.url;
+    } catch {
+      setRenewLoading(false);
+    }
+  }, []);
 
   const isOverSmViewport = useMediaQuery(theme.breakpoints.up('sm'));
   const isOverMdViewport = useMediaQuery(theme.breakpoints.up('md'));
@@ -153,11 +173,58 @@ export default function DashboardSidebar({
             />
           </List>
           <Box sx={{ flexGrow: 1 }} />
+          {!hasSubscription && !mini && (
+            <Stack
+              sx={{
+                mx: 1,
+                mb: 1,
+                p: 1.5,
+                borderRadius: 1,
+                bgcolor: 'warning.50',
+                border: '1px solid',
+                borderColor: 'warning.main',
+              }}
+              spacing={1}
+            >
+              <Stack direction="row" spacing={1} alignItems="center">
+                <WarningAmberIcon sx={{ color: 'warning.main', fontSize: 20 }} />
+                <Typography variant="caption" sx={{ fontWeight: 600, color: 'warning.dark' }}>
+                  {t('subscription.expired')}
+                </Typography>
+              </Stack>
+              <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                {t('subscription.expiredDescription')}
+              </Typography>
+              <Button
+                variant="contained"
+                color="warning"
+                size="small"
+                fullWidth
+                onClick={handleRenewSubscription}
+                disabled={renewLoading}
+                startIcon={renewLoading ? <CircularProgress size={14} color="inherit" /> : undefined}
+              >
+                {renewLoading ? t('subscription.redirecting') : t('subscription.renew')}
+              </Button>
+            </Stack>
+          )}
+          {!hasSubscription && mini && (
+            <Stack sx={{ alignItems: 'center', mb: 1 }}>
+              <IconButton
+                size="small"
+                onClick={handleRenewSubscription}
+                disabled={renewLoading}
+                sx={{ color: 'warning.main' }}
+              >
+                {renewLoading ? <CircularProgress size={20} /> : <WarningAmberIcon />}
+              </IconButton>
+            </Stack>
+          )}
           <SidebarProfile mini={mini} />
         </Box>
       </React.Fragment>
     ),
-    [mini, hasDrawerTransitions, isFullyExpanded, pathname, t],
+    [mini, hasDrawerTransitions, isFullyExpanded, pathname, t, hasSubscription, renewLoading, handleRenewSubscription],
   );
 
   const getDrawerSharedSx = React.useCallback(
