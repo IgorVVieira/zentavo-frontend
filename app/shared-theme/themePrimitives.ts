@@ -126,7 +126,7 @@ export const colorSchemes = {
       grey: {
         ...gray,
       },
-      divider: alpha(gray[300], 0.4),
+      divider: alpha(gray[300], 0.7),
       background: {
         default: 'hsl(0, 0%, 99%)',
         paper: 'hsl(220, 35%, 97%)',
@@ -176,7 +176,7 @@ export const colorSchemes = {
       grey: {
         ...gray,
       },
-      divider: alpha(gray[700], 0.6),
+      divider: alpha(gray[700], 0.8),
       background: {
         default: gray[900],
         paper: 'hsl(220, 30%, 7%)',

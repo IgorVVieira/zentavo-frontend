@@ -2,7 +2,7 @@
   "title": "Import statement",
   "info": "Import your bank statement in OFX format. After uploading, transactions will be processed in the background and will be available shortly on the transactions page.",
   "description": "Select a <bold>.ofx</bold> file exported from your bank to automatically import your transactions.",
-  "dropzone": "Click to select an OFX file",
+  "dropzone": "Drag or click to select an OFX file",
   "selectError": "Please select an OFX file.",
   "invalidFile": "Invalid file. Please check the format.",
   "importError": "Failed to import file.",
@@ -14,5 +14,7 @@
   "step1": "Export the OFX statement from your bank's website or app.",
   "step2": "Select the file here and click Import.",
   "step3": "The file will be uploaded and processed in the background.",
-  "step4": "In a few moments, your transactions will appear on the transactions page."
+  "step4": "In a few moments, your transactions will appear on the transactions page.",
+  "goToTransactions": "Go to Transactions",
+  "invalidFileType": "Invalid format. Please select a .ofx file"
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { driver, DriveStep } from 'driver.js';
 import 'driver.js/dist/driver.css';
 import { useTranslations } from 'next-intl';
@@ -176,9 +176,14 @@ function getTourSteps(page: TourPage, t: (key: string) => string): DriveStep[] {
 export default function OnboardingTour({ page, onComplete }: OnboardingTourProps) {
   const t = useTranslations('tour');
   const [shouldShowTour, setShouldShowTour] = useState(false);
+  const driverRef = useRef<ReturnType<typeof driver> | null>(null);
 
   const startTour = useCallback(() => {
     const steps = getTourSteps(page, t);
+
+    // Mark tour as completed early to prevent re-triggering on fast remounts
+    const completedTours = JSON.parse(localStorage.getItem(TOUR_STORAGE_KEY) || '{}');
+    localStorage.setItem(TOUR_STORAGE_KEY, JSON.stringify({ ...completedTours, [page]: true }));
 
     const driverObj = driver({
       showProgress: true,
@@ -199,8 +204,7 @@ export default function OnboardingTour({ page, onComplete }: OnboardingTourProps
         skipBtn.className = 'driver-popover-skip-btn';
         skipBtn.onclick = () => {
           const completedTours = JSON.parse(localStorage.getItem(TOUR_STORAGE_KEY) || '{}');
-          completedTours[page] = true;
-          localStorage.setItem(TOUR_STORAGE_KEY, JSON.stringify(completedTours));
+          localStorage.setItem(TOUR_STORAGE_KEY, JSON.stringify({ ...completedTours, [page]: true }));
           driverObj.destroy();
           onComplete?.();
         };
@@ -208,12 +212,12 @@ export default function OnboardingTour({ page, onComplete }: OnboardingTourProps
       },
       onDestroyed: () => {
         const completedTours = JSON.parse(localStorage.getItem(TOUR_STORAGE_KEY) || '{}');
-        completedTours[page] = true;
-        localStorage.setItem(TOUR_STORAGE_KEY, JSON.stringify(completedTours));
+        localStorage.setItem(TOUR_STORAGE_KEY, JSON.stringify({ ...completedTours, [page]: true }));
         onComplete?.();
       },
     });
 
+    driverRef.current = driverObj;
     driverObj.drive();
   }, [t, onComplete, page]);
 
@@ -233,6 +237,11 @@ export default function OnboardingTour({ page, onComplete }: OnboardingTourProps
       startTour();
       setShouldShowTour(false);
     }
+
+    return () => {
+      driverRef.current?.destroy();
+      driverRef.current = null;
+    };
   }, [shouldShowTour, startTour]);
 
   return null;
@@ -241,8 +250,8 @@ export default function OnboardingTour({ page, onComplete }: OnboardingTourProps
 export function resetTour(page?: TourPage) {
   if (page) {
     const completedTours = JSON.parse(localStorage.getItem(TOUR_STORAGE_KEY) || '{}');
-    delete completedTours[page];
-    localStorage.setItem(TOUR_STORAGE_KEY, JSON.stringify(completedTours));
+    const { [page]: _, ...rest } = completedTours;
+    localStorage.setItem(TOUR_STORAGE_KEY, JSON.stringify(rest));
   } else {
     localStorage.removeItem(TOUR_STORAGE_KEY);
   }
