@@ -19,6 +19,7 @@ dayjs.locale('pt-br');
 
 function ButtonField(props: DatePickerFieldProps) {
   const { forwardedProps } = useSplitFieldProps(props, 'date');
+  const { disabled, id, className } = forwardedProps;
   const pickerContext = usePickerContext();
   const handleRef = useForkRef(pickerContext.triggerRef, pickerContext.rootRef);
   const parsedFormat = useParsedFormat();
@@ -29,7 +30,9 @@ function ButtonField(props: DatePickerFieldProps) {
 
   return (
     <Button
-      {...forwardedProps}
+      disabled={disabled}
+      id={id}
+      className={className}
       variant="outlined"
       ref={handleRef}
       size="small"

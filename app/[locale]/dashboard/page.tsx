@@ -137,7 +137,7 @@ export default function DashboardPage() {
     .filter((t) => t.type === 'CASH_OUT')
     .reduce((s, t) => s + t.amount, 0);
 
-  const balance = totalCashIn - totalCashOut;
+  const balance = totalCashIn + totalCashOut;
 
   const daysLabels = getDaysInMonth(currentMonth, currentYear);
   const dailyCashIn = new Array(daysLabels.length).fill(0);

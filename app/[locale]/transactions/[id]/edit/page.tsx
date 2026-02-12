@@ -90,7 +90,7 @@ export default function EditTransactionPage() {
     <TransactionForm
       transaction={transaction}
       onSubmit={handleSubmit}
-      backPath="/transactions"
+      backPath={`/transactions?month=${month}&year=${year}`}
     />
   );
 }

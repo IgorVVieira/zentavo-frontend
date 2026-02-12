@@ -2,7 +2,7 @@
   "title": "Importar extrato",
   "info": "Importe seu extrato bancário no formato OFX. Após o envio, as transações serão processadas em segundo plano e estarão disponíveis em alguns instantes na página de transações.",
   "description": "Selecione um arquivo <bold>.ofx</bold> exportado do seu banco para importar suas transações automaticamente.",
-  "dropzone": "Clique para selecionar um arquivo OFX",
+  "dropzone": "Arraste ou clique para selecionar um arquivo OFX",
   "selectError": "Selecione um arquivo OFX.",
   "invalidFile": "Arquivo inválido. Verifique o formato.",
   "importError": "Erro ao importar arquivo.",
@@ -14,5 +14,7 @@
   "step1": "Exporte o extrato OFX do site ou app do seu banco.",
   "step2": "Selecione o arquivo aqui e clique em Importar.",
   "step3": "O arquivo será enviado e processado em segundo plano.",
-  "step4": "Em alguns instantes, suas transações aparecerão na página de transações."
+  "step4": "Em alguns instantes, suas transações aparecerão na página de transações.",
+  "goToTransactions": "Ir para Transações",
+  "invalidFileType": "Formato inválido. Selecione um arquivo .ofx"
 }

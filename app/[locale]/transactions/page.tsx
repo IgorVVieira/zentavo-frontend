@@ -22,6 +22,7 @@ import {
 import RefreshIcon from '@mui/icons-material/Refresh';
 import EditIcon from '@mui/icons-material/Edit';
 import FileUploadIcon from '@mui/icons-material/FileUpload';
+import { useSearchParams } from 'next/navigation';
 import {
   getTransactionsByMonth,
   type Transaction,
@@ -34,6 +35,7 @@ import { useDataGridLocale } from '@/app/lib/i18n/useDataGridLocale';
 
 export default function TransactionsPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const t = useTranslations('transactions');
   const tc = useTranslations('common');
   const locale = useLocale();
@@ -41,8 +43,12 @@ export default function TransactionsPage() {
   const { hasSubscription } = useSubscription();
   const now = new Date();
 
-  const [month, setMonth] = React.useState(now.getMonth() + 1);
-  const [year, setYear] = React.useState(now.getFullYear());
+  const [month, setMonth] = React.useState(
+    Number(searchParams.get('month')) || now.getMonth() + 1
+  );
+  const [year, setYear] = React.useState(
+    Number(searchParams.get('year')) || now.getFullYear()
+  );
   const [transactions, setTransactions] = React.useState<Transaction[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
