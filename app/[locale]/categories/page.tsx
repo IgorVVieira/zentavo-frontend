@@ -53,13 +53,16 @@ export default function CategoriesPage() {
     CASH_OUT: tc('types.cashOut'),
   };
 
-  const loadCategories = React.useCallback(async () => {
+  const loadCategories = React.useCallback(async (signal?: AbortSignal) => {
     setError(null);
     setLoading(true);
     try {
       const data = await getCategories();
+      if (signal?.aborted) return;
       setCategories(data);
     } catch (err: unknown) {
+      if (signal?.aborted) return;
+      if (err instanceof Error && err.name === 'CanceledError') return;
       if (err && typeof err === 'object' && 'response' in err) {
         const axiosError = err as { response?: { status?: number; data?: { message?: string } } };
         if (axiosError.response?.status === 401) {
@@ -71,12 +74,16 @@ export default function CategoriesPage() {
         setError(tc('errors.connectionErrorShort'));
       }
     } finally {
-      setLoading(false);
+      if (!signal?.aborted) {
+        setLoading(false);
+      }
     }
   }, [tc]);
 
   React.useEffect(() => {
-    loadCategories();
+    const controller = new AbortController();
+    loadCategories(controller.signal);
+    return () => controller.abort();
   }, [loadCategories]);
 
   const handleRefresh = React.useCallback(() => {

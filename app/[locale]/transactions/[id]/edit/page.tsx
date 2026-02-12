@@ -7,7 +7,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import Alert from '@mui/material/Alert';
 import TransactionForm from '../../components/TransactionForm';
 import {
-  getTransactionsByMonth,
+  getTransactionById,
   updateTransaction,
   type Transaction,
   type UpdateTransactionRequest,
@@ -38,23 +38,27 @@ export default function EditTransactionPage() {
   const [error, setError] = React.useState('');
 
   React.useEffect(() => {
+    const controller = new AbortController();
     async function load() {
       try {
-        const transactions = await getTransactionsByMonth(month, year);
-        const found = transactions.find((tx) => tx.id === id);
-        if (found) {
+        const found = await getTransactionById(id);
+        if (!controller.signal.aborted) {
           setTransaction(found);
-        } else {
-          setError(t('notFound'));
         }
-      } catch {
-        setError(t('loadError'));
+      } catch (err) {
+        if (!controller.signal.aborted) {
+          if (err instanceof Error && err.name === 'CanceledError') return;
+          setError(t('loadError'));
+        }
       } finally {
-        setLoading(false);
+        if (!controller.signal.aborted) {
+          setLoading(false);
+        }
       }
     }
     load();
-  }, [id, month, year, t]);
+    return () => controller.abort();
+  }, [id, t]);
 
   const handleSubmit = async (data: UpdateTransactionRequest) => {
     await updateTransaction(id, data);

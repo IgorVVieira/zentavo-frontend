@@ -64,11 +64,22 @@ export default function ProfilePage() {
   };
 
   React.useEffect(() => {
+    const controller = new AbortController();
     getMe()
-      .then((data) => setUser(data))
-      .catch(() => setError(t('loadError')))
-      .finally(() => setLoading(false));
-  }, [t]);
+      .then((data) => {
+        if (!controller.signal.aborted) setUser(data);
+      })
+      .catch((err) => {
+        if (controller.signal.aborted) return;
+        if (err instanceof Error && err.name === 'CanceledError') return;
+        setError(t('loadError'));
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setLoading(false);
+      });
+    return () => controller.abort();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (loading) {
     return (

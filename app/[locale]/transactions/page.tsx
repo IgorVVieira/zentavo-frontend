@@ -61,13 +61,16 @@ export default function TransactionsPage() {
     CASH_BACK: tc('methods.CASH_BACK'),
   };
 
-  const loadTransactions = React.useCallback(async () => {
+  const loadTransactions = React.useCallback(async (signal?: AbortSignal) => {
     setError(null);
     setLoading(true);
     try {
       const data = await getTransactionsByMonth(month, year);
+      if (signal?.aborted) return;
       setTransactions(data);
     } catch (err: unknown) {
+      if (signal?.aborted) return;
+      if (err instanceof Error && err.name === 'CanceledError') return;
       if (err && typeof err === 'object' && 'response' in err) {
         const axiosError = err as { response?: { status?: number; data?: { message?: string } } };
         if (axiosError.response?.status === 401) {
@@ -79,12 +82,16 @@ export default function TransactionsPage() {
         setError(tc('errors.connectionErrorShort'));
       }
     } finally {
-      setLoading(false);
+      if (!signal?.aborted) {
+        setLoading(false);
+      }
     }
   }, [month, year, tc]);
 
   React.useEffect(() => {
-    loadTransactions();
+    const controller = new AbortController();
+    loadTransactions(controller.signal);
+    return () => controller.abort();
   }, [loadTransactions]);
 
   const handleRefresh = React.useCallback(() => {

@@ -26,7 +26,7 @@ export async function getPaymentMethodsSummary(
   month: number,
   year: number,
 ): Promise<PaymentMethodSummary[]> {
-  const response = await api.post<PaymentMethodSummary[]>(
+  const response = await api.get<PaymentMethodSummary[]>(
     `/api/transactions/dashboard/payment-methods/${month}/${year}`,
   );
   return response.data;
@@ -37,7 +37,7 @@ export async function getCategoriesSummary(
   year: number,
   transactionType: 'CASH_IN' | 'CASH_OUT',
 ): Promise<CategorySummary[]> {
-  const response = await api.put<CategorySummary[]>(
+  const response = await api.get<CategorySummary[]>(
     `/api/transactions/dashboard/categories/${month}/${year}/${transactionType}`,
   );
   return response.data;

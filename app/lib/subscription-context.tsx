@@ -15,7 +15,13 @@ function decodeJwtPayload(token: string): Record<string, unknown> | null {
     const base64 = token.split('.')[1];
     if (!base64) return null;
     const json = atob(base64.replace(/-/g, '+').replace(/_/g, '/'));
-    return JSON.parse(json);
+    const payload = JSON.parse(json);
+    if (typeof payload.exp === 'number' && payload.exp * 1000 < Date.now()) {
+      localStorage.removeItem('zencash_token');
+      window.location.href = '/login';
+      return null;
+    }
+    return payload;
   } catch {
     return null;
   }

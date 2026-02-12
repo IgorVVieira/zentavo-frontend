@@ -25,7 +25,14 @@ api.interceptors.response.use(
 
     if (error.response?.status === 403) {
       try {
-        const { data } = await api.post<{ url: string }>('/api/payments/link');
+        const rawApi = axios.create({
+          baseURL: process.env.NEXT_PUBLIC_API_URL,
+          headers: { 'Content-Type': 'application/json' },
+        });
+        const token = localStorage.getItem('zencash_token');
+        const { data } = await rawApi.post<{ url: string }>('/api/payments/link', null, {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        });
         window.location.href = data.url;
       } catch {
         window.location.href = '/login';

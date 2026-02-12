@@ -7,7 +7,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import Alert from '@mui/material/Alert';
 import CategoryForm from '../../components/CategoryForm';
 import {
-  getCategories,
+  getCategoryById,
   updateCategory,
   type Category,
   type CreateCategoryRequest,
@@ -35,22 +35,26 @@ export default function EditCategoryPage() {
   const [error, setError] = React.useState('');
 
   React.useEffect(() => {
+    const controller = new AbortController();
     async function load() {
       try {
-        const categories = await getCategories();
-        const found = categories.find((c) => c.id === id);
-        if (found) {
+        const found = await getCategoryById(id);
+        if (!controller.signal.aborted) {
           setCategory(found);
-        } else {
-          setError(t('notFound'));
         }
-      } catch {
-        setError(t('loadError'));
+      } catch (err) {
+        if (!controller.signal.aborted) {
+          if (err instanceof Error && err.name === 'CanceledError') return;
+          setError(t('loadError'));
+        }
       } finally {
-        setLoading(false);
+        if (!controller.signal.aborted) {
+          setLoading(false);
+        }
       }
     }
     load();
+    return () => controller.abort();
   }, [id, t]);
 
   const handleSubmit = async (data: CreateCategoryRequest) => {
