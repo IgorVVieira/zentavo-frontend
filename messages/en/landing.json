@@ -48,20 +48,33 @@
   },
   "pricing": {
     "title": "Plans",
-    "subtitle": "Subscribe and get full access.",
+    "subtitle": "Choose the right plan for you.",
     "recommended": "Recommended",
+    "comingSoon": "Coming soon",
     "perMonth": "/mo",
     "pro": {
       "title": "Pro",
       "price": "15",
       "features": [
-        "Everything in Free, no time limit",
+        "Unlimited transactions",
         "Unlimited OFX statement imports",
+        "Unlimited categories",
         "Complete transaction history",
-        "Priority support",
-        "Early access to new features"
+        "Priority support"
       ],
       "cta": "Subscribe Pro"
+    },
+    "proAi": {
+      "title": "Pro + AI",
+      "price": "25.97",
+      "features": [
+        "Everything in Pro",
+        "AI assistant for financial flow",
+        "Smart spending analysis",
+        "Personalized saving suggestions",
+        "Future balance forecast"
+      ],
+      "cta": "Subscribe Pro + AI"
     }
   },
   "footer": {
