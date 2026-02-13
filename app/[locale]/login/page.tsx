@@ -111,10 +111,13 @@ export default function LoginPage() {
     } catch (error: unknown) {
       if (error && typeof error === 'object' && 'response' in error) {
         const axiosError = error as { response?: { status?: number; data?: { message?: string } } };
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Login error:', axiosError.response?.data?.message);
+        }
         if (axiosError.response?.status === 401) {
           setApiError(t('errors.wrongCredentials'));
         } else {
-          setApiError(axiosError.response?.data?.message || t('errors.loginError'));
+          setApiError(t('errors.loginError'));
         }
       } else {
         setApiError(t('errors.connectionError'));

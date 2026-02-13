@@ -35,9 +35,29 @@ export default function ImportPage() {
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selected = event.target.files?.[0] ?? null;
+    if (selected) {
+      const validationError = validateFile(selected);
+      if (validationError) {
+        setError(validationError);
+        setFile(null);
+        return;
+      }
+    }
     setFile(selected);
     setError('');
     setSuccess(false);
+  };
+
+  const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+
+  const validateFile = (f: File): string | null => {
+    if (!f.name.toLowerCase().endsWith('.ofx')) {
+      return t('invalidFileType');
+    }
+    if (f.size > MAX_FILE_SIZE) {
+      return t('fileTooLarge', { max: '5MB' });
+    }
+    return null;
   };
 
   const handleDrop = (e: React.DragEvent) => {
@@ -45,8 +65,9 @@ export default function ImportPage() {
     setDragging(false);
     const dropped = e.dataTransfer.files?.[0];
     if (!dropped) return;
-    if (!dropped.name.toLowerCase().endsWith('.ofx')) {
-      setError(t('invalidFileType'));
+    const validationError = validateFile(dropped);
+    if (validationError) {
+      setError(validationError);
       return;
     }
     setFile(dropped);
@@ -84,10 +105,13 @@ export default function ImportPage() {
     } catch (err: unknown) {
       if (err && typeof err === 'object' && 'response' in err) {
         const axiosError = err as { response?: { status?: number; data?: { message?: string } } };
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Import error:', axiosError.response?.data?.message);
+        }
         if (axiosError.response?.status === 400) {
-          setError(axiosError.response?.data?.message || t('invalidFile'));
+          setError(t('invalidFile'));
         } else {
-          setError(axiosError.response?.data?.message || t('importError'));
+          setError(t('importError'));
         }
       } else {
         setError(tc('errors.connectionErrorShort'));

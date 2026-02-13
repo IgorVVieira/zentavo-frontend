@@ -516,7 +516,8 @@ export default function LandingPage() {
               <CircularProgress />
             </Box>
           ) : (
-            <Stack direction={{ xs: 'column', md: 'row' }} spacing={3} sx={{ maxWidth: 400, mx: 'auto' }}>
+            <Stack direction={{ xs: 'column', md: 'row' }} spacing={3} sx={{ maxWidth: 700, mx: 'auto' }}>
+              {/* Pro Plan */}
               {products.map((product) => (
                 <Card
                   key={product.id}
@@ -562,6 +563,49 @@ export default function LandingPage() {
                   </Button>
                 </Card>
               ))}
+
+              {/* Pro + IA Plan (coming soon) */}
+              <Card
+                variant="outlined"
+                sx={{
+                  p: 4,
+                  flex: 1,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  position: 'relative',
+                  opacity: 0.6,
+                }}
+              >
+                <Chip
+                  label={t('pricing.comingSoon')}
+                  color="default"
+                  size="small"
+                  sx={{ position: 'absolute', top: 16, right: 16 }}
+                />
+                <Typography variant="h5" fontWeight={600} sx={{ mb: 1 }}>
+                  {t('pricing.proAi.title')}
+                </Typography>
+                <Box sx={{ display: 'flex', alignItems: 'baseline', mb: 3 }}>
+                  <Typography variant="h3" fontWeight={700}>
+                    R${t('pricing.proAi.price')}
+                  </Typography>
+                  <Typography variant="subtitle1" color="text.secondary" sx={{ ml: 0.5 }}>
+                    {t('pricing.perMonth')}
+                  </Typography>
+                </Box>
+                <Divider sx={{ mb: 3 }} />
+                <Stack spacing={1.5} sx={{ mb: 4, flex: 1 }}>
+                  {(t.raw('pricing.proAi.features') as string[]).map((f) => (
+                    <Stack key={f} direction="row" spacing={1} alignItems="center">
+                      <CheckCircleRoundedIcon sx={{ fontSize: 20, color: 'success.main' }} />
+                      <Typography variant="body2">{f}</Typography>
+                    </Stack>
+                  ))}
+                </Stack>
+                <Button variant="contained" size="large" fullWidth disabled>
+                  {t('pricing.comingSoon')}
+                </Button>
+              </Card>
             </Stack>
           )}
         </Container>

@@ -48,20 +48,33 @@
   },
   "pricing": {
     "title": "Planos",
-    "subtitle": "Assine e tenha acesso completo.",
+    "subtitle": "Escolha o plano ideal para você.",
     "recommended": "Recomendado",
+    "comingSoon": "Em breve",
     "perMonth": "/mês",
     "pro": {
       "title": "Pro",
       "price": "15",
       "features": [
-        "Tudo do plano Free, sem limite de tempo",
+        "Transações ilimitadas",
         "Importação ilimitada de extratos OFX",
+        "Categorias ilimitadas",
         "Histórico completo de transações",
-        "Suporte prioritário",
-        "Novas funcionalidades em primeira mão"
+        "Suporte prioritário"
       ],
       "cta": "Assinar Pro"
+    },
+    "proAi": {
+      "title": "Pro + IA",
+      "price": "25,97",
+      "features": [
+        "Tudo do plano Pro",
+        "Assistente IA para fluxo financeiro",
+        "Análise inteligente de gastos",
+        "Sugestões personalizadas de economia",
+        "Previsão de saldo futuro"
+      ],
+      "cta": "Assinar Pro + IA"
     }
   },
   "footer": {

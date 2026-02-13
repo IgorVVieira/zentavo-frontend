@@ -16,5 +16,6 @@
   "step3": "The file will be uploaded and processed in the background.",
   "step4": "In a few moments, your transactions will appear on the transactions page.",
   "goToTransactions": "Go to Transactions",
-  "invalidFileType": "Invalid format. Please select a .ofx file"
+  "invalidFileType": "Invalid format. Please select a .ofx file",
+  "fileTooLarge": "File too large. Maximum size: {max}"
 }

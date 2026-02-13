@@ -194,10 +194,13 @@ export default function RegisterPage() {
     } catch (error: unknown) {
       if (error && typeof error === 'object' && 'response' in error) {
         const axiosError = error as { response?: { status?: number; data?: { message?: string } } };
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Register error:', axiosError.response?.data?.message);
+        }
         if (axiosError.response?.status === 409) {
-          setApiError(t('errors.emailExists'));
+          setApiError(t('errors.createAccountError'));
         } else {
-          setApiError(axiosError.response?.data?.message || t('errors.createAccountError'));
+          setApiError(t('errors.createAccountError'));
         }
       } else {
         setApiError(t('errors.connectionError'));
