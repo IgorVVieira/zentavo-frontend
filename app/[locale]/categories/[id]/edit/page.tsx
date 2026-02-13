@@ -7,7 +7,6 @@ import CircularProgress from '@mui/material/CircularProgress';
 import Alert from '@mui/material/Alert';
 import CategoryForm from '../../components/CategoryForm';
 import {
-  getCategoryById,
   updateCategory,
   type Category,
   type CreateCategoryRequest,
@@ -15,6 +14,7 @@ import {
 import { useTranslations } from 'next-intl';
 import { useSubscription } from '../../../../lib/subscription-context';
 import { useRouter } from '@/i18n/navigation';
+import { useCategory } from '../../../../lib/category-context';
 
 export default function EditCategoryPage() {
   const params = useParams();
@@ -23,39 +23,27 @@ export default function EditCategoryPage() {
   const tc = useTranslations('common');
   const { hasSubscription } = useSubscription();
   const router = useRouter();
+  const { editingCategory } = useCategory();
+
+  const [category, setCategory] = React.useState<Category | null>(null);
+  const [loading, setLoading] = React.useState(true);
 
   React.useEffect(() => {
     if (!hasSubscription) {
       router.replace('/categories');
+      return;
     }
-  }, [hasSubscription, router]);
 
-  const [category, setCategory] = React.useState<Category | null>(null);
-  const [loading, setLoading] = React.useState(true);
-  const [error, setError] = React.useState('');
-
-  React.useEffect(() => {
-    const controller = new AbortController();
-    async function load() {
-      try {
-        const found = await getCategoryById(id);
-        if (!controller.signal.aborted) {
-          setCategory(found);
-        }
-      } catch (err) {
-        if (!controller.signal.aborted) {
-          if (err instanceof Error && err.name === 'CanceledError') return;
-          setError(t('loadError'));
-        }
-      } finally {
-        if (!controller.signal.aborted) {
-          setLoading(false);
-        }
-      }
+    if (editingCategory && editingCategory.id === id) {
+      setCategory(editingCategory);
+    } else {
+      // If there's no editing category in context, we can't edit.
+      // This can happen if the user navigates directly to the edit URL.
+      // Redirect to the list page as a safe fallback.
+      router.replace('/categories');
     }
-    load();
-    return () => controller.abort();
-  }, [id, t]);
+    setLoading(false);
+  }, [id, editingCategory, hasSubscription, router]);
 
   const handleSubmit = async (data: CreateCategoryRequest) => {
     await updateCategory(id, data);
@@ -79,10 +67,12 @@ export default function EditCategoryPage() {
     );
   }
 
-  if (error || !category) {
+  if (!category) {
+    // This will be briefly visible before the redirect happens.
+    // Or if the redirect for some reason fails.
     return (
       <Box sx={{ flexGrow: 1, m: 2 }}>
-        <Alert severity="error">{error || t('notFound')}</Alert>
+        <Alert severity="error">{t('notFound')}</Alert>
       </Box>
     );
   }

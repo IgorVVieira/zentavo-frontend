@@ -31,6 +31,7 @@ import OnboardingTour from '../../components/OnboardingTour';
 import { useSubscription } from '../../lib/subscription-context';
 import { useTranslations, useLocale } from 'next-intl';
 import { useDataGridLocale } from '@/app/lib/i18n/useDataGridLocale';
+import { useTransaction } from '../../lib/transaction-context';
 
 
 export default function TransactionsPage() {
@@ -41,6 +42,7 @@ export default function TransactionsPage() {
   const locale = useLocale();
   const localeText = useDataGridLocale();
   const { hasSubscription } = useSubscription();
+  const { transactions, setTransactions, setEditingTransaction } = useTransaction();
   const now = new Date();
 
   const [month, setMonth] = React.useState(
@@ -49,7 +51,6 @@ export default function TransactionsPage() {
   const [year, setYear] = React.useState(
     Number(searchParams.get('year')) || now.getFullYear()
   );
-  const [transactions, setTransactions] = React.useState<Transaction[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
 
@@ -86,7 +87,7 @@ export default function TransactionsPage() {
         setLoading(false);
       }
     }
-  }, [month, year, tc]);
+  }, [month, year, tc, setTransactions]);
 
   React.useEffect(() => {
     const controller = new AbortController();
@@ -102,9 +103,10 @@ export default function TransactionsPage() {
 
   const handleRowEdit = React.useCallback(
     (transaction: Transaction) => () => {
+      setEditingTransaction(transaction);
       router.push(`/transactions/${transaction.id}/edit?month=${month}&year=${year}`);
     },
-    [router, month, year],
+    [router, month, year, setEditingTransaction],
   );
 
 
