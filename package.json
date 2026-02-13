@@ -16,7 +16,7 @@
     "@mui/x-charts": "^8.26.0",
     "@mui/x-data-grid": "^8.26.0",
     "@mui/x-date-pickers": "^8.26.0",
-    "axios": "^1.13.4",
+    "axios": "^1.13.5",
     "dayjs": "^1.11.19",
     "driver.js": "^1.4.0",
     "next": "16.1.6",
