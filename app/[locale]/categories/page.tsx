@@ -118,7 +118,7 @@ export default function CategoriesPage() {
     setDeleteLoading(true);
     try {
       await deleteCategory(deletingCategory.id);
-      setCategories(prev => prev.filter(c => c.id !== deletingCategory.id));
+      setCategories(categories.filter((c: Category) => c.id !== deletingCategory.id));
       setDeleteOpen(false);
       setDeletingCategory(null);
       showToast({ message: t('deleteSuccess') });
