@@ -32,6 +32,7 @@ import OnboardingTour from '../../components/OnboardingTour';
 import { useSubscription } from '../../lib/subscription-context';
 import { useTranslations } from 'next-intl';
 import { useDataGridLocale } from '@/app/lib/i18n/useDataGridLocale';
+import { useCategory } from '../../lib/category-context';
 
 export default function CategoriesPage() {
   const router = useRouter();
@@ -40,7 +41,7 @@ export default function CategoriesPage() {
   const tc = useTranslations('common');
   const localeText = useDataGridLocale();
   const { hasSubscription } = useSubscription();
-  const [categories, setCategories] = React.useState<Category[]>([]);
+  const { categories, setCategories, setEditingCategory } = useCategory();
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
 
@@ -78,7 +79,7 @@ export default function CategoriesPage() {
         setLoading(false);
       }
     }
-  }, [tc]);
+  }, [tc, setCategories]);
 
   React.useEffect(() => {
     const controller = new AbortController();
@@ -98,9 +99,10 @@ export default function CategoriesPage() {
 
   const handleRowEdit = React.useCallback(
     (category: Category) => () => {
+      setEditingCategory(category);
       router.push(`/categories/${category.id}/edit`);
     },
-    [router],
+    [router, setEditingCategory],
   );
 
   const handleRowDelete = React.useCallback(
